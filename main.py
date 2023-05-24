@@ -73,7 +73,7 @@ def check_grid(you, gridsize):
             return()
 grid_size=[20, 20]
 a=input("""character key (this must be 1 letter) 
-> """)
+> """)[0]
 you=character(2, 2, a, 0)
 
 while True:

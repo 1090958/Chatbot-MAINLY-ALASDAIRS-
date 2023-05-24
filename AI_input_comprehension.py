@@ -61,15 +61,16 @@ def generate(inputs = '', held='', items=[''], enemies=[], Allies=[]):
     for line in string:
         try:
             #check if the line can be run as a function
-            #if so return it
-            
-            
-            (line)
+            # if it can, return the line
+            # if it can't, try the next line
+            exec(line)
             #print('success')
             break
         except:
             pass
+            #print('failed line')
     
         #print('failed line')
 #print('\n'.join(string))
-#print(generate(inputs = 'I will hit Timothy', held='Axe', items=['Sword', 'Axe', 'Dagger'], enemies=['Timothy','Gerald'], Allies=['Mary Poppins']))
+if __name__ == '__main__':
+    print(generate(inputs = 'I will hit Timothy', held='Axe', items=['Sword', 'Axe', 'Dagger'], enemies=['Timothy','Gerald'], Allies=['Mary Poppins']))

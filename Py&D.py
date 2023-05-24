@@ -3,7 +3,7 @@ import sys
 import Weapons
 import RandomAI as AI
 from Base import *
-
+import AI_input_comprehension
 
 
 maths = maths()
@@ -33,53 +33,79 @@ class Fighter(Player):
         self.held=self.Weapon[0]
         self.options={'Change'}
     def Turn(self):
-        
+        #get user input
+        userin=input('What do you want to do?')
+        #check if the user wants to change weapon
+        if 'change' in userin.lower():
+            weapons=[str(i.Name).lower() for i in self.Weapon]
+            for weapon in weapons:
+                if weapon in userin.lower():
+                    self.Change(weapon)
+                    break
+        if 'hit' in userin.lower():
+            for enemy in self.enemies:
+                if enemy.Name.lower() in userin.lower():
+                    self.Enemy=enemy
+                    break
+            self.Hit(enemy)
+        if 'heal' in userin.lower():
+            for ally in self.allies:
+                if ally.Name.lower() in userin.lower():
+                    self.Ally=ally
+                    break
+            self.Heal(ally)
         print()
-    def Change(self):
-        joined='\n'.join([str(i.Name).title() for i in self.Weapon])
-        print(f'You have the following weapons that you can change into;\n{joined}')
+    def Change(self,Weapon):
+        #joined='\n'.join([str(i.Name).title() for i in self.Weapon])
+        #print(f'You have the following weapons that you can change into;\n{joined}')
         #todo, implement my autoinput program into weapon changing
-        weapon = input('What weapon do you chose?')
-        a=[str(i.Name).title() for i in self.Weapon]
+        #weapon = input('What weapon do you chose?')
+        #swap the current weapon for the new one
+        self.held=Weapon
+        '''a=[str(i.Name).title() for i in self.Weapon]
         while True:
             if weapon in a:
                 for i in range(len(a)):
-                    if a[i]= str(self.Weapon.Name) str
+                    if a[i]= str(self.Weapon.Name) str'''
+    
         
-    def Attack(self):
-        self.Enemy.Damage(random.randint(0, self.held.Damage)+self.held.Modifier,random.randint(0,21)+self.held.Proficiency,self)
+    def Hit(self,enemy):
+        enemy.Damage(random.randint(0, self.held.Damage)+self.held.Modifier,random.randint(0,21)+self.held.Proficiency,self)
+    def Heal(self):
+        pass
+
     
     
             
     
-def Fightloop(P1, P2):
-    P1speed=round(sum([i.Base_Speed for i in P1.Weapon])/len(P1.Weapon))
-    P1.Enemy=P2
-    P2speed=round(sum([i.Base_Speed for i in P2.Weapon])/len(P2.Weapon))
-    P2.Enemy=P1
-    
-    clock_max= maths.LCM(P1speed,P2speed)
+def Fightloop(party1, party2):
+    for ally in party1:
+        ally.enemies=party2
+    for enemy in party2:
+        enemy.enemies=party1
     clock_cur= 0
-    clock_cur
     while True:
         
         clock_cur += 1
-        print(clock_cur)
-        if clock_cur % P1speed==0:
-            debug('P1 turn')
-            P1.Turn()
-            
-        if clock_cur % P2speed==0:
-            debug('P2 turn')
-            P2.Turn()
+        totalhealth=0
+        for character in party1:
+            if clock_cur % character.held.Base_Speed==0:
+                character.Turn()
+            totalhealth+=character.Health
+        if totalhealth==0:
+            return('loss')
+        totalhealth=0
+        for character in party2:
+            if clock_cur % character.held.Base_Speed==0:
+                character.Turn()
+            totalhealth+=character.Health
+        if totalhealth==0: 
+            return('win')
         
-        if clock_cur == clock_max:
-            clock_cur = 0
         
         
 Player = Fighter()
-Player.Change()
 Enemy = AI.Goblin('Gobbley')
 
 
-Fightloop(Player,Enemy)
+print(Fightloop([Player],[Enemy]))

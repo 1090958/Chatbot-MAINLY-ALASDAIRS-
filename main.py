@@ -2,6 +2,8 @@ import random
 import time
 import keyboard
 import os
+#yay
+print('yes')
 def build_grid(x, y, char):
     m={}
 

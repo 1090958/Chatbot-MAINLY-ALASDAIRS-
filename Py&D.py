@@ -51,9 +51,10 @@ class Fighter(Player):
         if 'heal' in userin.lower():
             for ally in self.allies:
                 if ally.Name.lower() in userin.lower():
-                    self.Ally=ally
+                    ally=ally
+                    Heal(ally)
                     break
-            self.Heal(ally)
+                    
         print()
     def Change(self,Weapon):
         #joined='\n'.join([str(i.Name).title() for i in self.Weapon])
@@ -108,7 +109,7 @@ def Fightloop(party1, party2):
         
         
 Player = Fighter()
-Enemy = AI.Goblin('Gobbley')
+Enemy1 = AI.Goblin('Gobbley')
+Enemy2 = AI.Goblin('Boblin')
 
-
-print(Fightloop([Player],[Enemy]))
+print(Fightloop([Player],[Enemy1,Enemy2]))

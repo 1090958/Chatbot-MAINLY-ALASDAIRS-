@@ -63,6 +63,7 @@ def generate(inputs = '', held='', items=[''], enemies=[], Allies=[]):
             #check if the line can be run as a function
             #if so return it
             
+            
             (line)
             #print('success')
             break

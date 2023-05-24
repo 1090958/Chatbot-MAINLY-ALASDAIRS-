@@ -28,7 +28,7 @@ class Fighter(Player):
         Player.Weaponize(self,Weapons.longsword())
         self.AC=15
         
-        self.Maxhealth=10
+        self.Maxhealth=100
         self.Health=self.Maxhealth
         self.held=self.Weapon[0]
         self.options={'Change'}
@@ -70,7 +70,10 @@ class Fighter(Player):
     
         
     def Hit(self,enemy):
-        enemy.Damage(random.randint(0, self.held.Damage)+self.held.Modifier,random.randint(0,21)+self.held.Proficiency,self)
+        print('hitting')
+        amount=random.randint(0, self.held.Damage)+self.held.Modifier
+        dc=random.randint(1,20)+self.held.Proficiency
+        enemy.Damage(amount,dc,self)
     def Heal(self):
         pass
 

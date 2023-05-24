@@ -2,8 +2,15 @@ import random
 import time
 import keyboard
 import os
-#yay
-print('yes')
+
+class biome:
+    def __init__(self, name, key):
+        self.key=key
+        self.nane=name
+
+
+
+
 def build_grid(x, y, char):
     m={}
 

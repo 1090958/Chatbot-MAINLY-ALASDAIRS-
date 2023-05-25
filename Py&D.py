@@ -24,7 +24,7 @@ You won although not without some losses, it is best you rest and patch up your 
 '''
 class Fighter(Player):
     def __init__(self):
-        super().__init__('Brunor Battlehammer', 'Fighter', 1)
+        super().__init__('you', 'Fighter', 1)
         Player.Weaponize(self,Weapons.longsword())
         self.AC=15
         
@@ -36,7 +36,7 @@ class Fighter(Player):
         #get user input
         userin=input('What do you want to do? ')
         #check if the user wants to change weapon
-        elif 'change' in userin.lower():
+        if 'change' in userin.lower():
             weapons=[str(i.Name).lower() for i in self.Weapon]
             for weapon in weapons:
                 if weapon in userin.lower():
@@ -83,10 +83,13 @@ class Fighter(Player):
             
     
 def Fightloop(party1, party2):
+    print('Niresh trys to mess with you, FIGHT')
     for ally in party1:
         ally.enemies=party2
+        ally.allies=party1
     for enemy in party2:
         enemy.enemies=party1
+        enemy.allies=party2
     clock_cur= 0
     while True:
         
@@ -109,7 +112,6 @@ def Fightloop(party1, party2):
         
         
 Player = Fighter()
-Enemy1 = AI.Goblin('Gobbley')
-Enemy2 = AI.Goblin('Boblin')
+Enemy1 = AI.Niresh('Niresh')
 
 print(Fightloop([Player],[Enemy1]))

@@ -55,6 +55,28 @@ class Goblin(AI):
         random.shuffle(self.enemies)# type: ignore
         self.held=self.Weapon[1]
         self.enemies[0].Damage(random.randint(0, self.held.Damage)+self.held.Modifier,random.randint(0,21)+self.held.Proficiency,self)# type: ignore
+
+class Niresh(AI):
+    def __init__(self,name):
+        super().__init__(name, 'Male', 1)
+        self.moves={
+            self.Banana:1,
+            }
+        self.AC=10
+        self.Maxhealth=30
+        self.Health=self.Maxhealth
+        self.shield=False
+        Player.Weaponize(self,Weapons.banana())
+        self.held=self.Weapon[0]
+        
+    def Banana(self):
+        weapon=self.Weapon[0]
+        self.held=self.Weapon[0]
+        random.shuffle(self.enemies)# type: ignore
+        self.enemies[0].Damage(random.randint(0, self.held.Damage)+self.held.Modifier,random.randint(0,21)+self.held.Proficiency,self)# type: ignore
+
+
+
 #debugging
 '''gobley=Goblin('Gobley')
 boblin=Goblin('Boblin')

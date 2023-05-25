@@ -6,6 +6,8 @@ class Player:
         self.Enemy = None
         self.AC=0
         self.Weapon=[]
+        self.x=0
+        self.y=0
         debug(f'Created {self.Name}, a Level {self.Level} {self.Class}')
     def Weaponize(self, weapon,):
         self.Weapon.append(weapon)
@@ -14,7 +16,7 @@ class Player:
             self.Health=0
             print(f'{self.Name} the {self.Class} is dead, ')
         elif DC > self.AC-1:
-            damage=round(amount-amount/20*self.held.Block)
+            damage=round(amount-amount/20*self.held.Block) # type: ignore
             self.Health-=damage
             print(f'{enemy.Name} the {enemy.Class} attacks {self.Name} with their {enemy.held.Name}, they deal, {damage} damage')
         else:

@@ -2,7 +2,7 @@ import random
 import sys
 import Weapons
 from Base import *
-
+import time
 
 
 
@@ -13,21 +13,21 @@ class AI(Player):
         
     def Turn(self):
         
-        for move, cooldown in self.moves.items():
+        for move, cooldown in self.moves.items():# type: ignore
             if cooldown != 0:
-                self.moves[move]=cooldown-1
+                self.moves[move]=cooldown-1# type: ignore
         possible=False
-        for _ in self.moves:
-            if self.moves[_]==0:
+        for _ in self.moves:# type: ignore
+            if self.moves[_]==0:# type: ignore
                 possible=True
-                break
-        if possible == True:
-            while True:
-                move, cooldown = random.choice(list(self.moves.items()))
+            if possible == True:
+                while True:
+                    move, cooldown = random.choice(list(self.moves.items()))# type: ignore
         
-                if cooldown == 0:
-                    move()
-                    break
+                    if cooldown == 0:
+                        move()
+                        time.sleep(1)
+                        return
         
 class Goblin(AI):
     def __init__(self,name):
@@ -47,14 +47,14 @@ class Goblin(AI):
     def Scimitar(self):
         weapon=self.Weapon[0]
         self.held=self.Weapon[0]
-        random.shuffle(self.enemies)
-        self.enemies[0].Damage(random.randint(0, self.held.Damage)+self.held.Modifier,random.randint(0,21)+self.held.Proficiency,self)
+        random.shuffle(self.enemies)# type: ignore
+        self.enemies[0].Damage(random.randint(0, self.held.Damage)+self.held.Modifier,random.randint(0,21)+self.held.Proficiency,self)# type: ignore
         
     def Shortbow(self):
         weapon=self.Weapon[1]
-        random.shuffle(self.enemies)
+        random.shuffle(self.enemies)# type: ignore
         self.held=self.Weapon[1]
-        self.enemies[0].Damage(random.randint(0, self.held.Damage)+self.held.Modifier,random.randint(0,21)+self.held.Proficiency,self)
+        self.enemies[0].Damage(random.randint(0, self.held.Damage)+self.held.Modifier,random.randint(0,21)+self.held.Proficiency,self)# type: ignore
 #debugging
 '''gobley=Goblin('Gobley')
 boblin=Goblin('Boblin')

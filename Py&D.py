@@ -3,7 +3,7 @@ import sys
 import Weapons
 import RandomAI as AI
 from Base import *
-import AI_input_comprehension
+#import AI_input_comprehension
 
 
 maths = maths()
@@ -34,21 +34,21 @@ class Fighter(Player):
         self.options={'Change'}
     def Turn(self):
         #get user input
-        userin=input('What do you want to do?')
+        userin=input('What do you want to do? ')
         #check if the user wants to change weapon
-        if 'change' in userin.lower():
+        elif 'change' in userin.lower():
             weapons=[str(i.Name).lower() for i in self.Weapon]
             for weapon in weapons:
                 if weapon in userin.lower():
                     self.Change(weapon)
                     break
-        if 'hit' in userin.lower():
+        elif 'hit' in userin.lower():
             for enemy in self.enemies:
                 if enemy.Name.lower() in userin.lower():
                     self.Enemy=enemy
                     break
             self.Hit(enemy)
-        if 'heal' in userin.lower():
+        elif 'heal' in userin.lower():
             for ally in self.allies:
                 if ally.Name.lower() in userin.lower():
                     ally=ally
@@ -112,4 +112,4 @@ Player = Fighter()
 Enemy1 = AI.Goblin('Gobbley')
 Enemy2 = AI.Goblin('Boblin')
 
-print(Fightloop([Player],[Enemy1,Enemy2]))
+print(Fightloop([Player],[Enemy1]))

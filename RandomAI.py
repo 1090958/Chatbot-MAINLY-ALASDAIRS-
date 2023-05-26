@@ -8,8 +8,8 @@ import time
 
         
 class AI(Player):
-    def __init__(self,Name,Class,Level):
-        super().__init__(Name, Class, Level)
+    def __init__(self,Name,Class,Level,x,y):
+        super().__init__(Name, Class, Level,x,y)
         
     def Turn(self):
         
@@ -28,10 +28,23 @@ class AI(Player):
                         move()
                         time.sleep(1)
                         return
-        
+    def Move(self,grid):
+        x=random.randint(1,4)
+        if x==1 and len(grid)-1 > self.y:
+            self.y+=1
+            return
+        if x==2 and 0 != self.y:
+            self.y-=1
+            return
+        if x==3 and len(grid[0])-1 > self.x:
+            self.x+=1
+            return
+        if x==4 and 0 != self.x:
+            self.x-=1
+            return
 class Goblin(AI):
-    def __init__(self,name):
-        super().__init__(name, 'Goblin', 1)
+    def __init__(self,name,x,y):
+        super().__init__(name, 'Goblin', 1,x,y)
         self.moves={
             self.Scimitar:1,
             self.Shortbow:1
@@ -40,6 +53,7 @@ class Goblin(AI):
         self.Maxhealth=7
         self.Health=self.Maxhealth
         self.shield=False
+        self.key='G'
         Player.Weaponize(self,Weapons.scimitar())
         Player.Weaponize(self,Weapons.shortbow())
         self.held=self.Weapon[0]
@@ -57,8 +71,9 @@ class Goblin(AI):
         self.enemies[0].Damage(random.randint(0, self.held.Damage)+self.held.Modifier,random.randint(0,21)+self.held.Proficiency,self)# type: ignore
 
 class Niresh(AI):
-    def __init__(self,name):
-        super().__init__(name, 'Male', 1)
+    def __init__(self,name,x,y):
+        super().__init__(name, 'Male', 1,x,y)
+        self.key='N'
         self.moves={
             self.Banana:1,
             }

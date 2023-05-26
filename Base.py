@@ -1,13 +1,13 @@
 class Player:
-    def __init__(self, Name, Class, Level):
+    def __init__(self, Name, Class, Level,x,y):
         self.Name = Name
         self.Class = Class
         self.Level = Level
         self.Enemy = None
         self.AC=0
         self.Weapon=[]
-        self.x=0
-        self.y=0
+        self.x=x
+        self.y=y
         debug(f'Created {self.Name}, a Level {self.Level} {self.Class}')
     def Weaponize(self, weapon,):
         self.Weapon.append(weapon)

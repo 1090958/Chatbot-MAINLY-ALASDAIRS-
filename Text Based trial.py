@@ -1,67 +1,115 @@
 import os
 from Base import *
 import keyboard
+import time
+import random
+import RandomAI as AI
+from colorama import Fore, Back, Style
+from colorama import init as colorama_init
+from Combat import *
+colorama_init(autoreset=True)
 class biome():
-    def __init__(self, key, name):
+    def __init__(self, key, name, fore=Fore.RESET, back=Back.RESET, style=Style.NORMAL):
         self.key = key
         self.name = name
+        self.fore,self.back,self.style=fore,back,style
+
+    def pkey(self):
+        print(self.fore + self.back +self.style + self.key +' ', end='')
 class field(biome):
     def __init__(self):
-        super().__init__('F','Field')
+        super().__init__('F','Field',fore=Fore.WHITE,back=Back.GREEN)
 
-class rake(biome):
+class desert(biome):
     def __init__(self):
-        super().__init__('R','Rake')
-grid ={
-    0:[field(),field(),field(),field(),field()],
-    1:[field(),field(),field(),field(),field()],
-    2:[field(),field(),field(),field(),field()],
-    3:[field(),field(),field(),field(),field()],
-    4:[field(),field(),field(),field(),rake()]
-}
-x=0
-y=0
-p1=Player('P1','Person',1)
-p2=Player('P2','Person',1)
-p2.x,p2.y=2,3
-def printgrid(grid,players):
-    for ys in range(len(grid)):
-        line=grid[ys]
+        super().__init__('D','Desert',fore=Fore.RED,back=Back.YELLOW,style=Style.DIM)
+biomes=[field(),desert()]
+biomeweights=[1,3]
+
+
+def generate_grid(size):
+    grid ={}
+    for i in range(size):
+        list=[]
+        for _ in range(size):
+            list.extend(random.choices(biomes, weights=biomeweights))
+        #print(list)
+        grid[i]=list
+    return grid
+
+def printgrid(grid,entities,allies,gridtype='mapgrid'):
+    fight=False
+    p1=None
+    p2=[]
+    for ycoord in range(len(grid)):
+        line=grid[ycoord]
         
-        for xs in range(len(line)):
-            biome=line[xs]
-            p=False
-            for ps in players:
-                x=ps.x
-                y=ps.y
-                if xs==x and ys==len(line)-y-1:
-                    p=True
-                    #print(ps.Name)
-            if p==True:
-                print('#', end=' ')
+        for xcoord in range(len(line)):
+            biome=line[xcoord]
+            player=False
+            for ent in entities:
+                x=ent.x
+                y=ent.y
+                if xcoord==x and ycoord==len(line)-y-1:
+                    for person in allies:
+                        
+                        if player != False:
+                            if player==person and ent not in allies:
+                                fight=True
+                                p1=allies
+                                if gridtype == 'mapgrid':
+                                    p2.append(ent)
+                            if person == ent and player not in allies:
+                                fight=True
+                                p1=allies
+                                if gridtype == 'mapgrid':
+                                    p2.append(player)
+                    player=ent
+            if player != False:
+                print(biome.back +Style.BRIGHT + player.key + ' ', end='')
+                #print(player.key, end='')
                 
             else:
-                print(biome.key, end=' ')
+                biome.pkey()
         print()
-def map(player):
+    return(fight,p1,p2)
+       
+def map(player,grid,ai):
+    timing=0
     while True:
+        timing+=1
         os.system('CLS')
-        printgrid(grid, [p1,p2])
+        entities=ai.copy()
+        entities.append(player)
+        fight=(printgrid(grid, entities,[player]))
+        if fight[0]:
+            result=Fightloop(fight[1],fight[2])
+            if result== 'win':
+                for enemy in fight[2]:
+                    ai.remove(enemy)
+            
+        time.sleep(0.05)
+        if timing % 2 ==0:
+            
+            for enemy in ai:
+                enemy.Move(grid)
         while True:
-            if keyboard.is_pressed("w"):
-                p1.y+=1
+            #print(len(grid),player.y)
+            if keyboard.is_pressed("w") and len(grid)-1 > player.y:
+                player.y+=1
                 break
-            if keyboard.is_pressed("s"):
-                p1.y-=1
+            if keyboard.is_pressed("s") and 0 != player.y:
+                player.y-=1
                 break
-            if keyboard.is_pressed("d"):
-                p1.x+=1
+            if keyboard.is_pressed("d") and len(grid[0])-1 > player.x:
+                player.x+=1
                 break
-            if keyboard.is_pressed("a"):
-                p1.x-=1
+            if keyboard.is_pressed("a") and 0 != player.x:
+                player.x-=1
                 break
-map(p1)
-        
-    
+
+player=Fighter()
+map(player,generate_grid(10),[AI.Niresh('Niresh',2,5)])
+#print(generate_grid(2))
     
     

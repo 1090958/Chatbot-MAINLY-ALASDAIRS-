@@ -24,10 +24,10 @@ You won although not without some losses, it is best you rest and patch up your 
 '''
 class Fighter(Player):
     def __init__(self):
-        super().__init__('you', 'Fighter', 1)
+        super().__init__('you', 'Fighter', 1,0,0)
         Player.Weaponize(self,Weapons.longsword())
         self.AC=15
-        
+        self.key='S'
         self.Maxhealth=100
         self.Health=self.Maxhealth
         self.held=self.Weapon[0]
@@ -73,7 +73,7 @@ class Fighter(Player):
     def Hit(self,enemy):
         print('hitting')
         amount=random.randint(0, self.held.Damage)+self.held.Modifier
-        dc=random.randint(1,20)+self.held.Proficiency
+        dc=random.randint(1,20)+self.held.Proficiency*2
         enemy.Damage(amount,dc,self)
     def Heal(self):
         pass
@@ -111,7 +111,7 @@ def Fightloop(party1, party2):
         
         
         
-Player = Fighter()
-Enemy1 = AI.Niresh('Niresh')
-
-print(Fightloop([Player],[Enemy1]))
+#Player = Fighter()
+#Enemy1 = AI.Niresh('Niresh')
+#
+#print(Fightloop([Enemy1],[Enemy1]))

@@ -30,7 +30,10 @@ class longsword(weapon):
         super().__init__(rarity, Range, Damage, Weight_Pounds, Block, 'slashing', Modifier, Proficiency, 'longsword')
         
         debug(f'{self.Range},{self.Damage},{self.Base_Speed},{self.Block}, {self.Type}')
-
+class banana(weapon):
+    def __init__(self, rarity=1):
+        Range, Damage, Weight_Pounds, Block, Modifier, Proficiency=5,10,10,2,0,5#sets proportions to values
+        super().__init__(rarity, Range, Damage, Weight_Pounds, Block, 'slashing', Modifier, Proficiency, 'banana')
 class scimitar(weapon):
     def __init__(self, rarity=1):
         Range, Damage, Weight_Pounds, Block, Modifier, Proficiency=5,6,3,5,2,4#sets proportions to values

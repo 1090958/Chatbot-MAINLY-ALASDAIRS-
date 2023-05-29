@@ -3,7 +3,7 @@ import sys
 import Weapons
 import RandomAI as AI
 from Base import *
-import AI_input_comprehension
+#import AI_input_comprehension
 
 
 maths = maths()
@@ -24,17 +24,17 @@ You won although not without some losses, it is best you rest and patch up your 
 '''
 class Fighter(Player):
     def __init__(self):
-        super().__init__('Brunor Battlehammer', 'Fighter', 1)
+        super().__init__('Elliot Yong', 'Fighter', 1,0,0)
         Player.Weaponize(self,Weapons.longsword())
         self.AC=15
-        
+        self.key='S'
         self.Maxhealth=100
         self.Health=self.Maxhealth
         self.held=self.Weapon[0]
         self.options={'Change'}
     def Turn(self):
         #get user input
-        userin=input('What do you want to do?')
+        userin=input('What do you want to do? ')
         #check if the user wants to change weapon
         if 'change' in userin.lower():
             weapons=[str(i.Name).lower() for i in self.Weapon]
@@ -42,18 +42,19 @@ class Fighter(Player):
                 if weapon in userin.lower():
                     self.Change(weapon)
                     break
-        if 'hit' in userin.lower():
+        elif 'hit' in userin.lower():
             for enemy in self.enemies:
                 if enemy.Name.lower() in userin.lower():
                     self.Enemy=enemy
                     break
             self.Hit(enemy)
-        if 'heal' in userin.lower():
+        elif 'heal' in userin.lower():
             for ally in self.allies:
                 if ally.Name.lower() in userin.lower():
-                    self.Ally=ally
+                    ally=ally
+                    Heal(ally)
                     break
-            self.Heal(ally)
+                    
         print()
     def Change(self,Weapon):
         #joined='\n'.join([str(i.Name).title() for i in self.Weapon])
@@ -72,7 +73,7 @@ class Fighter(Player):
     def Hit(self,enemy):
         print('hitting')
         amount=random.randint(0, self.held.Damage)+self.held.Modifier
-        dc=random.randint(1,20)+self.held.Proficiency
+        dc=random.randint(1,20)+self.held.Proficiency*2
         enemy.Damage(amount,dc,self)
     def Heal(self):
         pass
@@ -82,10 +83,13 @@ class Fighter(Player):
             
     
 def Fightloop(party1, party2):
+    print('Niresh trys to mess with you, FIGHT')
     for ally in party1:
         ally.enemies=party2
+        ally.allies=party1
     for enemy in party2:
         enemy.enemies=party1
+        enemy.allies=party2
     clock_cur= 0
     while True:
         
@@ -107,8 +111,7 @@ def Fightloop(party1, party2):
         
         
         
-Player = Fighter()
-Enemy = AI.Goblin('Gobbley')
-
-
-print(Fightloop([Player],[Enemy]))
+#Player = Fighter()
+#Enemy1 = AI.Niresh('Niresh')
+#
+#print(Fightloop([Enemy1],[Enemy1]))

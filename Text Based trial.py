@@ -24,7 +24,7 @@ class desert(biome):
     def __init__(self):
         super().__init__('D','Desert',fore=Fore.RED,back=Back.YELLOW,style=Style.DIM)
 biomes=[field(),desert()]
-biomeweights=[1,3]
+biomeweights=[5,2]
 
 
 def generate_grid(size):
@@ -81,8 +81,12 @@ def map(player,grid,ai):
         os.system('CLS')
         entities=ai.copy()
         entities.append(player)
-        fight=(printgrid(grid, entities,[player]))
+        fight=(printgrid(grid, entities,[player,AI.Niresh('Kieran Tan',0,1)]))
         if fight[0]:
+            
+            #for i in range(150):
+                #print('s')
+                #keyboard.unblock_key(i)
             result=Fightloop(fight[1],fight[2])
             if result== 'win':
                 for enemy in fight[2]:
@@ -93,7 +97,11 @@ def map(player,grid,ai):
             
             for enemy in ai:
                 enemy.Move(grid)
+            
+        #for i in range(150):
+            #keyboard.block_key(i)
         while True:
+                
             #print(len(grid),player.y)
             if keyboard.is_pressed("w") and len(grid)-1 > player.y:
                 player.y+=1
@@ -109,7 +117,7 @@ def map(player,grid,ai):
                 break
 
 player=Fighter()
-map(player,generate_grid(10),[AI.Niresh('Niresh',2,5)])
+map(player,generate_grid(40),[AI.Niresh('Niresh',random.randint(0,20),random.randint(0,20)),AI.Niresh('Niresh',random.randint(0,20),random.randint(0,20)),AI.Niresh('Niresh',random.randint(0,20),random.randint(0,20)),AI.Niresh('Niresh',random.randint(0,20),random.randint(0,20))])
 #print(generate_grid(2))
     
     

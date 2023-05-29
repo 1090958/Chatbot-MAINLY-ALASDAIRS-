@@ -24,7 +24,7 @@ You won although not without some losses, it is best you rest and patch up your 
 '''
 class Fighter(Player):
     def __init__(self):
-        super().__init__('you', 'Fighter', 1,0,0)
+        super().__init__('Elliot Yong', 'Fighter', 1,0,0)
         Player.Weaponize(self,Weapons.longsword())
         self.AC=15
         self.key='S'

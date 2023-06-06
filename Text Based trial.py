@@ -8,6 +8,7 @@ from colorama import Fore, Back, Style
 from colorama import init as colorama_init
 from Combat import *
 colorama_init(autoreset=True)
+import sys
 class biome():
     def __init__(self, key, name, fore=Fore.RESET, back=Back.RESET, style=Style.NORMAL):
         self.key = key
@@ -15,16 +16,20 @@ class biome():
         self.fore,self.back,self.style=fore,back,style
 
     def pkey(self):
-        print(self.fore + self.back +self.style + self.key +' ', end='')
+        #print(self.fore + self.back +self.style + self.key +' ', end='')
+        sys.stdout.write(self.fore + self.back +self.style + self.key +' ')
+
 class field(biome):
     def __init__(self):
-        super().__init__('F','Field',fore=Fore.WHITE,back=Back.GREEN)
+        super().__init__(' ','Field',fore=Fore.WHITE,back=Back.GREEN)
 
-class desert(biome):
+class forest(biome):
     def __init__(self):
-        super().__init__('D','Desert',fore=Fore.RED,back=Back.YELLOW,style=Style.DIM)
-biomes=[field(),desert()]
-biomeweights=[5,2]
+        super().__init__('F','Forest',fore=Fore.BLACK,back=Back.GREEN)
+
+
+biomes=[field(),forest()]
+biomeweights=[5,4]
 
 
 def generate_grid(size):
@@ -66,7 +71,9 @@ def printgrid(grid,entities,allies,gridtype='mapgrid'):
                                     p2.append(player)
                     player=ent
             if player != False:
-                print(biome.back +Style.BRIGHT + player.key + ' ', end='')
+                #print(Back.BLUE +Style.BRIGHT + player.key + ' ', end='')
+                sys.stdout.write(Back.BLUE +Style.BRIGHT + player.key + ' ')
+                
                 #print(player.key, end='')
                 
             else:
@@ -93,7 +100,7 @@ def map(player,grid,ai):
                     ai.remove(enemy)
             
         time.sleep(0.05)
-        if timing % 2 ==0:
+        if timing % 1 ==0:
             
             for enemy in ai:
                 enemy.Move(grid)
@@ -117,7 +124,7 @@ def map(player,grid,ai):
                 break
 
 player=Fighter()
-map(player,generate_grid(40),[AI.Niresh('Niresh',random.randint(0,20),random.randint(0,20)),AI.Niresh('Niresh',random.randint(0,20),random.randint(0,20)),AI.Niresh('Niresh',random.randint(0,20),random.randint(0,20)),AI.Niresh('Niresh',random.randint(0,20),random.randint(0,20))])
+map(player,generate_grid(20),[AI.Niresh('Niresh',random.randint(0,20),random.randint(0,20)),AI.Niresh('Niresh',random.randint(0,20),random.randint(0,20)),AI.Niresh('Niresh',random.randint(0,20),random.randint(0,20)),AI.Niresh('Niresh',random.randint(0,20),random.randint(0,20))])
 #print(generate_grid(2))
     
     

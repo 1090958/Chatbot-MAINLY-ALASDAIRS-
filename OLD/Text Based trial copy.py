@@ -4,6 +4,7 @@ import keyboard
 import time
 import random
 import RandomAI as AI
+import WFC
 from colorama import Fore, Back, Style
 from colorama import init as colorama_init
 from Combat import *
@@ -26,11 +27,58 @@ class field(biome):
 class forest(biome):
     def __init__(self):
         super().__init__('F','Forest',fore=Fore.BLACK,back=Back.GREEN)
+class denseforest(biome):
+    def __init__(self):
+        super().__init__('E','Dense Forest',fore=Fore.BLACK,back=Back.GREEN)
+class mountainbase(biome):
+    def __init__(self):
+        super().__init__('_','Mountain Base',fore=Fore.BLACK,back=Back.WHITE)
+class mountain(biome):
+    def __init__(self):
+        super().__init__('|','Mountain',fore=Fore.BLACK,back=Back.WHITE)
+class coast(biome):
+    def __init__(self):
+        super().__init__(' ','Coast',fore=Fore.YELLOW,back=Back.YELLOW)
+class oceanwave(biome):
+    def __init__(self):
+        super().__init__('C','Ocean Waves',fore=Fore.CYAN,back=Back.BLUE)
+class ocean(biome):
+    def __init__(self):
+        super().__init__(' ','Ocean',fore=Fore.CYAN,back=Back.BLUE)
 
 
-biomes=[field(),forest()]
-biomeweights=[5,4]
+biomes=[field(),forest(),denseforest(),mountainbase(),mountain(),coast(),oceanwave(), ocean()]
+biomeweights=[10,5,2,3,4,8,20,20]
+#might cause errors
+keys = {
+    'F' : field(),
+    'T' : forest(),
+    'R' : denseforest(),
+    'm' :  mountainbase(),
+    'M' : mountain(),
+    'C' : coast(),
+    'O' : ocean(),
+    'W' : oceanwave()
+}
+#print(biomes)
+def convertToGrid(path):
+    grid={}
+    with open(path) as f:
+        l=f.read().count("\n")+1
+    with open(path) as f:
+        line=f.readline()
+        print(line)
+        while line:
+            list=[]
+            for character in line:
+                for key, item in keys.items():
+                    if character == key:
+                        list.append(item)
+                grid[l]=list.copy()
+                l-=1
 
+            line=f.readline()
+    return grid
 
 def generate_grid(size):
     grid ={}
@@ -42,6 +90,11 @@ def generate_grid(size):
         grid[i]=list
     return grid
 
+
+def generate_grid(size):
+    grid =convertToGrid('Level0.txt')
+    return grid
+print(generate_grid(20))
 def printgrid(grid,entities,allies,gridtype='mapgrid'):
     fight=False
     p1=None
@@ -88,7 +141,7 @@ def map(player,grid,ai):
         os.system('CLS')
         entities=ai.copy()
         entities.append(player)
-        fight=(printgrid(grid, entities,[player,AI.Niresh('Kieran Tan',0,1)]))
+        fight=(printgrid(grid, entities,[player]))
         if fight[0]:
             
             #for i in range(150):
@@ -119,12 +172,15 @@ def map(player,grid,ai):
             if keyboard.is_pressed("d") and len(grid[0])-1 > player.x:
                 player.x+=1
                 break
-            if keyboard.is_pressed("a") and 0 != player.x:
+            if keyboard.is_pressed("a") and 0 != player.x: 
                 player.x-=1
                 break
 
 player=Fighter()
-map(player,generate_grid(20),[AI.Niresh('Niresh',random.randint(0,20),random.randint(0,20)),AI.Niresh('Niresh',random.randint(0,20),random.randint(0,20)),AI.Niresh('Niresh',random.randint(0,20),random.randint(0,20)),AI.Niresh('Niresh',random.randint(0,20),random.randint(0,20))])
+AIs=[]
+for i in range(45):
+    AIs.append(AI.Person('Niresh',random.randint(0,2),random.randint(0,2)))
+map(player,generate_grid(20),AIs)
 #print(generate_grid(2))
     
     

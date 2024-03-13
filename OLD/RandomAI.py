@@ -1,6 +1,6 @@
 import random
 import sys
-import Weapons
+import weapons
 from Base import *
 import time
 
@@ -8,8 +8,10 @@ import time
 
         
 class AI(Player):
-    def __init__(self,Name,Class,Level,x,y):
+    def __init__(self,Name,Class,Level,x,y,timeToMove=2):
         super().__init__(Name, Class, Level,x,y)
+        self.time=0
+        self.timeToMove=timeToMove
         
     def Turn(self):
         
@@ -30,17 +32,22 @@ class AI(Player):
                         return
     def Move(self,grid):
         x=random.randint(1,4)
-        if x==1 and len(grid)-1 > self.y:
-            self.y+=1
-            return
-        if x==2 and 0 != self.y:
-            self.y-=1
-            return
-        if x==3 and len(grid[0])-1 > self.x:
-            self.x+=1
-            return
-        if x==4 and 0 != self.x:
-            self.x-=1
+        if self.time == self.timeToMove:
+            self.time=0
+            if x==1 and len(grid)-1 > self.y:
+                self.y+=1
+                return
+            if x==2 and 0 != self.y:
+                self.y-=1
+                return
+            if x==3 and len(grid[0])-1 > self.x:
+                self.x+=1
+                return
+            if x==4 and 0 != self.x:
+                self.x-=1
+                return
+        else:
+            self.time+=1
             return
 class Goblin(AI):
     def __init__(self,name,x,y):
@@ -54,8 +61,8 @@ class Goblin(AI):
         self.Health=self.Maxhealth
         self.shield=False
         self.key='G'
-        Player.Weaponize(self,Weapons.scimitar())
-        Player.Weaponize(self,Weapons.shortbow())
+        Player.Weaponize(self,weapons.scimitar())
+        Player.Weaponize(self,weapons.shortbow())
         self.held=self.Weapon[0]
         
     def Scimitar(self):
@@ -70,21 +77,21 @@ class Goblin(AI):
         self.held=self.Weapon[1]
         self.enemies[0].Damage(random.randint(0, self.held.Damage)+self.held.Modifier,random.randint(0,21)+self.held.Proficiency,self)# type: ignore
 
-class Niresh(AI):
+class Person(AI):
     def __init__(self,name,x,y):
-        super().__init__(name, 'Male', 1,x,y)
-        self.key='N'
+        super().__init__(name, 'Person', 1,x,y)
+        self.key=name[0]
         self.moves={
-            self.Banana:1,
+            self.longsword:1,
             }
         self.AC=10
-        self.Maxhealth=30
+        self.Maxhealth=10
         self.Health=self.Maxhealth
         self.shield=False
-        Player.Weaponize(self,Weapons.banana())
+        Player.Weaponize(self,weapons.longsword())
         self.held=self.Weapon[0]
         
-    def Banana(self):
+    def longsword(self):
         weapon=self.Weapon[0]
         self.held=self.Weapon[0]
         random.shuffle(self.enemies)# type: ignore

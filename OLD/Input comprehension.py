@@ -45,7 +45,7 @@ enemies=[enemy1,enemy2]
 return_move(x,allies=allies,enemies=enemies)'''
 import random
 from Base import *
-import Weapons
+import weapons
 
 def hit():
     print('get hit')
@@ -62,7 +62,7 @@ parameters = {
     hit: ['enemy', 'weapon']
 }
 
-held = Weapons.longsword()
+held = weapons.longsword()
 
 def return_move(inputs, user,allies=[], enemies=[]):
     inputs = inputs.lower().split()
@@ -100,7 +100,7 @@ class random_guy(Player):
     def __init__(self,name):
         self.Name=name#+str(random.randint(0,99))
         self.Weapon=[]
-        Player.Weaponize(self,Weapons.longsword())
+        Player.Weaponize(self,weapons.longsword())
         
         
         

@@ -3,7 +3,7 @@ from urllib3.exceptions import InsecureRequestWarning
 from requests.exceptions import HTTPError
 
 # Single line of code that i found to supress warnings
-requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
+requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)# type: ignore
 
 
 # using some ethical hacking knowledge(ctrl + shift + I), I managed to get a curl command that 
@@ -55,7 +55,6 @@ def querie(input):
           }
         ],
         "role":"""
-    
-    return(response.text[response.text.find('text')+8:response.text.find(end)])
+    return(response.text[response.text.find('text')+8:response.text.find(end)]) # type: ignore
 if __name__ == "__main__":
     print(querie(input()))

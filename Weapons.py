@@ -1,7 +1,7 @@
 import random
 import error, dice, attack_Types
 class weapon:
-    def __init__(self, name:str, range:tuple|int, damage_Dice:dice.dice|dice.generic_Dice, weight:float|int, attack_Types:tuple|attack_Types.Attack|attack_Types.Slashing|attack_Types.Bludgeoning, weapon_Class:str, falloff = lambda x:1):
+    def __init__(self, name:str, range:tuple|int, damage_Dice:dice.dice|dice.generic_Dice, damage_Modifier:int, weight:float|int, attack_Types:tuple|attack_Types.Attack|attack_Types.Slashing|attack_Types.Bludgeoning, weapon_Class:str, falloff = lambda x:1):
         
         # range:
         # either with an int where there is not a minimum range(good for swords)
@@ -17,7 +17,7 @@ class weapon:
             raise error.invalid_Attribute_Type(range,(tuple,int))
             
         
-        # damageDice:
+        # damage_Dice:
         # a dice class containing the dice to roll for damage
         # either a dice.dice class or a dice.genericDice class
         
@@ -25,6 +25,15 @@ class weapon:
             self.damage_Dice = damage_Dice
         else:
             raise error.invalid_Attribute_Type(damage_Dice,(dice.dice,dice.generic_Dice))
+        
+        
+        # damage_Modifier
+        # a value that is added to the roll of the damage_Dice
+        if type(damage_Modifier) == int :
+            self.damage_Modifier = damage_Modifier
+        else:
+            raise error.invalid_Attribute_Type(weight,(int))
+        
         
         # weight:
         # a float or an int
@@ -43,11 +52,17 @@ class weapon:
         # determines the vulnerability of an enemy when attacking
         self.attack_Types = attack_Types
         
+        # proficiency:
+        # an int that is added to the DC
+        self.proficiency = 3
         
         
         
         
         
-salmon = weapon('salmon', 10, dice.generic_Dice(2,6), 1.0, attack_Types.Attack(),"fish")
+        
+        
+        
+salmon = weapon('salmon', 10, dice.generic_Dice(2,6), 10, 1.0, attack_Types.Attack(),"fish")
     
     

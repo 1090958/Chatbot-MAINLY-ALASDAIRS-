@@ -1,9 +1,10 @@
 import random
 
 class d2:
-    def __init__(self,x,y):
+    def __init__(self,x:int,y:int):
         self.x=x
         self.y=y
+        self.xy=(x,y)
     def __str__(self)->str:
         return f'{self.x}, {self.y}'
 
@@ -22,8 +23,7 @@ class dungeon:
             i={i:m(i) for i in self.connectrooms}
 
             return i
-                
-                
+            
         def __str__(self) -> str:
             return f'room({self.coords.x, self.coords.y})'
         
@@ -52,28 +52,41 @@ class dungeon:
         
     class new_dungeon:    
         def __init__(self, size:tuple,
-                     rds=100) -> None:
+                     rds=0) -> None:
 
             self.size=d2(size[0], size[1])
-            self.rooms=[ [dungeon.room((x, y)) for y in range(self.size.x)] for x in range(self.size.y)]
+            self.rooms=[ dungeon.room((x, y)) for x in range(self.size.x) for y in range(self.size.y)]
             self.doors=[]
-            for k in self.rooms:
-                for i in k:
-                    for l in self.rooms:
-                        for j in l:
-                            if (i.coords.x==j.coords.x and i.coords.y+1==j.coords.y) or (i.coords.y==j.coords.y and i.coords.x+1==j.coords.x):  self.doors.append(dungeon.door(i,j))
+            
+            for i in self.rooms:
+                if random.random() < rds:
+                    self.rooms.pop(self.rooms.index(i))
 
+
+
+            for i in self.rooms:
+                    for j in self.rooms:
+                            if (i.coords.x==j.coords.x and i.coords.y==j.coords.y+1) or (i.coords.y==j.coords.y and i.coords.x==j.coords.x+1):  
+                                self.doors.append(dungeon.door(i,j))
+            
             for i in self.doors:
                 if random.random() < rds:
                     i.delete()
                     self.doors.pop(self.doors.index(i))
-                    
+            for i in self.rooms:
+                if len(i.doors)==0:
+                    self.rooms.pop(self.rooms.index(i))
+
+
+                        
 
 if __name__=='__main__':
-    a=dungeon.new_dungeon((30, 30), 0.25)
+    a=dungeon.new_dungeon((3,3))
+    print('dpajsgklandgk;')
+    [print(str(i)) for i in a.doors]
 
 
-    rm=a.rooms[7][3]
+    rm=a.rooms[1]
     while True:
         print('you enter a dimlit room')
         print(f'your coordinates are ({rm.coords})')

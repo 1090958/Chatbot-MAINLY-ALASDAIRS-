@@ -1,5 +1,4 @@
 import random
-import jackson_dose_graphing as jg
 
 class d2:
     def __init__(self,x:int,y:int):
@@ -30,6 +29,9 @@ class dungeon:
             
         def __str__(self) -> str:
             return f'room({self.coords.x, self.coords.y})'
+        class roomtypes:
+            class a:
+                pass
         
     class door:
         def __init__(self, r1, r2, 

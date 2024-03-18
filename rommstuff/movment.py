@@ -1,4 +1,5 @@
 import random
+import jackson_dose_graphing as jg
 
 class d2:
     def __init__(self,x:int,y:int):
@@ -13,7 +14,9 @@ class dungeon:
     class room:
         def __init__(self, location:tuple) -> None:
             self.doors=[]
+            self.sp=[]
             self.connectrooms=[]
+            self.secretconnectrooms=[]
             self.coords=d2(location[0], location[1])
         def moveops(self)->dict:
             '''returns all movment options from self.to other rooms.'''
@@ -21,6 +24,7 @@ class dungeon:
             m=lambda x: t(x)[0] if  x.coords.y>self.coords.y or x.coords.x>self.coords.x else t(x)[1]
 
             i={i:m(i) for i in self.connectrooms}
+            [i.update({j:'secret'}) for j in self.secretconnectrooms]
 
             return i
             
@@ -28,17 +32,28 @@ class dungeon:
             return f'room({self.coords.x, self.coords.y})'
         
     class door:
-        def __init__(self, r1, r2) -> None:
+        def __init__(self, r1, r2, 
+                     tpe:str='door') -> None:
             self.r1,self.r2=r1,r2
             if type(self.r1)!= dungeon.room:
                 raise TypeError(f'{str(self.r1)} is {type(self.r1)}, {str(self.r1)} must be a room')
             if type(self.r2)!=dungeon.room:
                 raise TypeError(f'{str(self.r2)} is {type(self.r2)}, {str(self.r2)} must be a room')
-            self.r1.connectrooms.append(self.r2)
-            self.r2.connectrooms.append(self.r1)
+
             self.r1.doors.append(self)
+                
             self.r2.doors.append(self)
-        
+            self.type=tpe
+            if tpe=='door':
+                self.r1.connectrooms.append(self.r2)
+                self.r2.connectrooms.append(self.r1)
+
+            else:
+                self.r1.secretconnectrooms.append(self.r2)
+                self.r2.secretconnectrooms.append(self.r1)
+                
+
+            
 
         def delete(self) -> None:
             self.r1.connectrooms.remove(self.r2)
@@ -48,11 +63,11 @@ class dungeon:
             
 
         def __str__(self) -> str:
-            return f'door({self.r1}, {self.r2})'
-        
+            return f'(door({self.r1}, {self.r2}))' if self.type=='door' else f'(door({self.r1}, {self.r2}) but secret)'
+
     class new_dungeon:    
         def __init__(self, size:tuple,
-                     rds=0) -> None:
+                     rds=0.0) -> None:
 
             self.size=d2(size[0], size[1])
             self.rooms=[ dungeon.room((x, y)) for x in range(self.size.x) for y in range(self.size.y)]
@@ -78,12 +93,16 @@ class dungeon:
                     self.rooms.pop(self.rooms.index(i))
 
 
-                        
+            for i in range(10):
+                    self.doors.append(dungeon.door(self.rooms[random.randint(0,len(self.rooms)-1)],self.rooms[random.randint(0,len(self.rooms)-1)], 'secret'))
 
+
+                        
 if __name__=='__main__':
-    a=dungeon.new_dungeon((3,3))
+    a=dungeon.new_dungeon((10,10, 0.25))
     print('dpajsgklandgk;')
     [print(str(i)) for i in a.doors]
+
 
 
     rm=a.rooms[1]
@@ -92,7 +111,7 @@ if __name__=='__main__':
         print(f'your coordinates are ({rm.coords})')
 
         print('you see ')
-        [print(f'a door heading {i[1]} to ({str(i[0].coords)})') for i in rm.moveops().items()]
+        [print(f'a door heading {i[1]} to ({str(i[0].coords)})') if i[1]!='secret' else print('omg there is a secret passage 0:') for i in rm.moveops().items()]
 
 
         a=input('move?')
@@ -103,8 +122,11 @@ if __name__=='__main__':
             if a==i[1]:
                 rm=i[0]
                 unexpectedinput=False
+        
         if unexpectedinput: 
             print('that is not an option')
+        else:
+            print(f'u walk in a {a} like way')
 
 
 

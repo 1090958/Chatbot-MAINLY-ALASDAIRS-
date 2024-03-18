@@ -1,17 +1,12 @@
-# Copyright (c) Microsoft Corporation. All rights reserved.
-# Licensed under the MIT License.
-
 from botbuilder.core import ActivityHandler, TurnContext
 from botbuilder.schema import ChannelAccount
-import Gemini_Test
+from output import output
 
-def uppercase(text):
-    return text.upper()
 class MyBot(ActivityHandler):
     # See https://aka.ms/about-bot-activity-message to learn more about the message and other activity types.
 
     async def on_message_activity(self, turn_context: TurnContext):
-        await turn_context.send_activity(f"You said '{ Gemini_Test.query(turn_context.activity.text) }'")
+        await turn_context.send_activity(output(turn_context.activity.text))
 
     async def on_members_added_activity(
         self,

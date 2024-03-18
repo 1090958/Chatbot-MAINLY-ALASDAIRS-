@@ -39,8 +39,8 @@ def query(input):
             ],
             'temperature': 1.0,
             'maxOutputTokens': 100,
-            'topP': 0.6,
-            'topK': 2,
+            'topP': 1,
+            'topK': 1,
         },
     }
     response = None
@@ -72,7 +72,7 @@ def query(input):
         "role":"""
     return(response.text[response.text.find('text')+8:response.text.find(end)]) # type: ignore
 
-intents = ['attack', 'heal', 'intimidate', 'charm', 'none']
+intents = ['attack', 'heal', 'intimidate', 'charm', 'emotionaldamage', 'none']
 def get_Intent(message):
     for i in range(10):
         response = query(f'return the top 3 possibilities of the user\'s intents from this message, \'{message}\', it may be from one of the following intents:\n -  {'\n -  '.join(intents)}\n Only reply using the top 3 of the intents, in order of descending weight using lowercase letters, with no punctuation or other words, only a space separating each one and the weights of each one')

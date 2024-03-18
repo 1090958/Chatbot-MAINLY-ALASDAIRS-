@@ -6,6 +6,7 @@ from botbuilder.schema import ChannelAccount
 import Gemini_Test
 
 
+
 def uppercase(text):
     return text.upper()
 class MyBot(ActivityHandler):

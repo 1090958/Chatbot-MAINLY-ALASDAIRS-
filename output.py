@@ -1,2 +1,2 @@
-def output():
+def output(message):
     return "Fuck you"

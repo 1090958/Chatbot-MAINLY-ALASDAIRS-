@@ -41,18 +41,22 @@ class dungeon:
 
  
 if __name__=='__main__':
+
+
+    
     
     d=dungeon.newdungeon((5,5), 0.25)
     r=d.rooms[0]
-    print('you wake up in a room')
-    while True:
-        print(r.get_description())
-        print(f'you check your coords. they are {r.node.coords}')
-        x='\n'.join([f'{str(i[0])} {str(i[1])}, ' for i in r.get_items().items()])
-        print(f'you see {x}')
-        print('\n'.join([f'a room heading {i[1]} to {str(i[0].node.coords)}, ' for i in r.get_doors().items()]))
-        a=input('where would you like to move?: ')
+
+    def search():
+        x='\n'.join([f'{str(i[0])} {str(i[1])},' for i in r.get_items().items()])+'\n'
+        l='\n'.join([f'a door going {str(i[1])} to {i[0].node.coords}, ' for i in r.get_doors().items()])
+        print(f'you see {x}also \n{l}')
+
+
         
+    def move():
+        a=input('where would you like to move?: ')
         op=False
         while not op:
             for i in r.get_doors().items():
@@ -62,7 +66,27 @@ if __name__=='__main__':
             if not op:
                 print('thats not an option')
                 a=input('where would you like to move?: ')
+            print(r.description)
 
+    def check_coords():
+        print(f'you check your coords. they are {r.node.coords}')
+
+    options={'coords':check_coords, 'search':search, 'move':move}
+
+    print('you wake up in a room')
+    while True:
+        op=False
+
+        a=input('>>>')
+        for i in options.items():
+                if i[0] in a.lower():
+                    i[1]()
+                    op=True
+        if not op:
+            print('not an option')
+
+
+        
             
 
 

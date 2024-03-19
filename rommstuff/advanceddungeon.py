@@ -38,25 +38,41 @@ class dungeon:
         def __str__(self) -> str:
             'describe dungeon'
             return f'a {self.size[0]} by {self.size[1]} dungeon. {self.v/1}% chance of variation in doors. {self.spa} secret passages'
-
+def RGB(red=None, green=None, blue=None,bg=False):
+    if(bg==False and red!=None and green!=None and blue!=None):
+        return f'\u001b[38;2;{red};{green};{blue}m'
+    elif(bg==True and red!=None and green!=None and blue!=None):
+        return f'\u001b[48;2;{red};{green};{blue}m'
+    elif(red==None and green==None and blue==None):
+        return '\u001b[0m'
  
 if __name__=='__main__':
 
 
-    
+
+
     
     d=dungeon.newdungeon((5,5), 0.25)
-    r=d.rooms[0]
+    global r
+    r:dungeon.room=d.rooms[0]
 
-    def search():
-        x='\n'.join([f'{str(i[0])} {str(i[1])},' for i in r.get_items().items()])+'\n'
-        l='\n'.join([f'a door going {str(i[1])} to {i[0].node.coords}, ' for i in r.get_doors().items()])
-        print(f'you see {x}also \n{l}')
+    def search(r):
+        print('\033[1;4m'+'items:'+'\033[m'+'\n')
+        x='\n'.join(     [          f' -\033[34m\033[1m {str(i[0])} {str(i[1])}\033[m'               for i in r.get_items().items()]            )+'\n'+'\033[m'
+        print(x)
+        print('\033[1;4m'+'doors:'+'\033[m'+'\n')
+        l='\n'.join([f' -\033[32;1m{str(i[1])} -> {i[0].node.coords} \033[m' for i in r.get_doors().items()])
+        print(l)
 
 
-        
-    def move():
-        a=input('where would you like to move?: ')
+
+
+
+    def move(r):
+        print('\033[1;4m'+'doors:'+'\033[m'+'\n')
+        l='\n'.join([f' -\033[32;1m{str(i[1])} -> {i[0].node.coords} \033[m' for i in r.get_doors().items()])
+        print(l)
+        a=input('>>>')
         op=False
         while not op:
             for i in r.get_doors().items():
@@ -64,12 +80,13 @@ if __name__=='__main__':
                     r=i[0]
                     op=True
             if not op:
-                print('thats not an option')
-                a=input('where would you like to move?: ')
+                print('\033[93invalid option')
+                a=input('where?: ')
+            print('you walk into a room')
             print(r.description)
 
-    def check_coords():
-        print(f'you check your coords. they are {r.node.coords}')
+    def check_coords(r):
+        print(f'your coords - ({r.node.coords})')
 
     options={'coords':check_coords, 'search':search, 'move':move}
 
@@ -80,10 +97,13 @@ if __name__=='__main__':
         a=input('>>>')
         for i in options.items():
                 if i[0] in a.lower():
-                    i[1]()
+                    print('\n')
+                    i[1](r)
                     op=True
         if not op:
+            print('\n')
             print('not an option')
+        
 
 
         

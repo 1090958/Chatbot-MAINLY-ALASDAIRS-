@@ -4,7 +4,7 @@ class roomtype:
         def describe()->str:
             return  'knowlage flows from the walls, the library expands around you. '
         def getitems():
-            return  {2:'books', 5:'explosives'}
+            return  {2:'books     \033[0m(boring as fuck)', 5:'explosives    \033[0m(alah hulacba)'}
         def getenimies():
             return ['jeff the goblin']
 

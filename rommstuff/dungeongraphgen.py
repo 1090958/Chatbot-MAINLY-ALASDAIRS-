@@ -24,7 +24,7 @@ class dungeon:
             m=lambda x: t(x)[0] if  x.coords.y>self.coords.y or x.coords.x>self.coords.x else t(x)[1]
 
             i={i:m(i) for i in self.connectrooms}
-            [i.update({j:'secret'}) for j in self.secretconnectrooms]
+            [i.update({j:f'passageway {self.secretconnectrooms.index(j)+1}'}) for j in self.secretconnectrooms]
 
             return i
             

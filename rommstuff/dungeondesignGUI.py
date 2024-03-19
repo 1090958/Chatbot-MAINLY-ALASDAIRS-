@@ -1,5 +1,5 @@
 import pygame as py
-import movment as m
+import dungeongraphgen as m
 
 a=m.dungeon.new_dungeon((30,30), 0.25)
 

@@ -1,5 +1,4 @@
 import random
-
 class d2:
     def __init__(self,x:int,y:int):
         self.x=x
@@ -16,7 +15,9 @@ class dungeon:
             self.sp=[]
             self.connectrooms=[]
             self.secretconnectrooms=[]
+            self.truroom=''
             self.coords=d2(location[0], location[1])
+
         def moveops(self)->dict:
             '''returns all movment options from self.to other rooms.'''
             t=lambda x: ['north','south'] if self.coords.y!=x.coords.y else ['east','west']
@@ -29,9 +30,6 @@ class dungeon:
             
         def __str__(self) -> str:
             return f'room({self.coords.x, self.coords.y})'
-        class roomtypes:
-            class a:
-                pass
         
     class door:
         def __init__(self, r1, r2, 
@@ -69,7 +67,8 @@ class dungeon:
 
     class new_dungeon:    
         def __init__(self, size:tuple,
-                     rds=0.0) -> None:
+                     rds:float=0.0,
+                     spa:int=10) -> None:
 
             self.size=d2(size[0], size[1])
             self.rooms=[ dungeon.room((x, y)) for x in range(self.size.x) for y in range(self.size.y)]
@@ -95,11 +94,13 @@ class dungeon:
                     self.rooms.pop(self.rooms.index(i))
 
 
-            for i in range(10):
+            for i in range(spa):
                     self.doors.append(dungeon.door(self.rooms[random.randint(0,len(self.rooms)-1)],self.rooms[random.randint(0,len(self.rooms)-1)], 'secret'))
 
 
-                        
+
+
+
 if __name__=='__main__':
     a=dungeon.new_dungeon((10,10, 0.25))
     print('dpajsgklandgk;')

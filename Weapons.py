@@ -63,6 +63,6 @@ class weapon:
         
         
         
-salmon = weapon('salmon', 10, dice.generic_Dice(2,6), 10, 1.0, attack_Types.Attack(),"fish")
+#salmon = weapon('salmon', 10, dice.generic_Dice(2,6), 10, 1.0, attack_Types.Attack(),"fish")
     
     

@@ -1,24 +1,26 @@
-import rooms,characters,objects
+import items.rooms as rooms
+import items.characters as characters
+import items.objects as objects
 
 
 
 class Game:
     def __init__(self):
-        name = input("Enter name: ")
         self.playing = True
         self.map = rooms.generateRooms()
-        self.player = characters.Character(characters.player, [25,25], name)
+        self.player = characters.Character(characters.player, [25,25], "John Doe")
         self.player.skills = {"constitution":118,"dexterity":110,"otherstuff":156}
         self.inFight = False
         self.player.inv = [objects.Object(objects.basicSword),objects.Object(objects.coolChestplate),None,None,None]
         self.player.armour = [objects.Object(objects.basicHelmet),None,None,None]
         self.map[self.player.loc[0]][self.player.loc[1]].contents = [objects.Object(objects.cocaine)]
-        print()
     
     def view(self):
-        print("Player:")
+        output = ""
+        output += "\nPlayer:"
         n = int((30*self.player.hp)/(self.player.type.data["health"]*(self.player.skills["constitution"]/100)))
         string = f"{self.player.hp}HP"
+        output += "\nPlayer:"
         print(string + (" "*(30-len(string))) + "[" + ("="*n) + (" "*(30-n)) + "]")
         for skill,value in self.player.skills.items():
             n = int((30*(value-100))/(100))
@@ -143,29 +145,31 @@ class Game:
 
 
 
-def takeInput(x):
-    _input = input().split()
+def takeInput(x, _input):
+    _input = _input.split()
 #try:
-    if _input[0]=="view":
-        x.view()
-    elif _input[0]=="move":
-        x.move(_input[1])
-    elif _input[0]=="pickup":
-        x.pickup(_input[1])
-    elif _input[0]=="drop":
-        x.drop(_input[1])
-    elif _input[0]=="switch":
-        x.switch(_input[1],_input[2])
-    elif _input[0]=="fight":
-        x.fight(_input[1])
-    elif _input[0]=="use":
-        x.use(_input[1])
-    elif _input[0] in ["help","?"]:
-        x.help()
-    elif _input[0]=="quit":
-        x.quit()
-    else:
-        print("Invalid Input \n")
+    match _input[0]:
+        
+        case "view":
+            return x.view()
+        case "move":
+            return x.move(_input[1])
+        case "pickup":
+            return x.pickup(_input[1])
+        case "drop":
+            return x.drop(_input[1])
+        case "switch":
+            return x.switch(_input[1],_input[2])
+        case "fight":
+            return x.fight(_input[1])
+        case "use":
+            return x.use(_input[1])
+        case "help"|"?":
+            return x.help()
+        case "quit":
+            return x.quit()
+        case _:
+            return("Invalid Input \n")
 #except:
     #print("Something Went Wrong \n")
 

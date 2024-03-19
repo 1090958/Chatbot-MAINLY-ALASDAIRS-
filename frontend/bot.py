@@ -2,10 +2,17 @@ from botbuilder.core import ActivityHandler, TurnContext
 from botbuilder.schema import ChannelAccount
 from output import output
 
+import variables
+
+# import movement classes
+#import movement.
+
+variables.state = 'Intro'
 class MyBot(ActivityHandler):
     # See https://aka.ms/about-bot-activity-message to learn more about the message and other activity types.
 
     async def on_message_activity(self, turn_context: TurnContext):
+        
         await turn_context.send_activity(output(turn_context.activity.text))
 
     async def on_members_added_activity(
@@ -15,4 +22,4 @@ class MyBot(ActivityHandler):
     ):
         for member_added in members_added:
             if member_added.id != turn_context.activity.recipient.id:
-                await turn_context.send_activity("Hello, I am definitely not google bard")
+                await turn_context.send_activity(output(None))

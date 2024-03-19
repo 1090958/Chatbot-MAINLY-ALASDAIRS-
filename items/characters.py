@@ -1,4 +1,5 @@
-import objects, rooms
+import items.objects as objects
+import items.rooms as rooms
 
 class CharacterType:
     def __init__(self, name:str, defaultAttack:objects.ObjectType, data:dict) -> None:

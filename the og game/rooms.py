@@ -5,6 +5,8 @@ class Room:
         self.place = place
         self.type = _type
         self.contents = []
+        if self.type==6:
+            self.shop = []
     def __str__(self) -> str:
         return f"Room({self.place},{self.type})"
 

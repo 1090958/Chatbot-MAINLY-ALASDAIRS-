@@ -1,5 +1,7 @@
-import rooms,characters,objects,settings
-
+import items.rooms as rooms
+import items.characters as characters
+import items.objects as objects
+import items.settings as settings
 
 
 class Game:

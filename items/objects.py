@@ -1,4 +1,6 @@
-import rarity,stuff,settings
+import items.rarity as rarity
+import items.stuff as stuff
+import items.settings as settings
 
 class ObjectType:
     def __init__(self, name:str, rarity:rarity.Rarity, use:str, value:int|float, data:dict) -> None:

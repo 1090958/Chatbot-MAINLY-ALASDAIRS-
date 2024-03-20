@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# Copyright (c) Microsoft Corporation. All rights reserved.
-# Licensed under the MIT License.
 
+#bot stuff
 import os
 
 class DefaultConfig:
@@ -10,3 +9,6 @@ class DefaultConfig:
     PORT = 3978
     APP_ID = os.environ.get("MicrosoftAppId", "")
     APP_PASSWORD = os.environ.get("MicrosoftAppPassword", "")
+
+#settings
+restrictive_Network=True

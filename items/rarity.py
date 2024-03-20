@@ -1,4 +1,4 @@
-import settings
+import items.settings as settings
 
 class Rarity:
     def __init__(self, name:str, colour:str|None=None) -> None:

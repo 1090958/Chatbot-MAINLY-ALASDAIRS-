@@ -26,9 +26,9 @@ class Object:
         else:
             x += f"  - {self.type.name} [{self.type.rarity}]"
         for enchant in self.type.data["enchantments"]:
-            x += f"\n\033{settings.enchantmentCol}      - {enchant} \033[0m"
+            x += f"\n\033{settings.enchantmentCol}      - {enchant.name} \033[0m"
         for effect in self.type.data["effects"]:
-            x += f"\n\033{settings.effectCol}      - {effect} \033[0m"
+            x += f"\n\033{settings.effectCol}      - {effect.name} \033[0m"
         return x
 
 basicSword = ObjectType("Basic Sword", rarity.common, "weapon", 20, {"attack":25,"durability":100,"speed":4,"enchantments":[],"effects":[]})

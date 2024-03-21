@@ -1,4 +1,4 @@
-import random
+import random, items.objects
 
 class Room:
     def __init__(self, place:tuple[int], _type:tuple[int]) -> None:
@@ -18,6 +18,7 @@ def generateRooms():
             biome = random.randint(0,3)
             _type = random.randint(0,6)
             r = Room((a,b),(biome,_type))
+            r.contents = [items.objects.cocaine]
             x.append(r)
         rooms.append(x)
     return rooms

@@ -3,6 +3,7 @@ import items.characters as characters
 import items.objects as objects
 import items.settings as settings
 
+import dialog.options
 
 class Game:
     def __init__(self):
@@ -28,11 +29,11 @@ class Game:
         if input1=="self":
             n = int((30*self.player.hp)/(self.player.type.data["health"]*(self.player.skills["constitution"]/100)))
             string = f"{self.player.hp}HP"
-            output += (string + (" "*(30-len(string))) + "[" + ("="*n) + (" "*(30-n)) + "]" + "\n")
+            output += (string + (" "*(30-len(string))) + "[" + ("="*n) + ("_"*(30-n)) + "]" + "\n")
             for skill,value in self.player.skills.items():
                 n = int((30*(value-100))/(100))
                 string = f"{skill[0:1].upper()+skill[1:]} +{value-100}%"
-                output += (string + (" "*(30-len(string))) + "[" + ("="*n) + (" "*(30-n)) + "]" + "\n")
+                output += (string + (" "*(30-len(string))) + "[" + ("="*n) + ("_"*(30-n)) + "]" + "\n")
             output += ("Inventory: \n")
             for item in self.player.inv:
                 if item: output += (str(item) + "\n")
@@ -48,14 +49,17 @@ class Game:
                     output += (f"\033[1;32m  - {effect.name} \033[0m \n")
         if input1=="room":
             currentRoom = self.map[self.player.loc[0]][self.player.loc[1]]
-            biomes = ["Default","Lava","Water","Mines"]
-            output += (f"  - {biomes[currentRoom.type[0]]} Biome \n")
+            biomes = ["normal room","lava filled room","water flooded room","Mine"]
             types = ["Normal Room","Skeleton Dungon","Goblin Dungon","Guardian Room","Shop","Mini-Boss Fight","Boss Fight"]
-            output += (f"  - {types[currentRoom.type[1]]} \n") 
-            if len(currentRoom.contents)>0:
-                output += ("In the room: \n")
-                for item in currentRoom.contents:
-                    output += (str(item) + "\n")
+            
+            #in room
+            biome_ = (biomes[currentRoom.type[0]])
+            type_ = (types[currentRoom.type[1]]) 
+            contents_ = (currentRoom.contents)
+            
+            print(contents_)
+            
+            output += dialog.options.enter_Room(biome_,type_,contents_)
         return output
     
     def move(self,input1):
@@ -181,8 +185,8 @@ class Game:
   help | ? - List functions
   quit - Quit the game \n"""
 
-    def takeInput(self):
-        _input = input().split()
+    def takeInput(self, _input):
+        _input = _input.split()
         #try:
         if _input[0]=="view":
             return self.view(_input[1])

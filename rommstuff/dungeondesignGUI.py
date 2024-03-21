@@ -1,12 +1,10 @@
 import pygame as py
-import dungeongraphgen as m
-
-a=m.dungeon.new_dungeon((30,30), 0.25)
-
-
+import advanceddungeon as m
+import jsonpickle, json
+import sys
 class drawable:
     class door:
-        def __init__(self, door:m.dungeon.door) -> None:
+        def __init__(self, door:m.dungeongraphgen.dungeon.door) -> None:
             self.door=door
         def draw(self, app) -> None:
 
@@ -17,19 +15,23 @@ class drawable:
 
     class room:
         def __init__(self, room:m.dungeon.room) -> None:
-            self.room=room
+            self.room=room.node
+            self.c= room.rt.guic
         def draw(self, app) -> None:
 
-            py.draw.rect(app.screen, (0, 0, 0), py.rect.Rect(self.room.coords.x*app.scrollmeter+app.x, self.room.coords.y*app.scrollmeter+app.y, app.scrollmeter/2, app.scrollmeter/2)
-)
+            if py.draw.rect(app.screen, self.c, py.rect.Rect(self.room.coords.x*app.scrollmeter+app.x, self.room.coords.y*app.scrollmeter+app.y, app.scrollmeter/2, app.scrollmeter/2)).collidepoint(py.mouse.get_pos()):
+                print(self.room.truroom.rt)
+                py.draw.rect(app.screen, 'black', py.rect.Rect(self.room.coords.x*app.scrollmeter+app.x, self.room.coords.y*app.scrollmeter+app.y, app.scrollmeter/2, app.scrollmeter/2), 3)
+
+
         
 
 class app:
-    def __init__(self, dungeon:m.dungeon.new_dungeon)->None:
+    def __init__(self, dungeon:m.dungeon.newdungeon)->None:
         self.screen=py.display.set_mode((500,500))
         self.dungeon=dungeon
         self.rooms=[drawable.room(i)for i in dungeon.rooms]
-        self.doors=[drawable.door(i) for i in dungeon.doors]
+        self.doors=[drawable.door(i) for i in dungeon.graph.doors]
         self.scrollmeter=1000/50
         self.d=50
         self.x,self.y=0,0
@@ -62,9 +64,14 @@ class app:
 
             py.display.flip()
 
+def save_object(obj, filename):
+    sys.setrecursionlimit(30000)
+    fr=jsonpickle.encode(obj)
+    with open(filename, 'w') as outp:  # Overwrites any existing file.
+        json.dump(fr, outp)
+    outp.close()
 
 
-
-
-a=app(a)
-a.run()
+a=m.dungeon.newdungeon((30,30), 0.25, 10)
+t=app(a)
+t.run()

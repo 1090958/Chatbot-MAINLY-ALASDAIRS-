@@ -15,7 +15,7 @@ class dungeon:
             self.sp=[]
             self.connectrooms=[]
             self.secretconnectrooms=[]
-            self.truroom=''
+            self.truroom=None
             self.coords=d2(location[0], location[1])
 
         def moveops(self)->dict:

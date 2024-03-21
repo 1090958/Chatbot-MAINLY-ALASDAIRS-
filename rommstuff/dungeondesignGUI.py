@@ -67,7 +67,7 @@ class app:
 def save_object(obj, filename):
     sys.setrecursionlimit(30000)
     fr=jsonpickle.encode(obj)
-    with open(filename, 'w') as outp:  # Overwrites any existing file.
+    with open(filename, 'w') as outp:
         json.dump(fr, outp)
     outp.close()
 

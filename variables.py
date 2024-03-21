@@ -1,0 +1,1 @@
+#just a pseudo-module for sharing vaariables

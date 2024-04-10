@@ -38,8 +38,6 @@ class partition:
             #else average from both axis
             value1 = ((value*modifierx) * (max(self.p1[0],self.p2[0]) - min(self.p1[0],self.p2[0])) + min(self.p1[0],self.p2[0]) +(value*modifiery) * (max(self.p1[1],self.p2[1]) - min(self.p1[1],self.p2[1])) + min(self.p1[1],self.p2[1]))/2
         return value1
-                
-    
 
 
 
@@ -50,7 +48,7 @@ class terminal:
         self.output = ''
         self.past = ['']
         self.size = 80
-        self.line_limit = 3
+        self.line_limit = 6
     def input(self,character):
         self.output+=character
         self.past.pop(0)
@@ -77,7 +75,7 @@ class terminal:
         
         
         resolution = self.partition.adjust_point((1,1))
-        print(self.partition.adjust_value(0,'x'),self.partition.adjust_point((0,0))[0])
+        
         for _ in range(len(past[1:])):
             item = past[_+1]
             
@@ -98,10 +96,14 @@ class terminal:
                     self.delete()
                 if event.key == pygame.K_RETURN:
                     self.enter()
-terminal = terminal(partition=partition((0.5,0.6),(1,1)))
+
+
+partitions = []
+partitions.append(terminal(partition=partition((0,0.6),(1,1))))
 while running:
     screen.fill((0,0,0))
-    terminal.draw()
+    for partition in partitions:
+        partition.draw()
     pygame.display.flip()
     events = pygame.event.get()
     for event in events:
@@ -115,7 +117,8 @@ while running:
         if event.type == pygame.VIDEORESIZE:
             settings.resolution = ((event.w+event.h)/2,(event.w+event.h)/2)
             screen = pygame.display.set_mode(size = settings.resolution, flags = pygame.RESIZABLE)
-    terminal.run(events)
+    for partition in partitions:
+        partition.run(events)
     
     
     

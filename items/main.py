@@ -27,7 +27,7 @@ class Game:
     def view(self, input1):
         output = ""
         if input1=="self":
-            n = int((30*self.player.hp)/(self.player.type.data["health"]*(self.player.skills["constitution"]/100)))
+            n = int((30*self.player.hp)/(self.player.max_hp))
             string = f"{self.player.hp}HP"
             output += (string + (" "*(30-len(string))) + "[" + ("="*n) + ("_"*(30-n)) + "]" + "\n")
             for skill,value in self.player.skills.items():

@@ -16,6 +16,7 @@ class Character:
         self.name = name
         self.inv = inventory
         self.hp = self.type.data["health"]
+        self.max_hp = self.hp
         self.armour = [None,None,None,None]
         self.effects = []
     def __str__(self) -> str:

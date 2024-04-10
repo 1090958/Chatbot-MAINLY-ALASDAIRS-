@@ -48,7 +48,11 @@ def format(text):
         
 def intro():
     return '###Interesting intro with a good plot'
+
 if __name__ == "__main__":
     game= items.main.Game()
+    input__=""
     while True:
-        print(output(input(">>> "), game,False))
+        print(output(input__, game,False))
+        input__=input(">>> ")
+        

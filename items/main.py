@@ -1,5 +1,5 @@
 from stuff import Object,Character,Encounter
-import stuff,settings
+import stuff, settings
 
 
 

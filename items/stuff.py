@@ -1,4 +1,4 @@
-import random,settings
+import random, settings
 
 class Effect:
     def __init__(self, name:str, effect:str, level:int, time:int) -> None:

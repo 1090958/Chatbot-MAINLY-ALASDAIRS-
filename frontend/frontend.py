@@ -2,11 +2,11 @@ import pygame, sys, moderngl, frontend.settings as settings, pygame.freetype
 
 from frontend.partitions.partitions import partition
 from frontend.partitions.terminal import terminal
-
+from frontend.partitions.bar import bar
 #display stuff
 
 pygame.freetype.init()
-screen = pygame.display.set_mode(settings.resolution, pygame.OPENGL | pygame.DOUBLEBUF | pygame.RESIZABLE)
+screen = pygame.display.set_mode(settings.resolution, pygame.OPENGL | pygame.DOUBLEBUF | pygame.RESIZABLE| pygame.NOFRAME)
 display = pygame.Surface(settings.resolution)
 
 
@@ -23,17 +23,29 @@ clock = pygame.time.Clock()
 running = True
 
 #image
-img = pygame.image.load('images/bg.png')
+bg = pygame.image.load('images/bg.png')
+fr = pygame.image.load('images/front.png')
 
 r = 10
 
 partitions = []
 partitions.append(terminal(partition=partition((0.1,0.6),(0.6,0.95))))
+
+
+#all colours are from the list of colours for the apple 2
+#healthbar
+partitions.append(bar(partition=partition((0.67,0.185),(0.933,0.24)),colour=(153,3,95)))
+partitions[-1].rate = 0.02
+#stamina
+vertical_difference=0.10
+partitions.append(bar(partition=partition((0.67,0.185+vertical_difference),(0.933,0.24+vertical_difference)),colour=(36,155,255)))
+partitions[-1].rate = 0.03
 while running:
     display.fill((0,0,0))
     
-    img = pygame.transform.scale(img, settings.resolution)
-    display.blit(img,(0,0))
+    bg = pygame.transform.scale(bg, settings.resolution)
+    fr = pygame.transform.scale(fr, settings.resolution)
+    display.blit(bg,(0,0))
     #partition stuff
     for partition in partitions:
         partition.draw(display)
@@ -54,6 +66,7 @@ while running:
             display = pygame.Surface(settings.resolution)
             screen = pygame.display.set_mode(settings.resolution, pygame.OPENGL | pygame.DOUBLEBUF | pygame.RESIZABLE)
     
+    display.blit(fr,(0,0))
     #partition stuff cont.
     for partition in partitions:
         partition.run(events)

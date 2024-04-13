@@ -20,7 +20,7 @@ class partition:
         x *= settings.resolution[0]
         y *= settings.resolution[1]
         return (x,y)
-    def adjust_value(self, value:int|float, axis:str = None):
+    def adjust_value(self, value:int|float, axis:str = "x"):
         
         modifierx = settings.resolution[0]/original_resolution[0]
         modifiery = settings.resolution[1]/original_resolution[1]

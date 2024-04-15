@@ -6,7 +6,7 @@ CDR = 0.2
 CDD = 0.2
 MODES = 3
 BIOMES = [(150,150,150),(255,0,0),(0,0,255),(200,200,0)]
-TYPES = ["","D","L","S","MB","B"]
+TYPES = ["","D1","D2","D3","BS","GS","DS","MB","B"]
 FONT = pygame.font.SysFont("arial",20)
 
 class Room:

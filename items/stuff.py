@@ -1,4 +1,4 @@
-import random, settings
+import random,settings
 
 class Effect:
     def __init__(self, name:str, effect:str, level:int, time:int) -> None:
@@ -6,9 +6,16 @@ class Effect:
         self.effect = effect
         self.level = level
         self.time = time
+    def copy(self):
+        return Effect(self.name, self.effect, self.level, self.time)
+    def __str__(self) -> str:
+        return f"\033{settings.effectCol}{self.name} ({self.time//6}:{self.time%6}0)\033[0m"
 
-con1 = Effect("Health Boost I","constitution",10,10)
-dex1 = Effect("Heightened Reflexes I","dexterity",10,10)
+fire = Effect("Fire","health",-10,9)
+con1 = Effect("Health Boost I","constitution",10,12)
+dex1 = Effect("Heightened Reflexes I","dexterity",10,12)
+dex10 = Effect("Heightened Reflexes X","dexterity",1000,12)
+str10 = Effect("Strong Boi X","strength",1000,12)
 
 
 
@@ -20,6 +27,7 @@ class Enchantment:
         self.effect = effect
         self.level = level
 
+flame = Enchantment("Flame I",fire,1)
 prot1 = Enchantment("Protection I","protect",6)
 prot2 = Enchantment("Protection II","protect",10)
 
@@ -37,9 +45,9 @@ class Rarity:
 common = Rarity("Common")
 uncommon = Rarity("Uncommon")
 rare = Rarity("Rare")
-sub_mythic = Rarity("Sub-Mythic",settings.subMythicCol)
-mythic = Rarity("Mythic",settings.mythicCol)
-special = Rarity("Special",settings.specialCol)
+epic = Rarity("Epic","[1;35m")
+legendary = Rarity("Legendary","[1;33m")
+mythic = Rarity("Mythic","[1;33m")
 
 
 
@@ -52,6 +60,9 @@ class ObjectType:
         self.use = use
         self.value = value
         self.data = data
+    def strShort(self) -> str:
+        if self.rarity.colour != None: return f"\033{self.rarity.colour}{self.name}\033[0m"
+        else: return self.name
     def __str__(self) -> str:
         return f"ObjectType({self.name}, {self.rarity}, {self.data})"
 
@@ -60,23 +71,30 @@ class Object:
         self.type = _type
         if "uses" in self.type.data:
             self.uses = self.type.data["uses"]
-    def __str__(self) -> str:
+    def strLong(self) -> str:
         x = ""
         if self.type.rarity.colour != None:
-            x += f"\033{self.type.rarity.colour}  - {self.type.name} [{self.type.rarity}] \033[0m"
+            x += f"\033{self.type.rarity.colour}  - {self.uses if 'uses' in self.type.data else 1}x {self.type.name} [{self.type.rarity}] \033[0m"
         else:
-            x += f"  - {self.type.name} [{self.type.rarity}]"
+            x += f"  - {self.uses if 'uses' in self.type.data else 1}x {self.type.name} [{self.type.rarity}]"
         for enchant in self.type.data["enchantments"]:
             x += f"\n\033{settings.enchantmentCol}      - {enchant} \033[0m"
         for effect in self.type.data["effects"]:
             x += f"\n\033{settings.effectCol}      - {effect} \033[0m"
         return x
+    def strShort(self) -> str:
+        if self.type.rarity.colour != None: return f"\033{self.type.rarity.colour}{self.type.name}\033[0m"
+        else: return self.type.name
+    
 
-basicSword = ObjectType("Basic Sword", common, "weapon", 20, {"attack":25,"speed":3,"hitRate":90,"enchantments":[],"effects":[]})
-basicHelmet = ObjectType("Basic Helmet", uncommon, "armour0", 30, {"protection":10,"enchantments":[],"effects":[]})
-enchIronLeggings = ObjectType("Enchanted Iron Chestplate", rare, "armour2", 140, {"protection":80,"enchantments":[prot1],"effects":[]})
-coolChestplate = ObjectType("Cool Chestplate", special, "armour1", 140, {"protection":100,"enchantments":[prot2],"effects":[]})
-cocaine = ObjectType("Cocaine", rare, "effectPosi", 75, {"uses":5,"enchantments":[],"effects":[dex1]})
+basicHelmet = ObjectType("Basic Helmet", uncommon, "armour0", 30, {"protection":5,"enchantments":[],"effects":[]})
+enchIronLeggings = ObjectType("Enchanted Iron Chestplate", rare, "armour2", 140, {"protection":7,"enchantments":[prot1],"effects":[]})
+coolChestplate = ObjectType("Cool Chestplate", legendary, "armour1", 140, {"protection":20,"enchantments":[prot2],"effects":[]})
+cocaine = ObjectType("Cocaine", epic, "effect", 75, {"uses":5,"enchantments":[],"effects":[dex10]})
+randomPills = ObjectType("Random Pills", rare, "effect", 50, {"uses":3,"enchantments":[],"effects":[str10]})
+
+basicSword = ObjectType("Basic Sword", common, "weapon", 20, {"attack":25,"stamina":25,"hitRate":90,"enchantments":[],"effects":[]})
+flameSword = ObjectType("Basic Sword", epic, "weapon", 95, {"attack":25,"stamina":25,"hitRate":90,"enchantments":[],"effects":[]})
 
 
 
@@ -90,21 +108,26 @@ class CharacterType:
         return f"CharacterType({self.name}, {self.data})"
 
 class Character:
-    def __init__(self, _type:CharacterType, name:str|None=None, inventory:list[Object|None]=[None,None,None,None,None]) -> None:
+    def __init__(self, _type:CharacterType, name:str|None=None) -> None:
         self.type = _type
         if name==None: self.name=self.type.name
         else: self.name=name
-        self.inv = inventory
+        self.inv = []
+        if "inventory" in self.type.data:
+            for i in range(self.type.data["invSize"]):
+                if random.random()<self.type.data["invChance"]: self.inv.append(Object(self.type.data["inventory"][i]))
         self.hp = self.type.data["health"]
+        self.stamina = 0
         self.armour = [None,None,None,None]
         self.effects = []
         self.skills = {"constitution":100,"dexterity":100,"strength":100,"intelligence":100}
-    def __str__(self) -> str:
-        pass
 
-player = CharacterType("Player", {"health":200,"attack":20,"defense":10,"speed":3})
-npc = CharacterType("Default NPC", {"health":150,"attack":10,"defense":10,"speed":3})
-goblin = CharacterType("Goblin", {"health":30,"attack":7,"defense":10,"speed":2})
+player = CharacterType("Player", {"health":200,"attack":20,"defense":15,"staminaRate":20})
+npc = CharacterType("Default NPC", {"health":150,"attack":10,"defense":10,"staminaRate":10})
+goblin1 = CharacterType("Small Goblin", {"health":30,"attack":7,"defense":10,"staminaRate":10})
+goblin2 = CharacterType("Fast Goblin", {"health":50,"attack":5,"defense":25,"staminaRate":20})
+goblin3 = CharacterType("Angry Goblin", {"health":50,"attack":20,"defense":10,"staminaRate":20,"invSize":1,"inventory":[basicSword],"invChance":0.4})
+goblin4 = CharacterType("Big Goblin", {"health":100,"attack":35,"defense":20,"staminaRate":25,"invSize":1,"inventory":[basicSword],"invChance":0.7})
 
 
 
@@ -120,75 +143,132 @@ class Encounter:
             char.team = 2
         self.people = team1+team2
         random.shuffle(self.people)
-        self.playerselected = 0
+        self.playerSelected = 0
         self.time = -1
         self.winner = None
-    def update(self, input1:str) -> str:
+    def update(self, _input:list[str]) -> str:
         output = ""
+        validInput = True
+        if not _input:
+            pass
+        elif _input[0]=="use":
+            if -3<int(_input[1])<5: self.playerSelected = int(_input[1])
+            else: validInput = False
+        elif _input[0] in ["wait","skip"]:
+            self.playerSelected = -2
+        else:
+            validInput = False
+        if not validInput:
+            output += (f"Invalid Input, automatically using slot {self.playerSelected} \n")
         if self.time==-1:
             output += ("You get caught in a fight! \n")
             output += ("Enemies: \n")
             for enemy in self.enemyTeam:
                 output += (f"  - {enemy.name} ({enemy.type.name}) \n")
+                enemy.stamina = 0
             output += ("Your Team: \n")
             for char in self.playerTeam:
                 output += (f"  - {char.name} ({char.type.name}) \n")
-            output += ("Enter commands any time in the battle: ")
+                char.stamina = 0
+            output += ("Enter to continue \n")
             self.time += 1
         else:
-            event = False
-            while not event:
+            while True:
                 self.time += 1
                 for char in self.people:
-                    if char.type.name=="Player": slot = self.playerselected
-                    else: slot = 0
-                    for eff in char.effects:
+                    if char.type.name=="Player": slot = self.playerSelected
+                    elif char.inv==[]: slot = -1
+                    else: slot = random.randint(0,len(char.inv)-1)
+                    char.hp += sum([e.level for e in char.effects if e.effect=="health"])
+                    maxHp = int(char.type.data["health"]*(char.skills["constitution"]/100)*(sum([100]+[e.level for e in char.effects if e.effect=="constitution"])/100))
+                    if char.hp>maxHp: char.hp = maxHp
+                    for eff in char.effects[:]:
                         eff.time -= 1
                         if eff.time <= 0:
                             char.effects.remove(eff)
+                    if (slot==-1 or char.inv[slot]==None) and slot!=-2:
+                        if char.stamina>char.type.data["staminaRate"]*3:
+                            for enemy in self.people:
+                                if char.team != enemy.team:
+                                    if random.random()<(enemy.skills["dexterity"]/100)*(sum([100]+[e.level for e in enemy.effects if e.effect=="dexterity"])/100)*(enemy.type.data["defense"]/100):
+                                        output += (f"{char.name} tries to attack but {enemy.name} dodges! \n")
+                                    else:
+                                        damage = char.type.data["attack"]
+                                        prot = sum(sum(e.level for e in a.type.data["enchantments"] if e.effect=="protect")+a.type.data["protection"] for a in enemy.armour if a)
+                                        if prot>40: prot=40
+                                        damage -= int((prot/100)*damage)
+                                        output += (f"{char.name} attacks {enemy.name}! (-{damage}HP) \n")
+                                        enemy.hp -= damage
+                                        char.stamina -= char.type.data["staminaRate"]*3
+                    elif slot!=-2 and ("stamina" not in char.inv[slot].type.data or char.stamina>char.inv[slot].type.data["stamina"]):
+                        if char.inv[slot].type.use=="weapon":
+                            for enemy in self.people:
+                                if char.team != enemy.team:
+                                    if random.random()<char.inv[slot].type.data["hitRate"]/100:
+                                        if random.random()<(enemy.skills["dexterity"]/100)*(sum([100]+[e.level for e in enemy.effects if e.effect=="dexterity"])/100)*(enemy.type.data["defense"]/100):
+                                            output += (f"{char.name} tries to attack but {enemy.name} dodges! \n")
+                                        else:
+                                            damage = char.inv[slot].type.data["attack"]
+                                            prot = sum(sum(e.level for e in a.type.data["enchantments"] if e.effect=="protect")+a.type.data["protection"] for a in enemy.armour if a)
+                                            if prot>40: prot=40
+                                            output += (f"{char.name} attacks {enemy.name} with a {char.inv[slot].strShort()}! (-{damage}HP) \n")
+                                            if not random.random()<(char.inv[slot].type.data["hitRate"]/100):
+                                                new = int(damage*(char.skills["strength"]/100)*sum([100]+[e.level for e in char.effects if e.effect=="strength"])/100)
+                                                output += (f"{char.name} got a double hit! (-{new-damage}HP) \n")
+                                                damage += new
+                                            enemy.hp -= damage
+                                            char.stamina -= char.inv[slot].type.data["stamina"]
+                                            if "uses" in char.inv[slot].type.data:
+                                                char.inv[slot].uses -= 1
+                                    else:
+                                        output += (f"{char.name} tries to attack {enemy.name} but misses! \n")
+                        elif char.inv[slot].type.use=="instant":
+                            output += (f"{char.name} uses {char.inv[slot].type.strShort()} \n")
+                            if "healing" in char.inv[slot].type.data:
+                                char.hp += char.inv[slot].type.data["healing"]
+                                maxHp = int(char.type.data["health"]*(char.skills["constitution"]/100)*(sum([100]+[e.level for e in char.effects if e.effect=="constitution"])/100))
+                                if char.hp>maxHp: char.hp = maxHp
+                            if "stamina" in item.type.data:
+                                char.stamina += item.type.data["stamina"]
+                            char.inv[slot].uses -= 1
+                        elif char.inv[slot].type.use=="effect":
+                            output += (f"{char.name} uses {char.inv[slot].type.strShort()} \n")
+                            for eff in char.inv[slot].type.data["effects"]:
+                                char.effects.append(eff.copy())
+                            char.inv[slot].uses -= 1
+                    char.stamina += char.type.data["staminaRate"]
+                    for eff in char.effects[:]:
+                            if any([e!=eff and e.effect==eff.effect and e.time>=eff.time for e in char.effects]): char.effects.remove(eff)
+                    for item in char.inv:
+                        if item and "uses" in item.type.data and item.uses<1:
+                            char.inv[char.inv.index(item)] = None
+                leave = False
+                for char in self.people:
                     if char.hp <= 0:
-                        event = True
                         output += (f"{char.name} has fallen! \n")
                         if char.type.name=="Player":
                             output += ("You lost the battle! \n")
                             self.winner = 2
+                            leave = True
                         self.people.remove(char)
-                    elif char.inv[slot]==None:
-                        if self.time%char.type.data["speed"]==0:
-                            event = True
-                            for enemy in self.people:
-                                if char.team != enemy.team:
-                                    if random.random()<(enemy.skills["dexterity"]/100)*(enemy.type.data["defense"]/100):
-                                        output += (f"{char.name} tries to attack but {enemy.name} dodges! \n")
-                                    else:
-                                        damage = char.type.data["attack"]
-                                        output += (f"{char.name} attacks {enemy.name}! (-{damage}HP) \n")
-                                        enemy.hp -= damage
-                    elif self.time%char.inv[slot].type.data["speed"]==0:
-                        event = True
-                        for enemy in self.people:
-                            if char.team != enemy.team:
-                                if random.random()<char.inv[slot].type.data["hitRate"]/100:
-                                    if random.random()<(enemy.skills["dexterity"]/100)*(enemy.type.data["defense"]/100):
-                                        output += (f"{char.name} tries to attack but {enemy.name} dodges! \n")
-                                    else:
-                                        damage = char.inv[slot].type.data["attack"]
-                                        if char.inv[slot].type.rarity.colour: output += (f"{char.name} attacks {enemy.name} with a \033{char.inv[slot].type.rarity.colour}{char.inv[slot].type.name}\033[0m! (-{damage}HP) \n")
-                                        else: output += (f"{char.name} attacks {enemy.name} with a {char.inv[slot].type.name}! (-{damage}HP) \n")
-                                        if not random.random()<(char.inv[slot].type.data["hitRate"]/100):
-                                            new = int(damage*char.skills["strength"]/100)
-                                            damage += new
-                                            output += (f"{char.name} got a double hit! (-{new-damage}HP) \n")
-                                        enemy.hp -= damage
-                                else:
-                                    output += (f"{char.name} tries to attack {enemy.name} but misses! \n")
-                count = 0
-                for char in self.people:
-                    if char.team==2: count+=1
-                if count==0:
-                    event = True
+                if sum([1 for c in self.people if c.team==2])==0 and not self.winner:
                     output += ("You have won the battle! \n")
                     self.winner = 1
+                    leave = True
+                p = next(iter([c for c in self.people if c.type.name=="Player"]),None)
+                if p and any([p.stamina>item.type.data["stamina"] for item in p.inv if (item!=None and item.type.use=="weapon")]):
+                    leave = True
+                if leave:
+                    if not self.winner:
+                        output += ("Your Turn \n")
+                        for item in [i for i in p.inv if i!=None]:
+                            if item.type.use=="weapon": output += (f"{p.inv.index(item)}: {item.uses if 'uses' in item.type.data else 1}x {item.strShort()}"+(" "*(30-len(item.type.name)))+f"{p.stamina}/"+str(item.type.data["stamina"])+"\n")
+                            elif item.type.use in ["instant","effect"]: output += (f"{p.inv.index(item)}: {item.uses if 'uses' in item.type.data else 1}x {item.strShort()}"+(" "*(30-len(item.type.name)))+"No Stamina Needed \n")
+                        if p.effects != []:
+                            output += ("Effects: \n")
+                            for eff in p.effects:
+                                output += (f"{eff} \n")
+                    break
         return output
     def endUpdate(self) -> tuple[Character|list]:
         for char in self.people:
@@ -209,10 +289,9 @@ class Room:
         self.connections = connections
         self.contents = []
         self.characters = []
-        if self.type==3:
-            self.shop = True
-            self.shopStuff = []
-        else: self.shop = False
+        self.shopStuff = []
+    def copy(self):
+        return Room(self.place, self.biome, self.type, self.connections)
     def __str__(self) -> str:
         return f"Room({self.place},{self.biome},{self.type},{self.connections})"
 
@@ -229,7 +308,7 @@ class Map:
                 print(j)
 
 # ["Normal","Fire","Water","Mines"]
-# ["Normal Room","Dungon","Guardian Room","Shop","Mini-Boss Fight","Boss Fight"]
+# ["Normal Room","Dungon","Dungon","Dungon","Blacksmith","General Shop","Dodgy Shop","Mini-Boss Fight","Boss Fight"]
 
 def generateMap(x:str) -> Map:
     stuff,seed = x.split()
@@ -243,5 +322,27 @@ def generateMap(x:str) -> Map:
             con = [int(j) for j in bin(n//(biomes*types))[2:]]
             if len(con)<4: con = tuple([0]*(4-len(con))+con)
             else: con = tuple(con)
-            output.update((i//size,i%size),(n//types%biomes,n%types,con))
+            room = updateRoom(Room((i//size,i%size),(n//types%biomes),(n%types),con))
+            output.rooms[i//size][i%size] = room
     return output
+
+def updateRoom(room:Room) -> Room:
+    if room.type==1:
+        characters = random.choice([[goblin1,goblin2,goblin3,goblin4]])
+        room.characters = [Character(i) for i in random.choices(characters, weights=(4,3,2,1), k=random.randint(3,5))]
+    elif room.type==2:
+        characters = random.choice([[goblin1,goblin2,goblin3,goblin4]])
+        room.characters = [Character(i) for i in random.choices(characters, weights=(2,4,3,1), k=random.randint(4,7))]
+    elif room.type==3:
+        characters = random.choice([[goblin1,goblin2,goblin3,goblin4]])
+        room.characters = [Character(i) for i in random.choices(characters, weights=(1,3,4,2), k=random.randint(5,8))]
+    elif room.type==4:
+        objects = []
+        room.shopStuff = [Object(i) for i in random.choices(objects, k=random.randint(4,5))]
+    elif room.type==5:
+        objects = []
+        room.shopStuff = [Object(i) for i in random.choices(objects, k=random.randint(3,6))]
+    elif room.type==6:
+        objects = []
+        room.shopStuff = [Object(i) for i in random.choices(objects, k=random.randint(3,4))]
+    return room

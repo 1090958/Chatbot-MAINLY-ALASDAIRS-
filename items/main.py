@@ -1,9 +1,13 @@
 from stuff import Object,Character,Encounter
-import stuff, settings
+import stuff,settings
+
+
 
 
 
 class Game:
+    """A little dnd game which is legally under the ownership of Alasdair Marsden :)"""
+    
     def __init__(self):
         self.state = "normal"
         self.map = stuff.generateMap(settings.seed)
@@ -13,16 +17,25 @@ class Game:
         self.player.friends = []
         self.encounter = None
         
-        self.player.inv = [Object(stuff.basicSword),Object(stuff.coolChestplate),None,None,None]
+        self.player.inv = [Object(stuff.basicSword),Object(stuff.coolChestplate),None,Object(stuff.randomPills),Object(stuff.cocaine)]
         self.player.armour = [Object(stuff.basicHelmet),None,None,None]
-        self.map.rooms[self.player.loc[0]-1][self.player.loc[1]].characters = [Character(stuff.goblin),Character(stuff.goblin),Character(stuff.goblin)]
-    
+        self.player.skills["strength"] = 110
+   
     def update(self, time):
-        for eff in self.player.effects:
-            eff.time -= time
-            if eff.time <= 0:
-                self.player.effects.remove(eff)
-        if self.map.rooms[self.player.loc[0]][self.player.loc[1]].type in [1,4,5] and self.map.rooms[self.player.loc[0]][self.player.loc[1]].characters!=[]:
+        for char in [self.player]+self.player.friends:
+            char.hp += sum([e.level for e in char.effects if e.effect=="health"])
+            maxHp = char.type.data["health"]*(char.skills["constitution"]/100)*(sum([100]+[e.level for e in char.effects if e.effect=="constitution"])/100)
+            if char.hp>maxHp: char.hp = maxHp
+            for eff in char.effects[:]:
+                eff.time -= time
+                if eff.time <= 0:
+                    char.effects.remove(eff)
+            for eff in char.effects[:]:
+                if any([e!=eff and e.effect==eff.effect and e.time>=eff.time for e in char.effects]): char.effects.remove(eff)
+            for item in char.inv:
+                if item and "uses" in item.type.data and item.uses<1:
+                    char.inv[self.player.inv.index(item)] = None
+        if (self.map.rooms[self.player.loc[0]][self.player.loc[1]].type in settings.rooms["fighting"]) and self.map.rooms[self.player.loc[0]][self.player.loc[1]].characters!=[]:
             self.state = "fighting"
             self.encounter = Encounter([self.player]+self.player.friends, self.map.rooms[self.player.loc[0]][self.player.loc[1]].characters)
             return self.encounter.update("")
@@ -30,7 +43,7 @@ class Game:
     def view(self, input1):
         output = ""
         if input1=="self":
-            n = int((30*self.player.hp)/(self.player.type.data["health"]*(self.player.skills["constitution"]/100)))
+            n = int((30*self.player.hp)/(self.player.type.data["health"]*(self.player.skills["constitution"]/100))*(sum([100]+[e.level for e in self.player.effects if e.effect=="constitution"])/100))
             string = f"{self.player.hp}HP"
             output += (string + (" "*(30-len(string))) + "[" + ("="*n) + (" "*(30-n)) + "]" + "\n")
             for skill,value in self.player.skills.items():
@@ -40,39 +53,41 @@ class Game:
             output += (f"{self.player.balance}{settings.currencySym} \n")
             output += ("Inventory: \n")
             for item in self.player.inv:
-                if item: output += (str(item) + "\n")
+                if item: output += (item.strLong() + "\n")
                 else: output += ("  - No Item \n")
             output += ("Armour Equipped: \n")
             for item in self.player.armour:
-                if item: output += (str(item) + "\n")
+                if item: output += (item.strLong() + "\n")
                 else:
                     output += ("  - No Armour \n")
             if len(self.player.effects)>0:
                 output += ("Effects: \n")
                 for effect in self.player.effects:
-                    output += (f"\033[1;32m  - {effect.name} \033[0m \n")
+                    output += (f"\033{settings.effectCol}  - " + str(effect) + "\n")
         if input1=="room":
             currentRoom = self.map.rooms[self.player.loc[0]][self.player.loc[1]]
             biomes = ["Normal","Fire","Water","Mines"]
             output += (f"  - {biomes[currentRoom.biome]} Biome \n")
-            types = ["Normal Room","Dungon","Library","Shop","Mini-Boss Fight","Boss Fight"]
+            types = ["Normal Room","Dungon","Dungon","Dungon","Blacksmith","General Shop","Dodgy Shop","Mini-Boss Fight","Boss Fight"]
             output += (f"  - {types[currentRoom.type]} \n") 
             if len(currentRoom.contents)>0:
                 output += ("In the room: \n")
                 for item in currentRoom.contents:
-                    output += (str(item) + "\n")
+                    output += (item.strLong() + "\n")
         if input1=="shop":
-            if self.map.rooms[self.player.loc[0]][self.player.loc[1]].shop:
+            if self.map.rooms[self.player.loc[0]][self.player.loc[1]].type in settings.rooms["shop"]:
                 for item in self.map.rooms[self.player.loc[0]][self.player.loc[1]].shopStuff:
-                    if self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome==3:
-                        if item.rarity.colour: output += (f"\033{item.rarity.colour}{item.name} \033[0m{int(0.9*item.value)}{settings.currencySym} \n")
-                        else: output += (f"{item.name} {int(0.9*item.value)}{settings.currencySym} \n")
+                    if self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome==settings.rooms["minesBiome"]:
+                        output += (f"{item.data['uses'] if 'uses' in item.data else 1}x {item.strShort()} {int(0.9*item.value)}{settings.currencySym} \n")
                     else:
-                        if item.rarity.colour: output += (f"\033{item.rarity.colour}{item.name} \033[0m{item.value}{settings.currencySym} \n")
-                        else: output += (f"{item.name} {item.value}{settings.currencySym} \n")
+                        output += (f"{item.data['uses'] if 'uses' in item.data else 1}x {item.strShort()} {0.9*item.value}{settings.currencySym} \n")
                 if self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome==3: output += (f"10% discount (Mines Biome) \n")
             else:
                 output += ("You aren't currently in a shop. \n")
+        if input1=="compass":
+            pass
+        x = self.update(settings.timeTo["view"])
+        if x: output += x
         return output
     
     def move(self,input1):
@@ -103,7 +118,7 @@ class Game:
                 output += (f"No Pathway \n")
         else:
             output += (f"Invalid Input \n")
-        x = self.update(4)
+        x = self.update(settings.timeTo["move"])
         if x: output += x
         return output
 
@@ -119,12 +134,9 @@ class Game:
                     self.player.inv[i] = self.map.rooms[self.player.loc[0]][self.player.loc[1]].contents[int(input1)]
                     self.map.rooms[self.player.loc[0]][self.player.loc[1]].contents.pop(int(input1))
                     item = self.player.inv[i]
-                    if item.type.rarity.colour:
-                        output += (f"Picked up \033{item.type.rarity.colour}{item.type.name} \033[0m \n")
-                    else:
-                        output += (f"Picked up {item.type.name} \n")
+                    output += (f"Picked up {item.uses if 'uses' in item.type.data else 1}x {item.strShort()} \n")
                     break
-        x = self.update(1)
+        x = self.update(settings.timeTo["pickup"])
         if x: output += x
         return output
     
@@ -141,11 +153,8 @@ class Game:
                 self.player.armour[int(input1)-5] = None
             if item:
                 self.map.rooms[self.player.loc[0]][self.player.loc[1]].contents.append(item)
-                if item.type.rarity.colour:
-                    output += (f"Dropped \033{item.type.rarity.colour}{item.type.name} \033[0m \n")
-                else:
-                    output += (f"Dropped {item.type.name} \n")
-        x = self.update(1)
+                output += (f"Dropped {item.uses if 'uses' in item.type.data else 1}x {item.strShort()} \n")
+        x = self.update(settings.timeTo["drop"])
         if x: output += x
         return output
 
@@ -160,11 +169,9 @@ class Game:
             item2 = self.map.rooms[self.player.loc[0]][self.player.loc[1]].contents[int(input2)]
             self.player.inv[int(input1)] = item2
             self.map.rooms[self.player.loc[0]][self.player.loc[1]].contents[int(input2)] = item1
-            if item1.type.rarity.colour: output += (f"Dropped \033{item1.type.rarity.colour}{item1.type.name} \033[0m \n")
-            else: output += (f"Dropped {item1.type.name} \n")
-            if item2.type.rarity.colour: output += (f"Picked up \033{item2.type.rarity.colour}{item2.type.name} \033[0m \n")
-            else: output += (f"Picked up {item2.type.name} \n")
-        x = self.update(1)
+            output += (f"Dropped {item1.uses if 'uses' in item1.type.data else 1}x {item1.strShort()} \n")
+            output += (f"Picked up {item2.uses if 'uses' in item2.type.data else 1}x {item2.strShort()} \n")
+        x = self.update(settings.timeTo["switch"])
         if x: output += x
         return output
 
@@ -174,38 +181,48 @@ class Game:
             output += ("Invalid Input \n")
         else:
             item = self.player.inv[int(input1)]
-            if item.type.use=="weapon":
+            if item==None:
+                output += ("No Item Selected \n")
+            elif item.type.use=="weapon":
                 output += ("You aren't currently in combat, use fight command to fight someone \n")
-            if item.type.use[:6]=="armour":
+            elif item.type.use[:6]=="armour":
                 item2 = self.player.armour[int(item.type.use[6:7])]
                 self.player.armour[int(item.type.use[6:7])] = item
-                if item.type.rarity.colour: output += (f"Equipped \033{item.type.rarity.colour}{item.type.name} \033[0m \n")
-                else: output += (f"Equipped {item.type.name} \n")
+                output += (f"Equipped {item.strShort()} \n")
                 self.player.inv[int(input1)] = item2
                 if item2:
-                    if item2.type.rarity.colour: output += (f"Unequipped \033{item2.type.rarity.colour}{item2.type.name} \033[0m \n")
-                    else: output += (f"Unequipped {item2.type.name} \n")
-            if item.type.use=="effectPosi":
-                [self.player.effects.append(i) for i in item.type.data["effects"]]
-                self.player.inv[int(input1)] = None
-                if item.type.rarity.colour: output += (f"Used \033{item.type.rarity.colour}{item.type.name} \033[0m \n")
-                else: output += (f"Used {item.type.name} \n")
-        x = self.update(1)
+                    output += (f"Unequipped {item2.strShort()} \n")
+            elif item.type.use=="instant":
+                if "healing" in item.type.data:
+                    self.player.hp += item.type.data["healing"]
+                    maxHp = int(self.player.type.data["health"]*(self.player.skills["constitution"]/100)*(sum([100]+[e.level for e in self.player.effects if e.effect=="constitution"])/100))
+                    if self.player.hp>maxHp: self.player.hp = maxHp
+                if "stamina" in item.type.data:
+                    self.player.stamina += item.type.data["stamina"]
+                self.player.inv[int(input1)].uses -= 1
+                output += (f"Used {item.strShort()} \n")
+            elif item.type.use=="effect":
+                for eff in item.type.data["effects"]:
+                    self.player.effects.append(eff.copy())
+                self.player.inv[int(input1)].uses -= 1
+                output += (f"Used {item.strShort()} \n")
+            else: output += ("Item doesn't use a use \n")
+        x = self.update(settings.timeTo["use"])
         if x: output += x
         return output
     
     def shop(self, input1, input2):
         output = ""
-        if self.map.rooms[self.player.loc[0]][self.player.loc[1]].shop:
+        if self.map.rooms[self.player.loc[0]][self.player.loc[1]].type in settings.rooms["shop"]:
             if input1=="view":
                 for item in self.map.rooms[self.player.loc[0]][self.player.loc[1]].shopStuff:
-                    if self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome==3:
-                        if item.rarity.colour: output += (f"\033{item.rarity.colour}{item.name} \033[0m{int(0.9*item.value)}{settings.currencySym} \n")
-                        else: output += (f"{item.name} {int(0.9*item.value)}{settings.currencySym} \n")
+                    if self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome==settings.rooms["minesBiome"]:
+                        output += (f"{item.data['uses'] if 'uses' in item.data else 1}x {item.strShort()} {int(0.9*item.value)}{settings.currencySym} \n")
                     else:
-                        if item.rarity.colour: output += (f"\033{item.rarity.colour}{item.name} \033[0m{item.value}{settings.currencySym} \n")
-                        else: output += (f"{item.name} {item.value}{settings.currencySym} \n")
+                        output += (f"{item.data['uses'] if 'uses' in item.data else 1}x {item.strShort()} {item.value}{settings.currencySym} \n")
                 if self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome==3: output += (f"10% discount (Mines Biome) \n")
+                x = self.update(settings.timeTo["shopv"])
+                if x: output += x
             if input1=="buy":
                 if int(input2)>=len(self.map.rooms[self.player.loc[0]][self.player.loc[1]].shopStuff):
                     output += ("Invalid Input \n")
@@ -219,11 +236,10 @@ class Game:
                             self.player.inv[i] = Object(self.map.rooms[self.player.loc[0]][self.player.loc[1]].shopStuff[int(input2)])
                             item = self.player.inv[i]
                             value = item.type.value
-                            if self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome==3: value = int(value*0.9)
+                            if self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome==settings.rooms["minesBiome"]: value = int(value*0.9)
                             self.player.balance -= value
-                            if item.type.rarity.colour: output += (f"Bought \033{item.type.rarity.colour}{item.type.name}\033[0m for {value}{settings.currencySym} \n")
-                            else: output += (f"Bought {item.type.name} for {value}{settings.currencySym} \n")
-                            x = self.update(1)
+                            output += (f"Bought {item.uses if 'uses' in item.type.data else 1}x {item.strShort()} for {value}{settings.currencySym} \n")
+                            x = self.update(settings.timeTo["shopb"])
                             if x: output += x
                             break
             if input1=="sell":
@@ -235,34 +251,41 @@ class Game:
                     item = self.player.inv[int(input2)]
                     if "durability" in item.type.data: value = int(item.type.value*item.durability/item.type.data["durability"])
                     elif "uses" in item.type.data: value = int(item.type.value*item.uses/item.type.data["uses"])
-                    if self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome==3: value = int(value*0.9)
+                    if self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome==settings.rooms["minesBiome"]: value = int(value*0.9)
                     self.player.inv[int(input2)] = None
                     self.player.balance += value
                     self.map.rooms[self.player.loc[0]][self.player.loc[1]].shopStuff.append(item.type)
-                    if item.type.rarity.colour: output += (f"Sold \033{item.type.rarity.colour}{item.type.name}\033[0m for {value}{settings.currencySym} \n")
-                    else: output += (f"Sold {item.type.name} for {value}{settings.currencySym} \n")
-                    x = self.update(1)
+                    output += (f"Sold {item.uses if 'uses' in item.type.data else 1}x {item.strShort()} for {value}{settings.currencySym} \n")
+                    x = self.update(settings.timeTo["shops"])
                     if x: output += x
         else:
             output += ("You aren't currently in a shop. \n")
         return output
     
-    def wait(self):
-        x = self.update(1)
+    def wait(self, n):
+        x = self.update(int(n))
         if x: return x
+        else: return "...\n"
     
     def help(self):
-        return """Functions:
+        return """Normal Functions:
   view [self|inventory|room|shop] - Give information about the thing asked for
   move [direction] - Move player in direction given
   pickup [obj_index] - Pick up object at given index (room)
   drop [obj_index] - Drop object at given index (inventory and armour)
   switch [inv_index] [room_index] - Switch objects at given indexes
-  fight - Under development
   use [obj_index] - Use object at given index (inventory)
   shop [view|buy|sell] [obj_index] - Interact with shop
+  wait [time] - Waits for amount of time given
   help | ? - List functions
-  quit - Quit the game \n"""
+  quit - Quit the game
+In Combat:
+  use [obj_index] - Use object at given index (inventory), -1 means default attack
+  wait|skip - Does nothing for the turn\n"""
+
+    def quit(self):
+        self.state = None
+        return "\033[1;31mGAME OVER \033[0m"
 
     def takeInput(self):
         if self.state=="normal":
@@ -285,23 +308,27 @@ class Game:
                 elif len(_input)==3: return self.shop(_input[1],_input[2])
                 else: return "Invalid Input \n"
             elif _input[0]=="wait":
-                return self.wait()
+                return self.wait(_input[1])
             elif _input[0] in ["help","?"]:
                 return self.help()
             elif _input[0]=="quit":
-                self.state = None
-                return "Exited Successfully"
+                return self.quit()
             else:
                 return "Invalid Input \n"
         if self.state=="fighting":
             if self.encounter.winner:
                 self.state = "normal"
-                x = self.encounter.endUpdate()
-                self.player = x[1]
-                self.player.friends = x[2]
-                self.map.rooms[self.player.loc[0]][self.player.loc[1]].characters = []
-                return x[0]
-            else: return self.encounter.update(input())
+                if self.encounter.winner==1:
+                    x = self.encounter.endUpdate()
+                    self.player = x[1]
+                    self.player.friends = x[2]
+                    self.map.rooms[self.player.loc[0]][self.player.loc[1]].characters = []
+                    return x[0]
+                elif self.encounter.winner==2:
+                    return self.quit()
+            else: return self.encounter.update(input(">>> ").split())
+
+
 
 
 

@@ -15,11 +15,19 @@ class Game:
         self.player.loc = list(self.map.spawn)
         self.player.balance = 100
         self.player.friends = []
+        self.player.explored = [False] * 4
         self.encounter = None
-        
-        self.player.inv = [Object(stuff.basicSword),Object(stuff.basicSword),Object(stuff.coolChestplate),None,Object(stuff.randomPills),Object(stuff.cocaine)]
-        self.player.armour = [Object(stuff.basicHelmet),None,None,None]
-        self.player.skills["strength"] = 110
+    
+    def start(self):
+        self.player.inv = [Object(stuff.basicSword),Object(stuff.goodSword),None,None,None]
+        return f"""Hi there!
+Welcome to the dungon, you must be the newest arrival. Don't worry I've got some
+gear for you, here's a sword, some food and a compass. The compass will point you
+to the boss you need to defeat in the area. You can move on the next area once
+you do so. Remember you might not want to go the the boss right away! I've also
+given you {self.player.balance}{settings.currencySym}, that will come in handy
+later. Type the 'help' or '?' command to see command list.
+Good luck! \n"""
    
     def update(self, time):
         for char in [self.player]+self.player.friends:
@@ -38,6 +46,7 @@ class Game:
         if (self.map.rooms[self.player.loc[0]][self.player.loc[1]].type in settings.rooms["fighting"]) and self.map.rooms[self.player.loc[0]][self.player.loc[1]].characters!=[]:
             self.state = "fighting"
             self.encounter = Encounter([self.player]+self.player.friends, self.map.rooms[self.player.loc[0]][self.player.loc[1]].characters)
+            self.player.explored[self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome] = True
             return self.encounter.update("")
     
     def view(self, input1):
@@ -68,7 +77,7 @@ class Game:
             currentRoom = self.map.rooms[self.player.loc[0]][self.player.loc[1]]
             biomes = ["Normal","Fire","Water","Mines"]
             output += (f"  - {biomes[currentRoom.biome]} Biome \n")
-            types = ["Normal Room","Dungon","Dungon","Dungon","Blacksmith","General Shop","Dodgy Shop","Mini-Boss Fight","Boss Fight"]
+            types = ["Normal Room","Dungon","Dungon","Dungon","Blacksmith","General Shop","Dodgy Shop","Boss Fight"]
             output += (f"  - {types[currentRoom.type]} \n") 
             if len(currentRoom.contents)>0:
                 output += ("In the room: \n")
@@ -85,7 +94,8 @@ class Game:
             else:
                 output += ("You aren't currently in a shop. \n")
         if input1=="compass":
-            pass
+            comp = self.get_compass()
+            output += (f"{comp[0]} {comp[1]} \n")
         x = self.update(settings.timeTo["view"])
         if x: output += x
         return output
@@ -93,27 +103,52 @@ class Game:
     def move(self,input1):
         output = ""
         if input1.lower()=="up":
+            
             if self.map.rooms[self.player.loc[0]][self.player.loc[1]].connections[0]:
-                self.player.loc[1] -= 1
-                output += (f"Moved {input1.lower()} \n")
+                if self.map.rooms[self.player.loc[0]][self.player.loc[1]-1].biome == self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome:
+                    self.player.loc[1] -= 1
+                    output += (f"Moved {input1.lower()} \n")
+                elif self.player.explored[self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome]:
+                    self.player.loc[1] -= 1
+                    output += (f"Moved {input1.lower()} \n")
+                else:
+                    output += (f"You must defeat the boss in this biome to leave the biome. \n")
             else:
                 output += (f"No Pathway \n")
-        elif input1.lower()=="down":
+        elif  input1.lower()=="down":
             if self.map.rooms[self.player.loc[0]][self.player.loc[1]].connections[1]:
-                self.player.loc[1] += 1
-                output += (f"Moved {input1.lower()} \n")
+                if self.map.rooms[self.player.loc[0]][self.player.loc[1]+1].biome == self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome:
+                    self.player.loc[1] += 1
+                    output += (f"Moved {input1.lower()} \n")
+                elif self.player.explored[self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome]:
+                    self.player.loc[1] += 1
+                    output += (f"Moved {input1.lower()} \n")
+                else:
+                    output += (f"You must defeat the boss in this biome to leave the biome. \n")
             else:
                 output += (f"No Pathway \n")
         elif input1.lower()=="left":
             if self.map.rooms[self.player.loc[0]][self.player.loc[1]].connections[2]:
-                self.player.loc[0] -= 1
-                output += (f"Moved {input1.lower()} \n")
+                if self.map.rooms[self.player.loc[0]-1][self.player.loc[1]].biome == self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome:
+                    self.player.loc[0] -= 1
+                    output += (f"Moved {input1.lower()} \n")
+                elif self.player.explored[self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome]:
+                    self.player.loc[0] -= 1
+                    output += (f"Moved {input1.lower()} \n")
+                else:
+                    output += (f"You must defeat the boss in this biome to leave the biome. \n")
             else:
                 output += (f"No Pathway \n")
         elif input1.lower()=="right":
             if self.map.rooms[self.player.loc[0]][self.player.loc[1]].connections[3]:
-                self.player.loc[0] += 1
-                output += (f"Moved {input1.lower()} \n")
+                if self.map.rooms[self.player.loc[0]+1][self.player.loc[1]].biome == self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome:
+                    self.player.loc[0] += 1
+                    output += (f"Moved {input1.lower()} \n")
+                elif self.player.explored[self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome]:
+                    self.player.loc[0] += 1
+                    output += (f"Moved {input1.lower()} \n")
+                else:
+                    output += (f"You must defeat the boss in this biome to leave the biome. \n")
             else:
                 output += (f"No Pathway \n")
         else:
@@ -286,6 +321,19 @@ In Combat:
     def quit(self):
         self.state = None
         return "\033[1;31mGAME OVER \033[0m"
+    
+    def get_compass(self):
+        roomDis = [999,999]
+        for x in self.map.rooms:
+            for room in x:
+                if room and (room.biome==self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome)and(room.type in settings.rooms["boss"]):
+                    new = [room.place[0]-self.player.loc[0],room.place[1]-self.player.loc[1]]
+                    if ((new[0]**2)+(new[1]**2))**0.5 < ((roomDis[0]**2)+(roomDis[1]**2))**0.5:
+                        roomDis = new
+        mag = ((roomDis[0]**2)+(roomDis[1]**2))**0.5
+        roomDis[0] /= mag
+        roomDis[1] /= mag
+        return roomDis
 
     def takeInput(self, in_):
         if self.state=="normal":
@@ -339,8 +387,3 @@ In Combat:
 
 
 
-
-if __name__ == "__main__":
-    game = Game()
-    while game.state:
-        print(game.takeInput(input('>>> ')))

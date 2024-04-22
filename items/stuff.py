@@ -26,7 +26,10 @@ class Enchantment:
         self.name = name
         self.effect = effect
         self.level = level
+    def __str__(self) -> str:
+        return f"\033{settings.enchantmentCol}{self.name}\033[0m"
 
+steal = Enchantment("Curse of Stealing I","steal",40)
 flame = Enchantment("Flame I",fire,1)
 prot1 = Enchantment("Protection I","protect",6)
 prot2 = Enchantment("Protection II","protect",10)
@@ -92,9 +95,8 @@ enchIronLeggings = ObjectType("Enchanted Iron Chestplate", rare, "armour2", 140,
 coolChestplate = ObjectType("Cool Chestplate", legendary, "armour1", 140, {"protection":20,"enchantments":[prot2],"effects":[]})
 cocaine = ObjectType("Cocaine", epic, "effect", 75, {"uses":5,"enchantments":[],"effects":[dex10]})
 randomPills = ObjectType("Random Pills", rare, "effect", 50, {"uses":3,"enchantments":[],"effects":[str10]})
-
 basicSword = ObjectType("Basic Sword", common, "weapon", 20, {"attack":25,"stamina":25,"hitRate":90,"enchantments":[],"effects":[]})
-flameSword = ObjectType("Basic Sword", epic, "weapon", 95, {"attack":25,"stamina":25,"hitRate":90,"enchantments":[],"effects":[]})
+goodSword = ObjectType("Lifesteal Sword", epic, "weapon", 95, {"attack":10,"stamina":25,"hitRate":90,"enchantments":[steal],"effects":[]})
 
 
 
@@ -217,8 +219,15 @@ class Encounter:
                                                 new = int(damage*(char.skills["strength"]/100)*sum([100]+[e.level for e in char.effects if e.effect=="strength"])/100)
                                                 output += (f"{char.name} got a double hit! (-{new-damage}HP) \n")
                                                 damage += new
+                                            if any([ench.effect=="steal" for ench in char.inv[slot].type.data["enchantments"]]):
+                                                x = [ench for ench in char.inv[slot].type.data["enchantments"] if ench.effect=="steal"]
+                                                output += (f"{char.name} uses {x[0]} to steal health!")
+                                                char.hp += int((x[0].level/100)*damage)
                                             enemy.hp -= damage
                                             char.stamina -= char.inv[slot].type.data["stamina"]
+                                            for ench in char.inv[slot].type.data["enchantments"]:
+                                                if isinstance(ench.effect, Effect):
+                                                    enemy.effects.append(ench.effect)
                                             if "uses" in char.inv[slot].type.data:
                                                 char.inv[slot].uses -= 1
                                     else:
@@ -271,7 +280,7 @@ class Encounter:
                                 output += (f"{eff} \n")
                     break
         return output
-    def endUpdate(self) -> tuple[Character|list]:
+    def endUpdate(self) -> tuple[str|Character|list]:
         for char in self.people:
             if char.type.name=="Player":
                 x = char
@@ -309,7 +318,7 @@ class Map:
                 print(j)
 
 # ["Normal","Fire","Water","Mines"]
-# ["Normal Room","Dungon","Dungon","Dungon","Blacksmith","General Shop","Dodgy Shop","Mini-Boss Fight","Boss Fight"]
+# ["Normal Room","Dungon","Dungon","Dungon","Blacksmith","General Shop","Dodgy Shop","Boss Fight"]
 
 def generateMap(x:str) -> Map:
     stuff,seed = x.split()
@@ -330,14 +339,14 @@ def generateMap(x:str) -> Map:
 def updateRoom(room:Room) -> Room:
     if room.type==1:
         characters = random.choice([[goblin1,goblin2,goblin3,goblin4]])
-        room.characters = [Character(i) for i in random.choices(characters, weights=(4,3,2,1), k=random.randint(3,5))]
+        room.characters = [Character(i) for i in random.choices(characters, weights=(4,0,0,0), k=random.randint(3,5))]
     elif room.type==2:
         characters = random.choice([[goblin1,goblin2,goblin3,goblin4]])
         room.characters = [Character(i) for i in random.choices(characters, weights=(2,4,3,1), k=random.randint(4,7))]
     elif room.type==3:
         characters = random.choice([[goblin1,goblin2,goblin3,goblin4]])
         room.characters = [Character(i) for i in random.choices(characters, weights=(1,3,4,2), k=random.randint(5,8))]
-    elif room.type==4:
+    """elif room.type==4:
         objects = []
         room.shopStuff = [Object(i) for i in random.choices(objects, k=random.randint(4,5))]
     elif room.type==5:
@@ -345,5 +354,5 @@ def updateRoom(room:Room) -> Room:
         room.shopStuff = [Object(i) for i in random.choices(objects, k=random.randint(3,6))]
     elif room.type==6:
         objects = []
-        room.shopStuff = [Object(i) for i in random.choices(objects, k=random.randint(3,4))]
+        room.shopStuff = [Object(i) for i in random.choices(objects, k=random.randint(3,4))]"""
     return room

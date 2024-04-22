@@ -1,4 +1,4 @@
-import random,settings
+import random,items.settings as settings
 
 class Effect:
     def __init__(self, name:str, effect:str, level:int, time:int) -> None:
@@ -117,6 +117,7 @@ class Character:
             for i in range(self.type.data["invSize"]):
                 if random.random()<self.type.data["invChance"]: self.inv.append(Object(self.type.data["inventory"][i]))
         self.hp = self.type.data["health"]
+        self.maxhp = self.type.data["health"]
         self.stamina = 0
         self.armour = [None,None,None,None]
         self.effects = []

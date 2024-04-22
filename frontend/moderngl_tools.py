@@ -1,5 +1,6 @@
 import moderngl, array
 ctx = moderngl.create_context()
+ctx.enable(moderngl.BLEND)
 quad_buffer = ctx.buffer(data=array.array('f', [
     # position (x, y), uv coords (x, y)
     -1.0, 1.0, 0.0, 0.0,  # topleft

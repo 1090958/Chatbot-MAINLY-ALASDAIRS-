@@ -1,1 +1,1 @@
-resolution = (720,720)
+resolution = (1080,1080)

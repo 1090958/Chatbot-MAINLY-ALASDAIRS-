@@ -22,6 +22,6 @@ class bar:
             ))))
     def run(self, event):
         if self.type == 'health':
-            self.value = variables.game.player.hp/variables.game.player.maxhp
+            self.value = variables.game.player.hp/variables.game.player.
         if self.type == 'stamina':
             self.value = variables.game.player.stamina/400

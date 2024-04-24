@@ -20,7 +20,7 @@ render_object = mgltools.ctx.vertex_array(program, [(mgltools.quad_buffer, '2f 2
 
 # pygame things
 clock = pygame.time.Clock()
-running = True
+variables.running = True
 
 # image items
 bg = pygame.image.load('images/bg.png')
@@ -72,7 +72,10 @@ move2=pygame.transform.scale2x(pygame.image.load('images\move2.png'))
 
 #game integration
 import items.main as main
-variables.game:main.Game = main.Game()
+variables.game:main.Game = main.gui(main.Game())
+
+
+
 def load_item(item)->pygame.surface:
     
     filename =  'images/items/'+ ''.join(item.type.name.lower().split())
@@ -82,7 +85,7 @@ def load_item(item)->pygame.surface:
         return pygame.transform.scale_by(pygame.image.load('images/items/unknownitem.png'),1.2)
 
 
-while running:
+while variables.running:
     display.fill((0,0,0))
     
     display.blit(bg,(0,0))
@@ -113,11 +116,12 @@ while running:
         partition.draw(display)
     
     events = pygame.event.get()
+    
     #event stuff
     dt = 0.1
     for event in events:
         if event.type == pygame.QUIT:
-            running = False
+            variables.running = False
         if event.type == pygame.KEYDOWN:
             variables.blur=False
             if event.key == pygame.K_SLASH:

@@ -1,14 +1,9 @@
 from items.stuff import Object,Character,Encounter
-import items.stuff as stuff , items.settings as settings
+import items.stuff as stuff, items.settings as settings, pygame
 import variables
 from frontend.prompt import prompt
 
-
-
-
 class Game:
-    """A little dnd game which is legally under the ownership of Alasdair Marsden :)"""
-    
     def __init__(self):
         self.state = "normal"
         self.map = stuff.generateMap(settings.seed)
@@ -20,17 +15,11 @@ class Game:
         self.encounter = None
     
     def start(self):
-        self.player.inv = [Object(stuff.basicSword),Object(stuff.goodSword),None,None,None]
-        return f"""Hi there!
-Welcome to the dungon, you must be the newest arrival. Don't worry I've got some
-gear for you, here's a sword, some food and a compass. The compass will point you
-to the boss you need to defeat in the area. You can move on the next area once
-you do so. Remember you might not want to go the the boss right away! I've also
-given you {self.player.balance}{settings.currencySym}, that will come in handy
-later. Type the 'help' or '?' command to see command list.
-Good luck! \n"""
+        self.player.inv = [Object(stuff.basicSword),Object(stuff.cocaine),None,None,Object(stuff.basicHelmet)]
+        self.player.armour = [None,None,None,None]
    
     def update(self, time):
+        self.map.rooms[self.player.loc[0]][self.player.loc[1]].seen = True
         for char in [self.player]+self.player.friends:
             char.hp += sum([e.level for e in char.effects if e.effect=="health"])
             maxHp = char.type.data["health"]*(char.skills["constitution"]/100)*(sum([100]+[e.level for e in char.effects if e.effect=="constitution"])/100)
@@ -48,280 +37,109 @@ Good luck! \n"""
             self.state = "fighting"
             self.encounter = Encounter([self.player]+self.player.friends, self.map.rooms[self.player.loc[0]][self.player.loc[1]].characters)
             self.player.explored[self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome] = True
-            return self.encounter.update("")
-    
-    def view(self, input1):
-        output = ""
-        if input1=="self":
-            n = int((30*self.player.hp)/(self.player.type.data["health"]*(self.player.skills["constitution"]/100))*(sum([100]+[e.level for e in self.player.effects if e.effect=="constitution"])/100))
-            string = f"{self.player.hp}HP"
-            output += (string + (" "*(30-len(string))) + "[" + ("="*n) + (" "*(30-n)) + "]" + "\n")
-            for skill,value in self.player.skills.items():
-                n = int((30*(value-100))/(100))
-                string = f"{skill[0:1].upper()+skill[1:]} +{value-100}%"
-                output += (string + (" "*(30-len(string))) + "[" + ("="*n) + (" "*(30-n)) + "]" + "\n")
-            output += (f"{self.player.balance}{settings.currencySym} \n")
-            output += ("Inventory: \n")
-            for item in self.player.inv:
-                if item: output += (item.strLong() + "\n")
-                else: output += ("  - No Item \n")
-            output += ("Armour Equipped: \n")
-            for item in self.player.armour:
-                if item: output += (item.strLong() + "\n")
-                else:
-                    output += ("  - No Armour \n")
-            if len(self.player.effects)>0:
-                output += ("Effects: \n")
-                for effect in self.player.effects:
-                    output += (f"\033{settings.effectCol}  - " + str(effect) + "\n")
-        if input1=="room":
-            currentRoom = self.map.rooms[self.player.loc[0]][self.player.loc[1]]
-            biomes = ["Normal","Fire","Water","Mines"]
-            output += (f"  - {biomes[currentRoom.biome]} Biome \n")
-            types = ["Normal Room","Dungon","Dungon","Dungon","Blacksmith","General Shop","Dodgy Shop","Boss Fight"]
-            output += (f"  - {types[currentRoom.type]} \n") 
-            if len(currentRoom.contents)>0:
-                output += ("In the room: \n")
-                for item in currentRoom.contents:
-                    output += (item.strLong() + "\n")
-        if input1=="shop":
-            if self.map.rooms[self.player.loc[0]][self.player.loc[1]].type in settings.rooms["shop"]:
-                for item in self.map.rooms[self.player.loc[0]][self.player.loc[1]].shopStuff:
-                    if self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome==settings.rooms["minesBiome"]:
-                        output += (f"{item.data['uses'] if 'uses' in item.data else 1}x {item.strShort()} {int(0.9*item.value)}{settings.currencySym} \n")
-                    else:
-                        output += (f"{item.data['uses'] if 'uses' in item.data else 1}x {item.strShort()} {0.9*item.value}{settings.currencySym} \n")
-                if self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome==3: output += (f"10% discount (Mines Biome) \n")
-            else:
-                output += ("You aren't currently in a shop. \n")
-        if input1=="compass":
-            comp = self.get_compass()
-            output += (f"{comp[0]} {comp[1]} \n")
-        x = self.update(settings.timeTo["view"])
-        if x: output += x
-        return output
-    
+        if self.state=="fighting":
+            if self.encounter.winner:
+                self.state = "normal"
+                if self.encounter.winner==1:
+                    x = self.encounter.endUpdate()
+                    self.player = x[0]
+                    self.player.friends = x[1]
+                    self.map.rooms[self.player.loc[0]][self.player.loc[1]].characters = []
+                elif self.encounter.winner==2:
+                    self.state = "gameOver"
+
     def move(self,input1):
-        output = ""
         if input1.lower()=="up":
-            
             if self.map.rooms[self.player.loc[0]][self.player.loc[1]].connections[0]:
                 if self.map.rooms[self.player.loc[0]][self.player.loc[1]-1].biome == self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome:
                     self.player.loc[1] -= 1
-                    output += (f"Moved {input1.lower()} \n")
                 elif self.player.explored[self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome]:
                     self.player.loc[1] -= 1
-                    output += (f"Moved {input1.lower()} \n")
-                else:
-                    output += (f"You must defeat the boss in this biome to leave the biome. \n")
-            else:
-                output += (f"No Pathway \n")
-        elif  input1.lower()=="down":
+        elif input1.lower()=="down":
             if self.map.rooms[self.player.loc[0]][self.player.loc[1]].connections[1]:
                 if self.map.rooms[self.player.loc[0]][self.player.loc[1]+1].biome == self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome:
                     self.player.loc[1] += 1
-                    output += (f"Moved {input1.lower()} \n")
                 elif self.player.explored[self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome]:
                     self.player.loc[1] += 1
-                    output += (f"Moved {input1.lower()} \n")
-                else:
-                    output += (f"You must defeat the boss in this biome to leave the biome. \n")
-            else:
-                output += (f"No Pathway \n")
         elif input1.lower()=="left":
             if self.map.rooms[self.player.loc[0]][self.player.loc[1]].connections[2]:
                 if self.map.rooms[self.player.loc[0]-1][self.player.loc[1]].biome == self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome:
                     self.player.loc[0] -= 1
-                    output += (f"Moved {input1.lower()} \n")
                 elif self.player.explored[self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome]:
                     self.player.loc[0] -= 1
-                    output += (f"Moved {input1.lower()} \n")
-                else:
-                    output += (f"You must defeat the boss in this biome to leave the biome. \n")
-            else:
-                output += (f"No Pathway \n")
         elif input1.lower()=="right":
             if self.map.rooms[self.player.loc[0]][self.player.loc[1]].connections[3]:
                 if self.map.rooms[self.player.loc[0]+1][self.player.loc[1]].biome == self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome:
                     self.player.loc[0] += 1
-                    output += (f"Moved {input1.lower()} \n")
                 elif self.player.explored[self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome]:
                     self.player.loc[0] += 1
-                    output += (f"Moved {input1.lower()} \n")
-                else:
-                    output += (f"You must defeat the boss in this biome to leave the biome. \n")
-            else:
-                output += (f"No Pathway \n")
-        else:
-            output += (f"Invalid Input \n")
-        x = self.update(settings.timeTo["move"])
-        if x: output += x
-        return output
-
+        self.update(settings.timeTo["move"])
+    
     def pickup(self,input1):
-        output = ""
-        if int(input1) >= len(self.map.rooms[self.player.loc[0]][self.player.loc[1]].contents):
-            output += ("Invalid Input \n")
-        elif None not in self.player.inv:
-            output += ("Inventory Full \n")
-        else:
-            for i in range(len(self.player.inv)):
-                if self.player.inv[i]==None:
-                    self.player.inv[i] = self.map.rooms[self.player.loc[0]][self.player.loc[1]].contents[int(input1)]
-                    self.map.rooms[self.player.loc[0]][self.player.loc[1]].contents.pop(int(input1))
-                    item = self.player.inv[i]
-                    output += (f"Picked up {item.uses if 'uses' in item.type.data else 1}x {item.strShort()} \n")
-                    break
-        x = self.update(settings.timeTo["pickup"])
-        if x: output += x
-        return output
+        for i in range(len(self.player.inv)):
+            if self.player.inv[i]==None:
+                self.player.inv[i] = self.map.rooms[self.player.loc[0]][self.player.loc[1]].contents[int(input1)]
+                self.map.rooms[self.player.loc[0]][self.player.loc[1]].contents.pop(int(input1))
+                break
+        self.update(settings.timeTo["pickup"])
     
     def drop(self,input1):
-        output = ""
-        if int(input1) >= len(self.player.inv+self.player.armour):
-            output += ("Invalid Input \n")
-        else:
-            if int(input1)<5:
-                item = self.player.inv[int(input1)]
-                self.player.inv[int(input1)] = None
-            elif int(input1)>4:
-                item = self.player.armour[int(input1)-5]
-                self.player.armour[int(input1)-5] = None
-            if item:
-                self.map.rooms[self.player.loc[0]][self.player.loc[1]].contents.append(item)
-                output += (f"Dropped {item.uses if 'uses' in item.type.data else 1}x {item.strShort()} \n")
-        x = self.update(settings.timeTo["drop"])
-        if x: output += x
-        return output
-
-    def switch(self,input1,input2):
-        output = ""
-        if int(input1)>=len(self.player.inv) or int(input2)>=len(self.map.rooms[self.player.loc[0]][self.player.loc[1]].contents):
-            output += ("Invalid Input \n")
-        elif self.player.inv[int(input1)]==None:
-            output += ("Nothing Selected, Use Pickup Command \n")
-        else:
-            item1 = self.player.inv[int(input1)]
-            item2 = self.map.rooms[self.player.loc[0]][self.player.loc[1]].contents[int(input2)]
-            self.player.inv[int(input1)] = item2
-            self.map.rooms[self.player.loc[0]][self.player.loc[1]].contents[int(input2)] = item1
-            output += (f"Dropped {item1.uses if 'uses' in item1.type.data else 1}x {item1.strShort()} \n")
-            output += (f"Picked up {item2.uses if 'uses' in item2.type.data else 1}x {item2.strShort()} \n")
-        x = self.update(settings.timeTo["switch"])
-        if x: output += x
-        return output
+        if int(input1)<5:
+            item = self.player.inv[int(input1)]
+            self.player.inv[int(input1)] = None
+        elif int(input1)>4:
+            item = self.player.armour[int(input1)-5]
+            self.player.armour[int(input1)-5] = None
+        if item:
+            self.map.rooms[self.player.loc[0]][self.player.loc[1]].contents.append(item)
+        self.update(settings.timeTo["drop"])
 
     def use(self,input1):
-        output = ""
-        if int(input1) >= len(self.player.inv):
-            output += ("Invalid Input \n")
-        else:
-            item = self.player.inv[int(input1)]
-            if item==None:
-                output += ("No Item Selected \n")
-            elif item.type.use=="weapon":
-                output += ("You aren't currently in combat, use fight command to fight someone \n")
-            elif item.type.use[:6]=="armour":
-                item2 = self.player.armour[int(item.type.use[6:7])]
-                self.player.armour[int(item.type.use[6:7])] = item
-                output += (f"Equipped {item.strShort()} \n")
-                self.player.inv[int(input1)] = item2
-                if item2:
-                    output += (f"Unequipped {item2.strShort()} \n")
-            elif item.type.use=="instant":
-                if "healing" in item.type.data:
-                    self.player.hp += item.type.data["healing"]
-                    maxHp = int(self.player.type.data["health"]*(self.player.skills["constitution"]/100)*(sum([100]+[e.level for e in self.player.effects if e.effect=="constitution"])/100))
-                    if self.player.hp>maxHp: self.player.hp = maxHp
-                if "stamina" in item.type.data:
-                    self.player.stamina += item.type.data["stamina"]
-                self.player.inv[int(input1)].uses -= 1
-                output += (f"Used {item.strShort()} \n")
-            elif item.type.use=="effect":
-                for eff in item.type.data["effects"]:
-                    self.player.effects.append(eff.copy())
-                self.player.inv[int(input1)].uses -= 1
-                output += (f"Used {item.strShort()} \n")
-            else: output += ("Item doesn't use a use \n")
-        x = self.update(settings.timeTo["use"])
-        if x: output += x
-        return output
+        item = self.player.inv[int(input1)]
+        if item.type.use[:6]=="armour":
+            item2 = self.player.armour[int(item.type.use[6:7])]
+            self.player.armour[int(item.type.use[6:7])] = item
+            self.player.inv[int(input1)] = item2
+        elif item.type.use=="instant":
+            if "healing" in item.type.data:
+                self.player.hp += item.type.data["healing"]
+                maxHp = int(self.player.type.data["health"]*(self.player.skills["constitution"]/100)*(sum([100]+[e.level for e in self.player.effects if e.effect=="constitution"])/100))
+                if self.player.hp>maxHp: self.player.hp = maxHp
+            if "stamina" in item.type.data:
+                self.player.stamina += item.type.data["stamina"]
+            self.player.inv[int(input1)].uses -= 1
+        elif item.type.use=="effect":
+            for eff in item.type.data["effects"]:
+                self.player.effects.append(eff.copy())
+            self.player.inv[int(input1)].uses -= 1
+        self.update(settings.timeTo["use"])
     
-    def shop(self, input1, input2):
-        output = ""
-        if self.map.rooms[self.player.loc[0]][self.player.loc[1]].type in settings.rooms["shop"]:
-            if input1=="view":
-                for item in self.map.rooms[self.player.loc[0]][self.player.loc[1]].shopStuff:
-                    if self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome==settings.rooms["minesBiome"]:
-                        output += (f"{item.data['uses'] if 'uses' in item.data else 1}x {item.strShort()} {int(0.9*item.value)}{settings.currencySym} \n")
-                    else:
-                        output += (f"{item.data['uses'] if 'uses' in item.data else 1}x {item.strShort()} {item.value}{settings.currencySym} \n")
-                if self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome==3: output += (f"10% discount (Mines Biome) \n")
-                x = self.update(settings.timeTo["shopv"])
-                if x: output += x
-            if input1=="buy":
-                if int(input2)>=len(self.map.rooms[self.player.loc[0]][self.player.loc[1]].shopStuff):
-                    output += ("Invalid Input \n")
-                elif self.player.balance<self.map.rooms[self.player.loc[0]][self.player.loc[1]].shopStuff[int(input2)].value:
-                    output += ("Insufficient Funds \n")
-                elif None not in self.player.inv:
-                    output += ("Inventory Full \n")
-                else:
-                    for i in range(len(self.player.inv)):
-                        if self.player.inv[i]==None:
-                            self.player.inv[i] = Object(self.map.rooms[self.player.loc[0]][self.player.loc[1]].shopStuff[int(input2)])
-                            item = self.player.inv[i]
-                            value = item.type.value
-                            if self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome==settings.rooms["minesBiome"]: value = int(value*0.9)
-                            self.player.balance -= value
-                            output += (f"Bought {item.uses if 'uses' in item.type.data else 1}x {item.strShort()} for {value}{settings.currencySym} \n")
-                            x = self.update(settings.timeTo["shopb"])
-                            if x: output += x
-                            break
-            if input1=="sell":
-                if int(input2)>=len(self.player.inv):
-                    output += ("Invalid Input \n")
-                elif self.player.inv[int(input2)]==None:
-                    output += ("Nothing Selected \n")
-                else:
-                    item = self.player.inv[int(input2)]
-                    if "durability" in item.type.data: value = int(item.type.value*item.durability/item.type.data["durability"])
-                    elif "uses" in item.type.data: value = int(item.type.value*item.uses/item.type.data["uses"])
-                    if self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome==settings.rooms["minesBiome"]: value = int(value*0.9)
-                    self.player.inv[int(input2)] = None
-                    self.player.balance += value
-                    self.map.rooms[self.player.loc[0]][self.player.loc[1]].shopStuff.append(item.type)
-                    output += (f"Sold {item.uses if 'uses' in item.type.data else 1}x {item.strShort()} for {value}{settings.currencySym} \n")
-                    x = self.update(settings.timeTo["shops"])
-                    if x: output += x
-        else:
-            output += ("You aren't currently in a shop. \n")
-        return output
+    def shopbuy(self,input1):
+        item = self.map.rooms[self.player.loc[0]][self.player.loc[1]].shopStuff[int(input1)]
+        value = item.value
+        if self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome==settings.rooms["minesBiome"]: value = int(value*0.9)
+        if value<=self.player.balance:
+            for i in range(len(self.player.inv)):
+                if self.player.inv[i]==None:
+                    self.player.inv[i] = Object(item)
+                    self.player.balance -= value
+                    break
+        self.update(settings.timeTo["shopb"])
+
+    def shopsell(self,input1):
+        item = self.player.inv[int(input1)]
+        if "uses" in item.type.data: value = int(item.type.value*item.uses/item.type.data["uses"])
+        if self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome==settings.rooms["minesBiome"]: value = int(value*0.9)
+        self.player.inv[int(input1)] = None
+        self.player.balance += value
+        self.map.rooms[self.player.loc[0]][self.player.loc[1]].shopStuff.append(item.type)
+        self.update(settings.timeTo["shops"])
     
     def wait(self, n):
-        x = self.update(int(n))
-        if x: return x
-        else: return "...\n"
-    
-    def help(self):
-        return """Normal Functions:
-  view [self|inventory|room|shop]@ - Give information about the thing asked for
-  move [direction]@ - Move player in direction given
-  pickup [obj_index]@ - Pick up object at given index (room)
-  drop [obj_index]@ - Drop object at given index (inventory and armour)
-  switch [inv_index] [room_index]@ - Switch objects at given indexes
-  use [obj_index]@ - Use object at given index (inventory)
-  shop [view|buy|sell] [obj_index]@ - Interact with shop
-  wait [time]@ - Waits for amount of time given
-  help | ?@ - List functions
-  quit - Quit the game
-In Combat:
-  use [obj_index] - Use object at given index (inventory), -1 means default attack
-  wait|skip - Does nothing for the turn\n"""
+        self.update(int(n))
 
     def quit(self):
         self.state = None
-        return "\033[1;31mGAME OVER \033[0m"
     
     def get_compass(self):
         roomDis = [999,999]
@@ -336,55 +154,221 @@ In Combat:
         roomDis[1] /= mag
         return roomDis
 
-    def takeInput(self, in_):
-        if self.state=="normal":
-            _input = in_.split()
-            if not _input: _input=[""]
-            if _input[0]=="view":
-                
-                if variables.text:
-                    return self.view(_input[1])
+class GameGUI:
+    def __init__(self, game:Game) -> None:
+        
+        self.game = game
+        self.game.start()
+        self.screen = pygame.Surface([1200, 800], pygame.SRCALPHA)
+        self.clock = pygame.time.Clock()
+        self.time = 0
+        self.mode = [None,-1]
+        self.filename = "frontend/"
+        self.defaultColour = (0,200,0)
+        self.buttons = []
+    
+    def text(self, text:str|int, size:int, pos:tuple, font:str="font_minecraft.ttf", colour:tuple|None=None, anchor:str="c") -> None:
+        if not colour: colour=self.defaultColour
+        f = pygame.font.Font(self.filename+font,size)
+        x = f.render(str(text),True,colour)
+        r = x.get_rect()
+        if anchor=="c": r.center=pos
+        elif anchor=="l": r.midleft=pos
+        elif anchor=="r": r.midright=pos
+        elif anchor=="t": r.midtop=pos
+        elif anchor=="tl": r.topleft=pos
+        elif anchor=="tr": r.topright=pos
+        self.screen.blit(x, r)
+    
+    def rect(self, pos:tuple, size:tuple, colour:tuple|None=None, width:int=0, anchor:str="c") -> None:
+        if not colour: colour=self.defaultColour
+        r = pygame.Rect(0,0,size[0],size[1])
+        if anchor=="c": r.center=pos
+        elif anchor=="l": r.midleft=pos
+        elif anchor=="r": r.midright=pos
+        elif anchor=="t": r.midtop=pos
+        elif anchor=="tl": r.topleft=pos
+        elif anchor=="tr": r.topright=pos
+        pygame.draw.rect(self.screen, colour, r, width)
+    
+    def image(self, name:str, pos:tuple, size:tuple, rotation:int=0, anchor:str="c") -> None:
+        img = pygame.transform.rotate(pygame.transform.scale(pygame.image.load(self.filename+name),size),rotation)
+        pos = list(pos)
+        if anchor=="c": pos[0]-=size[0]/2; pos[1]-=size[1]/2
+        elif anchor=="l": pos[1]-=size[1]/2
+        elif anchor=="r": pos[0]-=size[0]; pos[1]-=size[1]/2
+        elif anchor=="t": pos[0]-=size[0]/2
+        elif anchor=="tl": pass
+        elif anchor=="tr": pos[0]-=size[0]
+        self.screen.blit(img, pos)
+    
+    def button(self, pos:tuple, size:tuple, func, args, anchor:str="c") -> None:
+        r = pygame.Rect(0,0,size[0],size[1])
+        if anchor=="c": r.center=pos
+        elif anchor=="l": r.midleft=pos
+        elif anchor=="r": r.midright=pos
+        elif anchor=="t": r.midtop=pos
+        elif anchor=="tl": r.topleft=pos
+        elif anchor=="tr": r.topright=pos
+        self.buttons.append((r, func, args))
+    
+    def switchMode1(self, mode:str) -> None:
+        self.mode[0] = mode
+        
+    def switchMode2(self, mode:int) -> None:
+        self.mode[1] = mode
+    
+    def skipFunc(self, *args):
+        pass
+    
+    def step(self, events) -> None:
+    
+        self.screen.fill((0,0,0))
+        for event in events:
+            if event.type == pygame.QUIT:
+                variables.running = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mousePos = pygame.mouse.get_pos()
+                for button in self.buttons:
+                    if button[0].collidepoint(mousePos):
+                        button[1](button[2])
+        self.buttons = []
+        if self.game.state=="normal":
+            #lines
+            pygame.draw.line(self.screen, self.defaultColour, (0,30), (1200,30), 5)
+            pygame.draw.line(self.screen, self.defaultColour, (0,130), (1200,130), 5)
+            pygame.draw.line(self.screen, self.defaultColour, (0,500), (1200,500), 5)
+            pygame.draw.line(self.screen, self.defaultColour, (200,130), (200,500), 5)
+            pygame.draw.line(self.screen, self.defaultColour, (1000,130), (1000,500), 5)
+            #top
+            self.text(f"state: {self.game.state}",20,(50,0),anchor="tl")
+            self.text(f"mode: {self.mode[0]}",20,(250,0),anchor="tl")
+            self.text(f"fps: {int(self.clock.get_fps()*100)/100}",20,(450,0),anchor="tl")
+            self.text(f"seedInfo: {settings.seed.split()[0]}",20,(600,0),anchor="tl")
+            self.text(f"time: {self.time}ms",20,(850,0),anchor="tl")
+            for i in range(6):
+                option = ["player","items","room","shop","map","chat"]
+                if option[i]==self.mode[0]: self.rect((190*i+125,80),(150,50),colour=(0,60,0))
+                self.rect((190*i+125,80),(150,50),width=5)
+                self.text(option[i],20,(190*i+125,80),colour=None)
+                self.button((190*i+125,80),(150,50),self.switchMode1,option[i])
+                self.button((190*i+125,80),(150,50),self.switchMode2,-1)
+            #bottom
+            for i in range(5):
+                if self.game.player.inv[i]:
+                    self.rect((i*125+100,700),(100,100),colour=self.game.player.inv[i].type.rarity.colour)
+                    self.image(self.game.player.inv[i].type.img,(i*125+100,700),(64,64))
+                    self.text(str(i),16,(i*125+57,653),colour=(0,0,0),anchor="tl")
+                    self.button((i*125+100,700),(100,100),self.switchMode1,"items")
+                    self.button((i*125+100,700),(100,100),self.switchMode2,i)
                 else:
-                    self.view(_input[1])
-            elif _input[0]=="move":
-                return self.move(_input[1])
-            elif _input[0]=="pickup":
-                return self.pickup(_input[1])
-            elif _input[0]=="drop":
-                return self.drop(_input[1])
-            elif _input[0]=="switch":
-                return self.switch(_input[1],_input[2])
-            elif _input[0]=="use":
-                prompt( self.use(_input[1]))
-                
-            elif _input[0]=="shop":
-                if len(_input)==2: return self.shop(_input[1],None)
-                elif len(_input)==3: return self.shop(_input[1],_input[2])
-                else: return "Invalid Input \n"
-            elif _input[0]=="wait":
-                return self.wait(_input[1])
-            elif _input[0] in ["help","?"]:
-                
-                prompt(self.help())
-            elif _input[0]=="quit":
-                return self.quit()
-            elif _input[0]=="blur":
-                variables.blur = True
-            else:
-                return "Invalid Input \n"
-        if self.state=="fighting":
-            if self.encounter.winner:
-                self.state = "normal"
-                if self.encounter.winner==1:
-                    x = self.encounter.endUpdate()
-                    self.player = x[1]
-                    self.player.friends = x[2]
-                    self.map.rooms[self.player.loc[0]][self.player.loc[1]].characters = []
-                    return x[0]
-                elif self.encounter.winner==2:
-                    return self.quit()
-            else: return self.encounter.update(in_)
+                    self.text(str(i),16,(i*125+57,653),anchor="tl")
+                self.rect((i*125+100,700),(100,100),width=5)
+            for i in range(4):
+                if self.game.player.armour[i]:
+                    self.rect((i*125+100,575),(100,100),colour=self.game.player.armour[i].type.rarity.colour)
+                    self.image(self.game.player.armour[i].type.img,(i*125+100,575),(64,64))
+                    self.text(f"a{i}",16,(i*125+57,528),colour=(0,0,0),anchor="tl")
+                    self.button((i*125+100,575),(100,100),self.switchMode1,"items")
+                    self.button((i*125+100,575),(100,100),self.switchMode2,i+5)
+                else:
+                    self.text(f"a{i}",16,(i*125+57,528),anchor="tl")
+                self.rect((i*125+100,575),(100,100),width=5)
+            for i in range(3):
+                skills = ["constitution","dexterity","strength"]
+                colours = [(220,0,0),(0,0,220),(220,220,0)]
+                self.text(skills[i],20,(700,i*75+530),anchor="tl")
+                self.text(f"+{self.game.player.skills[skills[i]]-100}%",20,(1150,i*75+530),colour=colours[i],anchor="tr")
+                self.rect((700,i*75+560),((self.game.player.skills[skills[i]]-100)*450/100,35),colour=colours[i],anchor="tl")
+                self.rect((700,i*75+560),(450,35),anchor="tl",width=5)
+            #middle
+            if self.mode[0]=="player":
+                maxHp = int(self.game.player.type.data["health"]*(self.game.player.skills["constitution"]/100)*(sum([100]+[e.level for e in self.game.player.effects if e.effect=="constitution"])/100))
+                self.rect((250,190),((self.game.player.hp/maxHp)*700,50),colour=(220,0,0),anchor="l")
+                self.rect((600,190),(700,50),width=5)
+                self.text("health",20,(250,220),colour=(220,0,0),anchor="tl")
+                self.text(f"{self.game.player.hp}HP / {maxHp}HP",20,(950,220),colour=(220,0,0),anchor="tr")
+                for i in range(7):
+                    text1 = ["balance","constitution","dexterity","strength","effects","",""]
+                    text2 = [f"{self.game.player.balance}{settings.currencySym}",
+                                str(self.game.player.skills["constitution"]),
+                                str(self.game.player.skills["dexterity"]),
+                                str(self.game.player.skills["strength"]),
+                                str(self.game.player.effects[0].name) if len(self.game.player.effects)>0 else "None",
+                                str(self.game.player.effects[1].name) if len(self.game.player.effects)>1 else "",
+                                str(self.game.player.effects[2].name) if len(self.game.player.effects)>2 else "",]
+                    col = [settings.currencyCol,(220,0,0),(0,0,220),(220,220,0),settings.effectCol,settings.effectCol,settings.effectCol]
+                    self.text(text1[i],20,(250,i*30+250),colour=col[i],anchor="tl")
+                    self.text(text2[i],20,(950,i*30+250),colour=col[i],anchor="tr")
+            if self.mode[0]=="items":
+                if self.mode[1]==-1:
+                    self.text("Select an Item",20,(600,315))
+                else: 
+                    if self.mode[1]<5: item = self.game.player.inv[self.mode[1]]
+                    if self.mode[1]>4: item = self.game.player.armour[self.mode[1]-5]
+                    if not item:
+                        self.text("Select an Item",20,(600,315))
+                    else:
+                        self.image(item.type.img,(800,315),(300,300))
+                        self.rect((800,315),(300,300),width=5)
+                        text = []
+                        text.append(f"{item.type.name} (x{item.uses})" if "uses" in item.type.data else str(item.type.name))
+                        text.append(f"     [{item.type.rarity.name}]")
+                        text.append(f"     [{item.type.use}]")
+                        if "attack" in item.type.data: text.append(f"     [attack: {item.type.data['attack']}]")
+                        if "hitRate" in item.type.data: text.append(f"     [hitRate: {item.type.data['hitRate']}]")
+                        if "stamina" in item.type.data: text.append(f"     [stamina: {item.type.data['stamina']}]")
+                        if "healing" in item.type.data: text.append(f"     [healing: {item.type.data['healing']}]")
+                        if "protection" in item.type.data: text.append(f"     [protection: {item.type.data['protection']}]")
+                        if len(item.type.data["enchantments"])>0: text.append(f"ench: {item.type.data['enchantments'][0].name}")
+                        if len(item.type.data["enchantments"])>1: text.append(f"ench: {item.type.data['enchantments'][1].name}")
+                        if len(item.type.data['effects'])>0: text.append(f"eff: {item.type.data['effects'][0].name}")
+                        if len(item.type.data['effects'])>1: text.append(f"eff: {item.type.data['effects'][1].name}")
+                        for i in range(len(text)):
+                            if i==0: col = item.type.rarity.colour
+                            elif text[i][:4]=="ench": col = settings.enchantmentCol
+                            elif text[i][:3]=="eff": col = settings.effectCol
+                            else: col = None
+                            self.text(text[i],20,(250,i*25+165),colour=col,anchor="tl")
+                        for i in range(2):
+                            text = ["use","drop"]
+                            func = [self.game.use if self.mode[1]<5 else self.skipFunc,self.game.drop]
+                            args = [self.mode[1],self.mode[1]]
+                            self.rect((i*200+325,440),(150,50),width=5)
+                            self.text(text[i],20,(i*200+325,440))
+                            self.button((i*200+325,440),(150,50),func[i],args[i])
+            if self.mode[0]=="room":
+                pass
+            if self.mode[0]=="shop":
+                room = self.game.map.rooms[self.game.player.loc[0]][self.game.player.loc[1]]
+                for i in range(2):
+                    text = ["buy","sell"]
+                    if self.mode[1]==i: self.rect((i*190+505,190),(150,50),colour=(0,60,0))
+                    self.rect((i*190+505,190),(150,50),width=5)
+                    self.text(text[i],20,(i*190+505,190))
+                    self.button((i*190+505,190),(150,50),self.switchMode2,i)
+                self.text(f"Balance: {self.game.player.balance}{settings.currencySym}",20,(600,220),colour=settings.currencyCol,anchor="t")
+                if self.mode[1]==-1:
+                    self.text("Select buy or sell option",20,(600,315))
+                if self.mode[1]==0:
+                    for i in range(len(room.shopStuff)):
+                        value = room.shopStuff[i].value
+                        if room.type == settings.rooms["minesBiome"]: value = int(value*0.9)
+                        self.text(f"{i}. {room.shopStuff[i].name}",20,(250,i*30+250),colour=room.shopStuff[i].rarity.colour,anchor="tl")
+                        self.text(f"{value}{settings.currencySym}",20,(800,i*30+250),colour=room.shopStuff[i].rarity.colour,anchor="tr")
+                        self.rect((900,i*30+265),(100,20),colour=room.shopStuff[i].rarity.colour)
+                        self.button((900,i*30+265),(100,20),self.game.shopbuy,i)
+                    if room.type == settings.rooms["minesBiome"]: self.text("10% discount (mines biome)",20,(600,i*30+280),anchor="t")
+            if self.mode[0]=="map":
+                pass
+            if self.mode[0]=="chat":
+                pass
+        if self.game.state==None:
+            variables.running = False
+        self.time += self.clock.get_time()
+        self.clock.tick()
+        return self.screen
 
-
-
-
+if __name__ == "__main__":
+    game = GameGUI(Game())
+    game.run()

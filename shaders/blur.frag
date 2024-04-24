@@ -45,21 +45,19 @@ void main()
     }
     else{
         //blur + bloom
-        vec2 pos = (uvs)*2;
+
+        // in the future using red to mask is one of my greatest mistakes in life, should have used a colour like black, then i could blur.
+        vec2 pos = (uvs)*1;
 
         pos = pos*2;
-        float x,y,xx,yy,rr=r*r,dx,dy,w,w0;
-        if ((pos.x > 1) && (pos.y > 1) && (pos.x < 3) && (pos.y < 3)&&(texture2D(tex,uvs*2+vec2(0.5)).r != 1)){
-
-            w0=0.3780/pow(r,1.975);
+        if ((texture2D(tex,pos/2).rgb != vec3(1,0,0))){
             vec2 p;
             vec4 col=vec4(0.0,0.0,0.0,0.0);
             pos = pos/2+vec2(0.5);
-            
             f_colour.rgb = vec3(
-            (texture2D(tex,pos))
-            )*1.3;
-            f_colour= f_colour*1.5;
+            (texture2D(tex,pos+vec2(0.5))*2)
+            );
+            f_colour= f_colour;
             f_colour.a=1;}
     
         else{

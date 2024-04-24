@@ -1,6 +1,7 @@
 from items.stuff import Object,Character,Encounter
 import items.stuff as stuff , items.settings as settings
-import variables, frontend.prompt
+import variables
+from frontend.prompt import prompt
 
 
 
@@ -304,15 +305,15 @@ Good luck! \n"""
     
     def help(self):
         return """Normal Functions:
-  view [self|inventory|room|shop] - Give information about the thing asked for
-  move [direction] - Move player in direction given
-  pickup [obj_index] - Pick up object at given index (room)
-  drop [obj_index] - Drop object at given index (inventory and armour)
-  switch [inv_index] [room_index] - Switch objects at given indexes
-  use [obj_index] - Use object at given index (inventory)
-  shop [view|buy|sell] [obj_index] - Interact with shop
-  wait [time] - Waits for amount of time given
-  help | ? - List functions
+  view [self|inventory|room|shop]@ - Give information about the thing asked for
+  move [direction]@ - Move player in direction given
+  pickup [obj_index]@ - Pick up object at given index (room)
+  drop [obj_index]@ - Drop object at given index (inventory and armour)
+  switch [inv_index] [room_index]@ - Switch objects at given indexes
+  use [obj_index]@ - Use object at given index (inventory)
+  shop [view|buy|sell] [obj_index]@ - Interact with shop
+  wait [time]@ - Waits for amount of time given
+  help | ?@ - List functions
   quit - Quit the game
 In Combat:
   use [obj_index] - Use object at given index (inventory), -1 means default attack
@@ -354,7 +355,7 @@ In Combat:
             elif _input[0]=="switch":
                 return self.switch(_input[1],_input[2])
             elif _input[0]=="use":
-                frontend.prompt.prompt( self.use(_input[1]))
+                prompt( self.use(_input[1]))
                 
             elif _input[0]=="shop":
                 if len(_input)==2: return self.shop(_input[1],None)
@@ -364,7 +365,7 @@ In Combat:
                 return self.wait(_input[1])
             elif _input[0] in ["help","?"]:
                 
-                return self.help()
+                prompt(self.help())
             elif _input[0]=="quit":
                 return self.quit()
             elif _input[0]=="blur":

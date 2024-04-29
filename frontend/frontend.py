@@ -7,7 +7,7 @@ from frontend.partitions.bar import bar
 
 pygame.freetype.init()
 screen = pygame.display.set_mode(settings.resolution, pygame.OPENGL | pygame.DOUBLEBUF | pygame.RESIZABLE)
-display = pygame.Surface((256,256))
+display = pygame.Surface((256*3,256*3))
 
 
 #create moderngl context for applying shaders in the future
@@ -28,9 +28,8 @@ map = pygame.image.load('images/map.png')
 fr = pygame.image.load('images/front.png')
 
 
-bg = pygame.transform.scale_by(bg, 2)
-fr = pygame.transform.scale_by(fr, 2)
-map = pygame.transform.scale_by(map, 2)
+bg = pygame.transform.scale_by(bg, 6)
+map = pygame.transform.scale_by(map, 6)
 
 # map stuff
 # rectangles
@@ -42,10 +41,14 @@ rect_right = pygame.Rect((124, 66), (36, 40))
     # for others
 attack_rect1 = pygame.Rect(22, 12, 128, 148)
 attack_rect2 = pygame.Rect(12, 22, 148, 128)
-# bloom variable
-r = 10
+# shader variables
+    # blur radius
+r = 1
 variables.blur = False
 variables.pixel = 1
+    # chromatic abberation
+abberationY = [0]*3
+abberationX = [0]*3
 
 #partition variables: no longer using these after switching to opengl
 partitions = []
@@ -55,26 +58,26 @@ partitions.append(terminal(partition=partition((0.1,0.6),(0.6,0.95))))
 
 
 #all colours are from the list of colours usable for the apple 2
-#healthbar
+'''#healthbar
 partitions.append(bar(partition=partition((0.67,0.185),(0.933,0.24)),colour=(153,3,95)))
 partitions[-1].type='health'
 #stamina
 vertical_difference=0.10
 partitions.append(bar(partition=partition((0.67,0.185+vertical_difference),(0.933,0.24+vertical_difference)),colour=(36,155,255)))
-partitions[-1].type='stamina'
+partitions[-1].type='stamina'''
 
 #map animation variables
 animtick = 0
 motion = 'move1'
-move0=pygame.transform.scale2x(pygame.image.load('images\move0.png'))
-move1=pygame.transform.scale2x(pygame.image.load('images\move1.png'))
-move2=pygame.transform.scale2x(pygame.image.load('images\move2.png'))
+move0=pygame.transform.scale_by(pygame.image.load('images\move0.png'),6)
+move1=pygame.transform.scale_by(pygame.image.load('images\move1.png'),6)
+move2=pygame.transform.scale_by(pygame.image.load('images\move2.png'),6)
 
 #game integration
 import items.main as main
-variables.game:main.Game = main.gui(main.Game())
+variables.game:main.Game = main.Game()
 
-
+variables.gui:main.GameGUI = main.GameGUI(variables.game)
 
 def load_item(item)->pygame.surface:
     
@@ -88,10 +91,15 @@ def load_item(item)->pygame.surface:
 while variables.running:
     display.fill((0,0,0))
     
+    events = pygame.event.get()
+    
     display.blit(bg,(0,0))
+    # second gui stuff
+    
+    ui2 = pygame.transform.scale_by(variables.gui.step(events),0.58)
     
     #map stuff
-    display.blit(map,(0,0))
+    '''display.blit(map,(0,0))
     player_room = variables.game.map.rooms[variables.game.player.loc[0]][variables.game.player.loc[1]]
     rooms = player_room.connections
     #print(player_room.connections)
@@ -110,13 +118,12 @@ while variables.running:
                 display.blit(load_item(item),position)
                 pygame.freetype.Font("frontend/apple2.ttf", 6).render_to(display, (position[0]+int(16*1.2)+3, position[1]+3), item.type.name,(255,255,255))
                 pygame.freetype.Font("frontend/apple2.ttf", 6).render_to(display, (position[0]+int(16*1.2)+3, position[1]+11), item.type.rarity.name,(255,255,255))
-                position=(position[0], position[1]+int(16*1.2)+3)
+                position=(position[0], position[1]+int(16*1.2)+3)'''
     #partition stuff
     for partition in partitions:
         partition.draw(display)
-    
-    events = pygame.event.get()
-    
+    #draw ui
+    display.blit(ui2, (36,35))
     #event stuff
     dt = 0.1
     for event in events:
@@ -132,8 +139,8 @@ while variables.running:
             settings.resolution = ((event.w+event.h)/2,(event.w+event.h)/2)
             
             screen = pygame.display.set_mode(settings.resolution, pygame.OPENGL | pygame.DOUBLEBUF | pygame.RESIZABLE)
-    
-    display.blit(fr,(0,0))
+            
+            
     #partition stuff cont.
     for partition in partitions:
         partition.run(events)
@@ -164,7 +171,8 @@ while variables.running:
     
     
     #mgl stuff
-    
+    program['chromaticAbberationY'] = abberationY
+    program['chromaticAbberationX'] = abberationX
     frame_tex = mgltools.surf_to_texture(display)
     frame_tex.use(0)
     program['type'] = 1

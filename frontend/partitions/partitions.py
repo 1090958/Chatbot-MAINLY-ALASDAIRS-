@@ -17,8 +17,8 @@ class partition:
         y = ((y)) * (max(self.p1[1],self.p2[1]) - min(self.p1[1],self.p2[1])) + min(self.p1[1],self.p2[1])
         
         # proceed to convert to screen space
-        x *= 256
-        y *= 256
+        x *= 256*3
+        y *= 256*3
         return (x,y)
     def adjust_value(self, value:int|float, axis:str = "x"):
         

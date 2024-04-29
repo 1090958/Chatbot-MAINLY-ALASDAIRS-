@@ -5,6 +5,8 @@ uniform float r = 10;
 uniform float pixel = 1;
 uniform bool blur;
 uniform int type = 1;
+uniform vec3 chromaticAbberationX;
+uniform vec3 chromaticAbberationY;
 in vec2 uvs;
 
 out vec4 f_colour;
@@ -25,16 +27,16 @@ void main()
             w=w0*exp((-xx-yy)/(2.0*rr));
             float e = 1.3;
             col.rgb+=vec3(
-                pow((texture2D(tex,p+vec2(0.001,-0.00097)*4)*w).r,e)*10,
-                pow((texture2D(tex,p+vec2(-0.00075,-0.00099)*4)*w).g,e)*10,
-                pow((texture2D(tex,p+vec2(-0.002,0.002)*4)*w).b,e)*10
+                pow((texture2D(tex,p+vec2(-0.001*chromaticAbberationX.r,0.001*chromaticAbberationY.r))*w).r,e)*10,
+                pow((texture2D(tex,p+vec2(-0.001*chromaticAbberationX.b,0.001*chromaticAbberationY.b))*w).g,e)*10,
+                pow((texture2D(tex,p+vec2(-0.001*chromaticAbberationX.g,0.001*chromaticAbberationY.g))*w).b,e)*10
             );
             }}}
 
         f_colour.rgb = vec3(
-                (texture2D(tex,uvs+vec2(0.001,-0.00097)*2)).r,
-                (texture2D(tex,uvs+vec2(-0.00075,-0.00099)*2)).g,
-                (texture2D(tex,uvs+vec2(-0.002,0.002)*2)).b
+                (texture2D(tex,uvs+vec2(-0.001*chromaticAbberationX.r,0.001*chromaticAbberationY.r))).r,
+                (texture2D(tex,uvs+vec2(-0.001*chromaticAbberationX.g,0.001*chromaticAbberationY.g))).g,
+                (texture2D(tex,uvs+vec2(-0.001*chromaticAbberationX.b,0.001*chromaticAbberationY.b))).b
             )*1.3;
         f_colour+=(col*1.3)/2;
         if (blur){

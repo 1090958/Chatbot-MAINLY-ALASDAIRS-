@@ -7,8 +7,8 @@ class terminal:
         self.font = lambda size : pygame.freetype.Font("frontend/apple2.ttf", size)
         self.output = ''
         self.past = ['']
-        self.size = 20
-        self.line_limit = 6
+        self.size = 60
+        self.line_limit = 7
     def input(self,character):
         self.output+=character
         self.past.pop(0)
@@ -38,7 +38,7 @@ class terminal:
         fit_to_curve = lambda x: int(((x**-1.20899) * (3767.696))) # a bit overkill, i think not
         
         # 20 is the number of letters that can fit on a line in normal situations
-        char_limit=15#int(fit_to_curve(self.size)*(max(self.partition.p1[0], self.partition.p2[0]) - min(self.partition.p1[0], self.partition.p2[0])))
+        char_limit=30#int(fit_to_curve(self.size)*(max(self.partition.p1[0], self.partition.p2[0]) - min(self.partition.p1[0], self.partition.p2[0])))
         
         
         resolution = self.partition.adjust_point((1,1))

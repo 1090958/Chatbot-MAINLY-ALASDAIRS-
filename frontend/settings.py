@@ -1,1 +1,1 @@
-resolution = (1080,1080)
+resolution = (256*3,256*3)

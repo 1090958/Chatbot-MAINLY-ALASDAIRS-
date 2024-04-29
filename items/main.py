@@ -1,8 +1,28 @@
 from items.stuff import Object,Character,Encounter
 import items.stuff as stuff, items.settings as settings, pygame
-import variables
+import variables, frontend.settings as resolution
 from frontend.prompt import prompt
+def remapMouse(mousePosition:list[int,int]):
+    # adjust for the difference between the openGL display and the pygame render surface
+    # the render surface is always 256*3 (768) on the x axis and is 1:1 aspect ratio
+    # only scale factor is needed
+    resolutionCoefficient = (256*3)/resolution.resolution[0]
 
+    #apple the scale factor
+    mousePosition=[mousePosition[0]*resolutionCoefficient, mousePosition[1]*resolutionCoefficient]
+    
+    
+    # Made a remap function for legibility
+    def remap(val, old:tuple[float|int,float|int], new:tuple[float|int,float|int]):
+        return (new[1] - new[0])*(val - old[0]) / (old[1] - old[0]) + new[0]
+    
+    #remap the x, adjusting the values when necessary
+    mousePosition[0] = remap(mousePosition[0],(36,36 + 1200*0.58),(0,1200))
+    mousePosition[1] = remap(mousePosition[1],(35,35 + 800*0.58),(0,800))
+    
+    
+    #
+    return mousePosition
 class Game:
     def __init__(self):
         self.state = "normal"
@@ -153,6 +173,8 @@ class Game:
         roomDis[0] /= mag
         roomDis[1] /= mag
         return roomDis
+    def takeInput(self, input):
+        return input
 
 class GameGUI:
     def __init__(self, game:Game) -> None:
@@ -228,7 +250,11 @@ class GameGUI:
             if event.type == pygame.QUIT:
                 variables.running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
-                mousePos = pygame.mouse.get_pos()
+                mousePos = list(event.pos)
+                mousePos = remapMouse(mousePos)
+                
+                
+                
                 for button in self.buttons:
                     if button[0].collidepoint(mousePos):
                         button[1](button[2])

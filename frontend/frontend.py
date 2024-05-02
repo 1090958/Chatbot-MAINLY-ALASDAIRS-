@@ -73,6 +73,7 @@ move2=pygame.transform.scale2x(pygame.image.load('images\move2.png'))
 #game integration
 import items.main as main
 variables.game:main.Game = main.gui(main.Game())
+# GameGUI(Game(),  [True,True],  filename:"",  defaultColour: recommend(0,200,0),  defaultFont: recommend "font_minecraft.ttf")
 
 
 

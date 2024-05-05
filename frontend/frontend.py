@@ -76,8 +76,9 @@ move2=pygame.transform.scale_by(pygame.image.load('images\move2.png'),6)
 #game integration
 import items.main as main
 variables.game:main.Game = main.Game()
+# GameGUI(Game(),  [True,True],  filename:"",  defaultColour: recommend(0,200,0),  defaultFont: recommend "font_minecraft.ttf")
 
-variables.gui:main.GameGUI = main.GameGUI(variables.game)
+variables.gui:main.GameGUI = main.GameGUI(variables.game,  [True,True])
 
 def load_item(item)->pygame.surface:
     
@@ -168,7 +169,6 @@ while variables.running:
         else:
             animtick+=10*dt
             
-    
     
     #mgl stuff
     program['chromaticAbberationY'] = abberationY

@@ -92,7 +92,7 @@ class Character:
         self.type = _type
         if name==None: self.name=self.type.name
         else: self.name=name
-        self.inv = []
+        self.inv = [None]*5
         if "inventory" in self.type.data:
             for i in range(self.type.data["invSize"]):
                 if random.random()<self.type.data["invChance"]: self.inv.append(Object(self.type.data["inventory"][i]))

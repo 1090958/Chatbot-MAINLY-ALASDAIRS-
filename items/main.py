@@ -35,10 +35,12 @@ class Game:
         self.encounter = None
     
     def start(self):
-        self.player.inv = [Object(stuff.basicSword),Object(stuff.cocaine),None,None,Object(stuff.basicHelmet)]
+        self.player.inv = [None,None,None,None,None]
         self.player.armour = [None,None,None,None]
+        return ["insert story shi"]
    
     def update(self, time):
+        output = []
         self.map.rooms[self.player.loc[0]][self.player.loc[1]].seen = True
         for char in [self.player]+self.player.friends:
             char.hp += sum([e.level for e in char.effects if e.effect=="health"])
@@ -56,6 +58,7 @@ class Game:
         if (self.map.rooms[self.player.loc[0]][self.player.loc[1]].type in settings.rooms["fighting"]) and self.map.rooms[self.player.loc[0]][self.player.loc[1]].characters!=[]:
             self.state = "fighting"
             self.encounter = Encounter([self.player]+self.player.friends, self.map.rooms[self.player.loc[0]][self.player.loc[1]].characters)
+            output += self.encounter.update([])
             self.player.explored[self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome] = True
         if self.state=="fighting":
             if self.encounter.winner:
@@ -66,44 +69,87 @@ class Game:
                     self.player.friends = x[1]
                     self.map.rooms[self.player.loc[0]][self.player.loc[1]].characters = []
                 elif self.encounter.winner==2:
-                    self.state = "gameOver"
+                    self.state = None
+        return output
 
     def move(self,input1):
+        output = []
         if input1.lower()=="up":
             if self.map.rooms[self.player.loc[0]][self.player.loc[1]].connections[0]:
                 if self.map.rooms[self.player.loc[0]][self.player.loc[1]-1].biome == self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome:
                     self.player.loc[1] -= 1
+                    output += [f"moved {input1.lower()}"]
                 elif self.player.explored[self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome]:
                     self.player.loc[1] -= 1
+                    output += [f"moved {input1.lower()}"]
+                else:
+                    output += [f"!!!couldn't move: must defeat boss of the biome you are in"]
+                    return output
+            else:
+                output += [f"!!!couldn't move: no pathway"]
+                return output
         elif input1.lower()=="down":
             if self.map.rooms[self.player.loc[0]][self.player.loc[1]].connections[1]:
                 if self.map.rooms[self.player.loc[0]][self.player.loc[1]+1].biome == self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome:
                     self.player.loc[1] += 1
+                    output += [f"moved {input1.lower()}"]
                 elif self.player.explored[self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome]:
                     self.player.loc[1] += 1
+                    output += [f"moved {input1.lower()}"]
+                else:
+                    output += [f"!!!couldn't move: must defeat boss of the biome you are in"]
+                    return output
+            else:
+                output += [f"!!!couldn't move: no pathway"]
+                return output
         elif input1.lower()=="left":
             if self.map.rooms[self.player.loc[0]][self.player.loc[1]].connections[2]:
                 if self.map.rooms[self.player.loc[0]-1][self.player.loc[1]].biome == self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome:
                     self.player.loc[0] -= 1
+                    output += [f"moved {input1.lower()}"]
                 elif self.player.explored[self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome]:
                     self.player.loc[0] -= 1
+                    output += [f"moved {input1.lower()}"]
+                else:
+                    output += [f"!!!couldn't move: must defeat boss of the biome you are in"]
+                    return output
+            else:
+                output += [f"!!!couldn't move: no pathway"]
+                return output
         elif input1.lower()=="right":
             if self.map.rooms[self.player.loc[0]][self.player.loc[1]].connections[3]:
                 if self.map.rooms[self.player.loc[0]+1][self.player.loc[1]].biome == self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome:
                     self.player.loc[0] += 1
+                    output += [f"moved {input1.lower()}"]
                 elif self.player.explored[self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome]:
                     self.player.loc[0] += 1
-        self.update(settings.timeTo["move"])
+                    output += [f"moved {input1.lower()}"]
+                else:
+                    output += [f"!!!couldn't move: must defeat boss of the biome you are in"]
+                    return output
+            else:
+                output += [f"!!!couldn't move: no pathway"]
+                return output
+        else:
+            output += [f"!!!invalid input"]
+            return output
+        return output + self.update(settings.timeTo["move"])
     
     def pickup(self,input1):
+        output = []
         for i in range(len(self.player.inv)):
             if self.player.inv[i]==None:
                 self.player.inv[i] = self.map.rooms[self.player.loc[0]][self.player.loc[1]].contents[int(input1)]
                 self.map.rooms[self.player.loc[0]][self.player.loc[1]].contents.pop(int(input1))
+                output += [f"pickup {self.player.inv[i].type.name}"]
                 break
-        self.update(settings.timeTo["pickup"])
+        if i==len(self.player.inv)-1:
+            output += [f"!!!couldn't pickup item: no space in inventory"]
+            return output
+        return output + self.update(settings.timeTo["pickup"])
     
     def drop(self,input1):
+        output = []
         if int(input1)<5:
             item = self.player.inv[int(input1)]
             self.player.inv[int(input1)] = None
@@ -112,14 +158,17 @@ class Game:
             self.player.armour[int(input1)-5] = None
         if item:
             self.map.rooms[self.player.loc[0]][self.player.loc[1]].contents.append(item)
-        self.update(settings.timeTo["drop"])
+            output += [f"dropped {item.type.name}"]
+        return output + self.update(settings.timeTo["drop"])
 
     def use(self,input1):
+        output = []
         item = self.player.inv[int(input1)]
         if item.type.use[:6]=="armour":
             item2 = self.player.armour[int(item.type.use[6:7])]
             self.player.armour[int(item.type.use[6:7])] = item
             self.player.inv[int(input1)] = item2
+            output += [f"used {item.type.name}"]
         elif item.type.use=="instant":
             if "healing" in item.type.data:
                 self.player.hp += item.type.data["healing"]
@@ -127,42 +176,66 @@ class Game:
                 if self.player.hp>maxHp: self.player.hp = maxHp
             if "stamina" in item.type.data:
                 self.player.stamina += item.type.data["stamina"]
+            for skill in self.player.skills:
+                if skill in item.type.data:
+                    self.player.skills[skill] += item.type.data[skill]
             self.player.inv[int(input1)].uses -= 1
+            output += [f"used {item.type.name}"]
         elif item.type.use=="effect":
             for eff in item.type.data["effects"]:
                 self.player.effects.append(eff.copy())
             self.player.inv[int(input1)].uses -= 1
-        self.update(settings.timeTo["use"])
+            output += [f"used {item.type.name}"]
+        else:
+            output += [f"couldn't use item: item unusable"]
+            return output
+        return output + self.update(settings.timeTo["use"])
     
     def shopbuy(self,input1):
-        item = self.map.rooms[self.player.loc[0]][self.player.loc[1]].shopStuff[int(input1)]
-        value = item.value
-        if self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome==settings.rooms["minesBiome"]: value = int(value*0.9)
-        if value<=self.player.balance:
-            for i in range(len(self.player.inv)):
-                if self.player.inv[i]==None:
-                    self.player.inv[i] = Object(item)
-                    self.player.balance -= value
-                    break
-        self.update(settings.timeTo["shopb"])
+        output = []
+        if self.map.rooms[self.player.loc[0]][self.player.loc[1]].type in settings.rooms["shop"]:
+            item = self.map.rooms[self.player.loc[0]][self.player.loc[1]].shopStuff[int(input1)]
+            value = item.value
+            if self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome==settings.rooms["minesBiome"]: value = int(value*0.9)
+            if value<=self.player.balance:
+                for i in range(len(self.player.inv)):
+                    if self.player.inv[i]==None:
+                        self.player.inv[i] = Object(item)
+                        self.player.balance -= value
+                        output += [f"bought {item.name}"]
+                        return output + self.update(settings.timeTo["shopb"])
+                if i==len(self.player.inv)-1:
+                    output += [f"!!!couldn't buy item: no space in inventory"]
+        else:
+            output += [f"!!!couldn't buy: not in shop"]
+        return output
 
     def shopsell(self,input1):
+        output = []
         item = self.player.inv[int(input1)]
-        if "uses" in item.type.data: value = int(item.type.value*item.uses/item.type.data["uses"])
-        if self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome==settings.rooms["minesBiome"]: value = int(value*0.9)
-        self.player.inv[int(input1)] = None
-        self.player.balance += value
-        self.map.rooms[self.player.loc[0]][self.player.loc[1]].shopStuff.append(item.type)
-        self.update(settings.timeTo["shops"])
+        room = self.map.rooms[self.player.loc[0]][self.player.loc[1]]
+        if room.type in settings.rooms["shop"]:
+            if "uses" in item.type.data: value = int(item.type.value*item.uses/item.type.data["uses"])
+            else: value = item.type.value
+            if room.biome==settings.rooms["minesBiome"]: value = int(value*0.9)
+            self.player.inv[int(input1)] = None
+            self.player.balance += int(value*stuff.random.randint(92,100)/100)
+            if item.type not in room.shopStuff: room.shopStuff.append(item.type)
+            output += [f"sold {item.type.name}"]
+            return output + self.update(settings.timeTo["shops"])
+        else:
+            output += [f"!!!couldn't sell: not in shop"]
+            return output
     
     def wait(self, n):
-        self.update(int(n))
+        return [f"waited for {n*10}s"] + self.update(int(n))
 
     def quit(self):
         self.state = None
+        return ["!!!game exited"]
     
-    def get_compass(self):
-        roomDis = [999,999]
+    def getCompass(self):
+        roomDis = [0,-999]
         for x in self.map.rooms:
             for room in x:
                 if room and (room.biome==self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome)and(room.type in settings.rooms["boss"]):
@@ -170,11 +243,48 @@ class Game:
                     if ((new[0]**2)+(new[1]**2))**0.5 < ((roomDis[0]**2)+(roomDis[1]**2))**0.5:
                         roomDis = new
         mag = ((roomDis[0]**2)+(roomDis[1]**2))**0.5
+        if mag==0: return [0,-1]
         roomDis[0] /= mag
         roomDis[1] /= mag
         return roomDis
-    def takeInput(self, input):
-        return input
+    
+    def takeInput(self, _input):
+        #try:
+            if self.state=="normal":
+                if not _input:
+                    return []
+                if _input.split()[0]=="move":
+                    return self.move(_input.split()[1])
+                elif _input.split()[0]=="pickup":
+                    return self.pickup(_input.split()[1])
+                elif _input.split()[0]=="drop":
+                    return self.drop(_input.split()[1])
+                elif _input.split()[0]=="use":
+                    return self.use(_input.split()[1])
+                elif _input.split()[0]=="buy":
+                    return self.shopbuy(_input.split()[1])
+                elif _input.split()[0]=="sell":
+                    return self.shopsell(_input.split()[1])
+                elif _input.split()[0]=="wait":
+                    return self.wait(_input.split()[1])
+                elif _input.split()[0]=="quit":
+                    return self.quit()
+                else:
+                    return [f"!!!invalid input"]
+            elif self.state=="fighting":
+                if self.encounter.winner:
+                    self.state = "normal"
+                    if self.encounter.winner==1:
+                        x = self.encounter.endUpdate()
+                        self.player = x[0]
+                        self.player.friends = x[1]
+                        self.map.rooms[self.player.loc[0]][self.player.loc[1]].characters = []
+                        return [f"!!!you won the battle"]
+                    elif self.encounter.winner==2:
+                        return self.quit()
+                else: return self.encounter.update(_input.split())
+        #except:
+            return [f"!!!something went wrong"]
 
 class GameGUI:
     def __init__(self, game:Game, enabled:tuple[bool], filename:str|None = "frontend/", defaultColour:tuple[int,int,int] = (0,255,0), defaultFont:str = "font_minecraft.ttf") -> None:
@@ -189,8 +299,8 @@ class GameGUI:
         self.filename = filename if filename else ""
         self.defaultColour = defaultColour
         self.defaultFont = defaultFont
-        self.chat = [f"Buttons: {'enabled' if self.enabled[0] else 'disabled'}   Chat: {'enabled' if self.enabled[0] else 'disabled'}"] + ([None]*9) + ["Chat disabled" if not self.enabled[1] else ""]
-        self.chatPerson = [2]+([1]*10)
+        self.chat = ([None]*8) + [f"Buttons: {'enabled' if self.enabled[0] else 'disabled'}   Chat: {'enabled' if self.enabled[0] else 'disabled'}"] + self.game.start() + [None,"Chat disabled" if not self.enabled[1] else ""]
+        self.chatPerson = [0,0,0,0,0,0,0,0,2,1,0]
     
     def text(self, text:str|int, size:int, pos:tuple, font:str="font_minecraft.ttf", colour:tuple|None=None, anchor:str="c") -> None:
         if not colour: colour=self.defaultColour
@@ -219,7 +329,7 @@ class GameGUI:
         pygame.draw.rect(self.screen, colour, r, width)
     
     def image(self, name:str, pos:tuple, size:tuple, rotation:int=0, anchor:str="c") -> None:
-        img = pygame.transform.rotate(pygame.transform.scale(pygame.image.load(self.filename+name),size),rotation)
+        img = pygame.transform.scale(pygame.transform.rotate(pygame.image.load(self.filename+"images/"+name),rotation),size)
         pos = list(pos)
         if anchor=="c": pos[0]-=size[0]/2; pos[1]-=size[1]/2
         elif anchor=="l": pos[1]-=size[1]/2
@@ -246,7 +356,7 @@ class GameGUI:
         self.mode[1] = mode
     
     def step(self, events) -> None:
-        self.screen.fill((0,0,0,0))
+        self.screen.fill(0)
         for event in events:
             if event.type == pygame.QUIT:
                 variables.running = False
@@ -254,15 +364,14 @@ class GameGUI:
                 mousePos = pygame.mouse.get_pos()
                 for button in self.buttons:
                     if button[0].collidepoint(mousePos):
-                        button[1](button[2])
                         if not button[1]: pass
                         elif button[3]:
-                            self.chat[-1] = button[1](button[2])
-                            self.chatPerson.append(1)
-                            self.chat.append(""); self.chat.append("")
+                            self.chat.pop()
+                            for msg in button[1](button[2]):
+                                self.chatPerson.append(1)
+                                self.chat.append(msg)
+                            self.chat.append(""); self.chatPerson.append(0); self.chat.append("")
                         else: button[1](button[2])
-                        
-                
             if event.type == pygame.KEYDOWN:
                 if self.mode[0]=="chat" and self.enabled[1]:
                     if event.key == pygame.K_RETURN:
@@ -293,7 +402,7 @@ class GameGUI:
         self.text(f"seedInfo: {settings.seed.split()[0]}",20,(600,0),anchor="tl")
         self.text(f"time: {self.time}ms",20,(850,0),anchor="tl")
         if self.game.state=="normal": option = ["player","items","room","actions","map","compass","chat"]
-        if self.game.state=="fighting": option = ["friends","enemies","chat"]
+        if self.game.state=="fighting": option = ["player","items","friends","enemies","chat"]
         for i in range(len(option)):
             if option[i]==self.mode[0]: self.rect((140*i+600-(len(option)*70-70),80),(120,50),colour=(0,60,0))
             self.rect((140*i+600-(len(option)*70-70),80),(120,50),width=5)
@@ -340,9 +449,9 @@ class GameGUI:
                                 str(self.game.player.skills["constitution"]),
                                 str(self.game.player.skills["dexterity"]),
                                 str(self.game.player.skills["strength"]),
-                                str(self.game.player.effects[0].name) if len(self.game.player.effects)>0 else "None",
-                                str(self.game.player.effects[1].name) if len(self.game.player.effects)>1 else "",
-                                str(self.game.player.effects[2].name) if len(self.game.player.effects)>2 else "",]
+                                f"{self.game.player.effects[0].name} ({self.game.player.effects[0].time//6}:{self.game.player.effects[0].time%6}0)" if len(self.game.player.effects)>0 else "None",
+                                f"{self.game.player.effects[1].name} ({self.game.player.effects[1].time//6}:{self.game.player.effects[1].time%6}0)" if len(self.game.player.effects)>1 else "",
+                                f"{self.game.player.effects[2].name} ({self.game.player.effects[2].time//6}:{self.game.player.effects[2].time%6}0)" if len(self.game.player.effects)>2 else "",]
                     col = [settings.currencyCol,(220,0,0),(0,0,220),(220,220,0),settings.effectCol,settings.effectCol,settings.effectCol]
                     self.text(text1[i],20,(250,i*30+250),colour=col[i],anchor="tl")
                     self.text(text2[i],20,(950,i*30+250),colour=col[i],anchor="tr")
@@ -445,8 +554,9 @@ class GameGUI:
                 pass
             if self.mode[0]=="compass":
                 x,y = self.game.getCompass()
-                rot = 0
-                self.image("compass.png",(600,315),(300,300),rot)
+                rot = math.degrees(math.atan2(-y,x))
+                self.image("compass0.jpg",(600,315),(300,300))
+                self.image("compass1.png",(600,315),(300,300),rot)
             if self.mode[0]=="chat":
                 for i in range(len(self.chat)-1):
                     colours = [(0,200,0),(0,200,200),(200,200,0)]
@@ -471,26 +581,107 @@ class GameGUI:
                     self.image(self.game.player.inv[i].type.img,(i*125+350,675),(64,64))
                     self.text(str(i),16,(i*125+307,628),colour=(0,0,0),anchor="tl")
                     self.text(f"{self.game.player.stamina}/{self.game.player.inv[i].type.data['stamina'] if 'stamina' in self.game.player.inv[i].type.data else 0}",20,(i*125+350,730),colour=(220,0,220),anchor="t")
+                    self.button((i*125+350,675),(100,100),self.switchMode1,"items",False)
+                    self.button((i*125+350,675),(100,100),self.switchMode2,i,False)
                 else:
                     self.text(str(i),16,(i*125+307,628),anchor="tl")
                 self.rect((i*125+350,675),(100,100),width=5)
-                
+            if self.mode[0]=="player":
+                maxHp = int(self.game.player.type.data["health"]*(self.game.player.skills["constitution"]/100)*(sum([100]+[e.level for e in self.game.player.effects if e.effect=="constitution"])/100))
+                self.rect((250,190),((self.game.player.hp/maxHp)*700,50),colour=(220,0,0),anchor="l")
+                self.rect((600,190),(700,50),width=5)
+                self.text("health",20,(250,220),colour=(220,0,0),anchor="tl")
+                self.text(f"{self.game.player.hp}HP / {maxHp}HP",20,(950,220),colour=(220,0,0),anchor="tr")
+                for i in range(7):
+                    text1 = ["balance","constitution","dexterity","strength","effects","",""]
+                    text2 = [f"{self.game.player.balance}{settings.currencySym}",
+                                str(self.game.player.skills["constitution"]),
+                                str(self.game.player.skills["dexterity"]),
+                                str(self.game.player.skills["strength"]),
+                                f"{self.game.player.effects[0].name} ({self.game.player.effects[0].time//6}:{self.game.player.effects[0].time%6}0)" if len(self.game.player.effects)>0 else "None",
+                                f"{self.game.player.effects[1].name} ({self.game.player.effects[1].time//6}:{self.game.player.effects[1].time%6}0)" if len(self.game.player.effects)>1 else "",
+                                f"{self.game.player.effects[2].name} ({self.game.player.effects[2].time//6}:{self.game.player.effects[2].time%6}0)" if len(self.game.player.effects)>2 else "",]
+                    col = [settings.currencyCol,(220,0,0),(0,0,220),(220,220,0),settings.effectCol,settings.effectCol,settings.effectCol]
+                    self.text(text1[i],20,(250,i*30+250),colour=col[i],anchor="tl")
+                    self.text(text2[i],20,(950,i*30+250),colour=col[i],anchor="tr")
+            if self.mode[0]=="items":
+                if self.mode[1]==-1:
+                    self.text("Select an Item",20,(600,315))
+                else: 
+                    if self.mode[1]<5: item = self.game.player.inv[self.mode[1]]
+                    if self.mode[1]>4: item = self.game.player.armour[self.mode[1]-5]
+                    if not item:
+                        self.text("Select an Item",20,(600,315))
+                    else:
+                        self.rect((800,315),(300,300),colour=item.type.rarity.colour)
+                        self.image(item.type.img,(800,315),(256,256))
+                        self.rect((800,315),(300,300),width=5)
+                        text = []
+                        text.append(f"{item.type.name} (x{item.uses})" if "uses" in item.type.data else str(item.type.name))
+                        text.append(f"     [{item.type.rarity.name}]")
+                        text.append(f"     [{item.type.use}]")
+                        if "attack" in item.type.data: text.append(f"     [attack: {item.type.data['attack']}]")
+                        if "hitRate" in item.type.data: text.append(f"     [hitRate: {item.type.data['hitRate']}]")
+                        if "stamina" in item.type.data: text.append(f"     [stamina: {item.type.data['stamina']}]")
+                        if "healing" in item.type.data: text.append(f"     [healing: {item.type.data['healing']}]")
+                        if "protection" in item.type.data: text.append(f"     [protection: {item.type.data['protection']}]")
+                        if len(item.type.data["enchantments"])>0: text.append(f"ench: {item.type.data['enchantments'][0].name}")
+                        if len(item.type.data["enchantments"])>1: text.append(f"ench: {item.type.data['enchantments'][1].name}")
+                        if len(item.type.data['effects'])>0: text.append(f"eff: {item.type.data['effects'][0].name}")
+                        if len(item.type.data['effects'])>1: text.append(f"eff: {item.type.data['effects'][1].name}")
+                        for i in range(len(text)):
+                            if i==0: col = item.type.rarity.colour
+                            elif text[i][:4]=="ench": col = settings.enchantmentCol
+                            elif text[i][:3]=="eff": col = settings.effectCol
+                            else: col = None
+                            self.text(text[i],20,(250,i*25+165),colour=col,anchor="tl")
+                        if self.enabled[0] and not self.game.encounter.winner and "armour" not in item.type.use:
+                            self.rect((325,440),(150,50),width=5)
+                            self.text("use",20,(325,440))
+                            self.button((325,440),(150,50),self.game.encounter.update,["use",str(self.mode[1])],True)
+            if self.mode[0]=="friends":
+                for i in range(4):
+                    if len(self.game.encounter.playerTeam)>i:
+                        char = self.game.encounter.playerTeam[i]
+                        if char.hp>0:
+                            self.image(char.type.img,(282,75*i+202.5),(64,64))
+                            self.text(f"{char.name} ({char.type.name}) [{i}]",20,(330,75*i+175),anchor="tl")
+                            maxHp = int(char.type.data["health"]*(char.skills["constitution"]/100)*(sum([100]+[e.level for e in char.effects if e.effect=="constitution"])/100))
+                            self.rect((330,75*i+210),((char.hp/maxHp)*150,15),colour=(220,0,0),anchor="tl")
+                            self.text(str(char.hp),16,(490,75*i+217.5),colour=(220,0,0),anchor="l")
+                            self.rect((550,75*i+210),((char.stamina/100)*150 if char.stamina<100 else 150,15),colour=(220,0,220),anchor="tl")
+                            self.text(str(char.stamina),16,(710,75*i+217.5),colour=(220,0,220),anchor="l")
+                            if len(char.effects)==0: self.text("No effects",16,(770,75*i+217.5),colour=settings.effectCol,anchor="l")
+                            elif len(char.effects)==1: self.text(f"{char.effects[0].name}",16,(770,75*i+217.5),colour=settings.effectCol,anchor="l")
+                            else: self.text(f"{len(char.effects)} effects",16,(770,75*i+217.5),colour=settings.effectCol,anchor="l")
+                        else:
+                            self.rect((282,75*i+202.5),(64,64),colour=(0,60,0))
+                            self.text(f"Character Died",20,(330,75*i+175),colour=(0,60,0),anchor="tl")
+                    pygame.draw.line(self.screen,self.defaultColour,(200,75*i+165),(1000,75*i+165),width=5)
+                pygame.draw.line(self.screen,self.defaultColour,(200,75*i+240),(1000,75*i+240),width=5)
             if self.mode[0]=="enemies":
                 for i in range(4):
                     if len(self.game.encounter.enemyTeam)>i:
                         enemy = self.game.encounter.enemyTeam[i]
-                        self.image(enemy.type.img,(282,75*i+202.5),(64,64))
-                        self.text(f"{enemy.type.name} [{i}]",20,(330,75*i+175),anchor="tl")
-                        maxHp = int(enemy.type.data["health"]*(enemy.skills["constitution"]/100)*(sum([100]+[e.level for e in enemy.effects if e.effect=="constitution"])/100))
-                        self.rect((330,75*i+210),((enemy.hp/maxHp)*150,15),colour=(220,0,0),anchor="tl")
-                        self.text(str(enemy.hp),16,(490,75*i+217.5),colour=(220,0,0),anchor="l")
+                        if enemy.hp>0:
+                            self.image(enemy.type.img,(282,75*i+202.5),(64,64))
+                            self.text(f"{enemy.type.name} [{i}]",20,(330,75*i+175),anchor="tl")
+                            maxHp = int(enemy.type.data["health"]*(enemy.skills["constitution"]/100)*(sum([100]+[e.level for e in enemy.effects if e.effect=="constitution"])/100))
+                            self.rect((330,75*i+210),((enemy.hp/maxHp)*150,15),colour=(220,0,0),anchor="tl")
+                            self.text(str(enemy.hp),16,(490,75*i+217.5),colour=(220,0,0),anchor="l")
+                        else:
+                            self.rect((282,75*i+202.5),(64,64),colour=(0,60,0))
+                            self.text(f"Enemy Died",20,(330,75*i+175),colour=(0,60,0),anchor="tl")
                     if len(self.game.encounter.enemyTeam)>i+4:
                         enemy = self.game.encounter.enemyTeam[i+4]
-                        self.image(enemy.type.img,(682,75*i+202.5),(64,64))
-                        self.text(f"{enemy.type.name} [{i+4}]",20,(730,75*i+175),anchor="tl")
-                        maxHp = int(enemy.type.data["health"]*(enemy.skills["constitution"]/100)*(sum([100]+[e.level for e in enemy.effects if e.effect=="constitution"])/100))
-                        self.rect((730,75*i+210),((enemy.hp/maxHp)*150,15),colour=(220,0,0),anchor="tl")
-                        self.text(str(enemy.hp),16,(890,75*i+217.5),colour=(220,0,0),anchor="l")
+                        if enemy.hp>0:
+                            self.image(enemy.type.img,(682,75*i+202.5),(64,64))
+                            self.text(f"{enemy.type.name} [{i+4}]",20,(730,75*i+175),anchor="tl")
+                            maxHp = int(enemy.type.data["health"]*(enemy.skills["constitution"]/100)*(sum([100]+[e.level for e in enemy.effects if e.effect=="constitution"])/100))
+                            self.rect((730,75*i+210),((enemy.hp/maxHp)*150,15),colour=(220,0,0),anchor="tl")
+                            self.text(str(enemy.hp),16,(890,75*i+217.5),colour=(220,0,0),anchor="l")
+                        else:
+                            self.text(f"Enemy Died",20,(330,75*i+175),colour=(0,60,0),anchor="tl")
                     pygame.draw.line(self.screen,self.defaultColour,(200,75*i+165),(1000,75*i+165),width=5)
                 pygame.draw.line(self.screen,self.defaultColour,(200,75*i+240),(1000,75*i+240),width=5)
             if self.mode[0]=="chat":
@@ -502,7 +693,7 @@ class GameGUI:
                         elif self.chatPerson[i]==2: self.text(f"{self.chat[i]}",16,(250,i*24+165),colour=colours[2],anchor="tl")
                 self.text(f">>> {self.chat[-1]}{'|' if self.time%1000>=500 and self.enabled[1] else ''}",20,(250,465),anchor="bl")
         if self.game.state==None:
-           variables.running = False
+            variables.running = False
         self.time += self.clock.get_time()
         self.clock.tick()
         return self.screen

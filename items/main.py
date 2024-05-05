@@ -246,7 +246,7 @@ class GameGUI:
         self.mode[1] = mode
     
     def step(self, events) -> None:
-        self.screen.fill((0,0,0,0))
+        self.screen.fill((0))
         for event in events:
             if event.type == pygame.QUIT:
                 variables.running = False

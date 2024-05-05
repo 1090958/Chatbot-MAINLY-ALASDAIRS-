@@ -251,16 +251,10 @@ class GameGUI:
             if event.type == pygame.QUIT:
                 variables.running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
-                
-                mousePos = list(event.pos)
-                #mousePos = remapMouse(mousePos)
-                
-                
+                mousePos = pygame.mouse.get_pos()
                 for button in self.buttons:
-                    print(button[0])
                     if button[0].collidepoint(mousePos):
-                        
-                        print(button)
+                        button[1](button[2])
                         if not button[1]: pass
                         elif button[3]:
                             self.chat[-1] = button[1](button[2])

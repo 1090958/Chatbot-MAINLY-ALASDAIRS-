@@ -43,12 +43,12 @@ attack_rect1 = pygame.Rect(22, 12, 128, 148)
 attack_rect2 = pygame.Rect(12, 22, 148, 128)
 # shader variables
     # blur radius
-r = 1
+r = 20
 variables.blur = False
 variables.pixel = 1
     # chromatic abberation
-abberationY = [0]*3
-abberationX = [0]*3
+abberationY = [4,2,2]
+abberationX = [2,2,5]
 
 #partition variables: no longer using these after switching to opengl
 partitions = []
@@ -152,21 +152,21 @@ while variables.running:
     elif motion == 'move1':
         
         display.blit(move1,(70,70))
-        if animtick==5:
+        if animtick>=5:
             
             motion = 'move2'
             animtick = 0
         else:
-            animtick+=1
+            animtick+=10*dt
     elif motion == 'move2':
         
         display.blit(move2,(70,70))
-        if animtick==5:
+        if animtick>=5:
             
             motion = 'move1'
             animtick = 0
         else:
-            animtick+=1
+            animtick+=10*dt
             
     
     
@@ -201,7 +201,7 @@ while variables.running:
     
     frame_tex.release()
     
-    dt = clock.tick(15)
+    dt = clock.tick(10)
     
     
             

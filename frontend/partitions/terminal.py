@@ -8,7 +8,7 @@ class terminal:
         self.output = ''
         self.past = ['']
         self.size = 60
-        self.line_limit = 7
+        self.line_limit = 8
     def input(self,character):
         self.output+=character
         self.past.pop(0)
@@ -19,7 +19,6 @@ class terminal:
         self.past.insert(0,self.output) 
     def enter(self):
         output = variables.game.takeInput(self.output)
-        print(output)
         try:
             self.past = list(reversed(output.split('\n'))) + self.past
         except:

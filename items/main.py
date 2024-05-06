@@ -8,7 +8,7 @@ def remapMouse(mousePosition:list[int,int]):
     # only scale factor is needed
     resolutionCoefficient = (256*3)/resolution.resolution[0]
 
-    #apple the scale factor
+    #apply the scale factor
     mousePosition=[mousePosition[0]*resolutionCoefficient, mousePosition[1]*resolutionCoefficient]
     
     
@@ -329,7 +329,7 @@ class GameGUI:
         pygame.draw.rect(self.screen, colour, r, width)
     
     def image(self, name:str, pos:tuple, size:tuple, rotation:int=0, anchor:str="c") -> None:
-        img = pygame.transform.scale(pygame.transform.rotate(pygame.image.load(self.filename+"images/"+name),rotation),size)
+        img = pygame.transform.scale(pygame.transform.rotate(pygame.image.load("images/"+name),rotation),size)
         pos = list(pos)
         if anchor=="c": pos[0]-=size[0]/2; pos[1]-=size[1]/2
         elif anchor=="l": pos[1]-=size[1]/2
@@ -339,15 +339,17 @@ class GameGUI:
         elif anchor=="tr": pos[0]-=size[0]
         self.screen.blit(img, pos)
     
-    def button(self, pos:tuple, size:tuple, func, args, anchor:str="c") -> None:
-        r = pygame.Rect(0,0,size[0],size[1])
+    def button(self, pos:tuple, size:tuple, func, args, retrunVar:bool, anchor:str="c") -> None:
+        r = pygame.Rect(pos[0],pos[1],size[0],size[1])
         if anchor=="c": r.center=pos
         elif anchor=="l": r.midleft=pos
         elif anchor=="r": r.midright=pos
         elif anchor=="t": r.midtop=pos
         elif anchor=="tl": r.topleft=pos
         elif anchor=="tr": r.topright=pos
-        self.buttons.append((r, func, args))
+        if self.time == 0:
+            print((r, func, args))
+        self.buttons.append((r, func, args,retrunVar))
     
     def switchMode1(self, mode:str) -> None:
         self.mode[0] = mode
@@ -362,6 +364,8 @@ class GameGUI:
                 variables.running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mousePos = pygame.mouse.get_pos()
+                mousePos = remapMouse(mousePos)
+                print(mousePos)
                 for button in self.buttons:
                     if button[0].collidepoint(mousePos):
                         if not button[1]: pass
@@ -696,4 +700,5 @@ class GameGUI:
             variables.running = False
         self.time += self.clock.get_time()
         self.clock.tick()
+        
         return self.screen

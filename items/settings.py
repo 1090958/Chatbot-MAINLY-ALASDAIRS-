@@ -2,7 +2,7 @@ enchantmentCol = (0,220,220)
 effectCol = (110,220,0)
 currencyCol = (150,0,150)
 
-seed = "5.4.8.2.2 äǤǤǤŤĤȤȥȤƤĤȤȤȤƤĤȤȩȤƤċȄȄȄƄ"
+seed = "5.4.8.2.2 !!!!!!!äń!!!¤!!!ÄȨŉ!!ÄƄ!!"
 currencySym = "$"
 timeTo = {"move":2,"pickup":1,"drop":1,"use":1,"shopb":1,"shops":1}
 

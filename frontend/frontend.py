@@ -66,14 +66,11 @@ vertical_difference=0.10
 partitions.append(bar(partition=partition((0.67,0.185+vertical_difference),(0.933,0.24+vertical_difference)),colour=(36,155,255)))
 partitions[-1].type='stamina'''
 
-#map animation variables
-animtick = 0
-motion = 'move1'
-move0=pygame.transform.scale_by(pygame.image.load('images\move0.png'),6)
-move1=pygame.transform.scale_by(pygame.image.load('images\move1.png'),6)
-move2=pygame.transform.scale_by(pygame.image.load('images\move2.png'),6)
 
 #game integration
+
+
+
 import items.main as main
 variables.game:main.Game = main.Game()
 # GameGUI(Game(),  [True,True],  filename:"",  defaultColour: recommend(0,200,0),  defaultFont: recommend "font_minecraft.ttf")
@@ -146,28 +143,6 @@ while variables.running:
     for partition in partitions:
         partition.run(events)
         
-    # finally rendering the player to make the map look a bit more cohesive
-    if motion == 'static':
-        
-        display.blit(move0,(70,70))
-    elif motion == 'move1':
-        
-        display.blit(move1,(70,70))
-        if animtick>=5:
-            
-            motion = 'move2'
-            animtick = 0
-        else:
-            animtick+=10*dt
-    elif motion == 'move2':
-        
-        display.blit(move2,(70,70))
-        if animtick>=5:
-            
-            motion = 'move1'
-            animtick = 0
-        else:
-            animtick+=10*dt
             
     
     #mgl stuff

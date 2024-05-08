@@ -23,6 +23,9 @@ def remapMouse(mousePosition:list[int,int]):
     
     #
     return mousePosition
+
+
+
 class Game:
     def __init__(self):
         self.state = "normal"
@@ -286,6 +289,90 @@ class Game:
         #except:
             return [f"!!!something went wrong"]
 
+def generate_map(map_,size:tuple[int,int] = (36,24), spacing:tuple[int,int] = (5,4), line_width:int = 1, colour = (255, 255, 255)):
+    surface = pygame.surface.Surface((size[0]*map_.size,size[1]*map_.size), pygame.SRCALPHA)
+
+    # generate rooms
+    for y in range(map_.size):
+        for x in range(map_.size):
+            if map_.rooms[x][y]:
+                
+                
+                #draw the room
+                
+                pygame.draw.rect(surface,colour,pygame.rect.Rect((x*size[0]+spacing[0],y*size[1]+spacing[1]),(size[0]-spacing[0]*2,size[1]-spacing[1]*2)))
+                pygame.draw.rect(surface,(0,0,0,0),pygame.rect.Rect((x*size[0]+spacing[0]+line_width,y*size[1]+spacing[1]+line_width),(size[0]-spacing[0]*2-line_width*2,size[1]-spacing[1]*2 - line_width*2)))
+                
+                #draw the room icon
+                
+                #blacksmith
+                if map_.rooms[x][y].type==4:
+                    surface.blit(pygame.image.load('images/room_icons/black_smith_v2.png'), (x*size[0]+spacing[0]*1.4,y*size[1]+spacing[1]*1.4))
+                
+                elif map_.rooms[x][y].type==5:
+                    surface.blit(pygame.image.load('images/room_icons/general_shop.png'), (x*size[0]+spacing[0]*1.4,y*size[1]+spacing[1]*1.4))
+                
+                
+                # for each connecting room:
+                # upwards
+                if map_.rooms[x][y].connections[0]:
+                    # get the top_left room
+                    top_left_position = (x*size[0]+spacing[0],(y-1)*size[1]+spacing[1] + size[1]-spacing[1]*2)
+                    
+                    
+                    new_top_left = (top_left_position[0] + (size[0] - spacing[0]*2)/3, top_left_position[1])
+                    new_spacing = (spacing[0]*2, spacing[1]*2)
+                    
+                    pygame.draw.rect(surface,colour,pygame.rect.Rect(new_top_left,new_spacing))
+                    pygame.draw.rect(surface,(0,0,0,0),pygame.rect.Rect((new_top_left[0]+line_width,new_top_left[1]),(new_spacing[0] - line_width * 2, new_spacing[1])))
+                    
+                #leftwards
+                if map_.rooms[x][y].connections[2]:
+                    # get the top_left room
+                    top_left_position = ((x-1)*size[0]+spacing[0] + size[0]-spacing[0]*2,y*size[1]+spacing[1] )
+                    
+                    
+                    new_top_left = (top_left_position[0], top_left_position[1]+ (size[1] - spacing[1]*2)/3)
+                    new_spacing = (spacing[0]*2, spacing[1]*2)
+                    pygame.draw.rect(surface,colour,pygame.rect.Rect(new_top_left,new_spacing))
+                    pygame.draw.rect(surface,(0,0,0,0),pygame.rect.Rect((new_top_left[0],new_top_left[1]+line_width),(new_spacing[0], new_spacing[1] - line_width*2)))
+                pass
+            else:
+                pass
+    return surface
+
+class gui_map:
+    def __init__(self, game:Game):
+        self.game:Game = game
+        self.range = 2
+        
+        self.size = (72, 48)
+        self.spacing = (10,8)
+        self.line_width = 2
+        self.map:pygame.surface.Surface = generate_map(game.map, self.size, self.spacing, self.line_width)
+        self.old_pos = self.game.player.loc
+        self.scaled_map =self.map
+        self.cropped = self.map
+    def render(self):
+        if self.range ==3:
+            cropped_area = [(self.game.player.loc[0]-self.range+1)*self.size[0]+self.spacing[0],
+                        (self.game.player.loc[1]-self.range+1)*self.size[1]+self.spacing[1],
+                        
+                        (self.size[0]-self.spacing[0])*(self.range*2-1)+self.spacing[0]*self.range,
+                        (self.size[1]-self.spacing[1])*(self.range*2-1)+self.spacing[1]*self.range
+            ]
+        else:
+            cropped_area = [(self.game.player.loc[0]-self.range+1)*self.size[0]+self.spacing[0],
+                        (self.game.player.loc[1]-self.range+1)*self.size[1]+self.spacing[1],
+                        
+                        (self.size[0]-self.spacing[0])*(self.range*2-1)+self.spacing[0],
+                        (self.size[1]-self.spacing[1])*(self.range*2-1)+self.spacing[1]
+            ]
+        output = pygame.surface.Surface((cropped_area[-2], cropped_area[-1]), pygame.SRCALPHA) #had an unknown splicing error here
+        print((self.game.player.loc[0]-self.range),(self.game.player.loc[1]-self.range))
+        output.blit(self.scaled_map, (0,0), cropped_area)
+        return output
+        
 class GameGUI:
     def __init__(self, game:Game, enabled:tuple[bool], filename:str|None = "frontend/", defaultColour:tuple[int,int,int] = (0,255,0), defaultFont:str = "font_minecraft.ttf") -> None:
         pygame.init()
@@ -301,6 +388,11 @@ class GameGUI:
         self.defaultFont = defaultFont
         self.chat = ([None]*8) + [f"Buttons: {'enabled' if self.enabled[0] else 'disabled'}   Chat: {'enabled' if self.enabled[0] else 'disabled'}"] + self.game.start() + [None,"Chat disabled" if not self.enabled[1] else ""]
         self.chatPerson = [0,0,0,0,0,0,0,0,2,1,0]
+        self.guiMap = gui_map(self.game)
+        #player_character
+        self.motion = 'move1'
+        self.anim_move1=pygame.transform.scale_by(pygame.image.load('images\move1.png'),4)
+        self.anim_move2=pygame.transform.scale_by(pygame.image.load('images\move2.png'),4)
     
     def text(self, text:str|int, size:int, pos:tuple, font:str="font_minecraft.ttf", colour:tuple|None=None, anchor:str="c") -> None:
         if not colour: colour=self.defaultColour
@@ -437,9 +529,11 @@ class GameGUI:
             for i in range(3):
                 skills = ["constitution","dexterity","strength"]
                 colours = [(220,0,0),(0,0,220),(220,220,0)]
+                n = int(self.game.player.skills[skills[i]]*sum([100]+[e.level for e in self.game.player.effects if e.effect==skills[i]])/100)-100
+                if n>100: n=100
                 self.text(skills[i],20,(700,i*75+530),anchor="tl")
-                self.text(f"+{self.game.player.skills[skills[i]]-100}%",20,(1150,i*75+530),colour=colours[i],anchor="tr")
-                self.rect((700,i*75+560),((self.game.player.skills[skills[i]]-100)*450/100,35),colour=colours[i],anchor="tl")
+                self.text(f"+{n}%",20,(1150,i*75+530),colour=colours[i],anchor="tr")
+                self.rect((700,i*75+560),(n*450/100,35),colour=colours[i],anchor="tl")
                 self.rect((700,i*75+560),(450,35),anchor="tl",width=5)
             if self.mode[0]=="player":
                 maxHp = int(self.game.player.type.data["health"]*(self.game.player.skills["constitution"]/100)*(sum([100]+[e.level for e in self.game.player.effects if e.effect=="constitution"])/100))
@@ -480,6 +574,9 @@ class GameGUI:
                         if "stamina" in item.type.data: text.append(f"     [stamina: {item.type.data['stamina']}]")
                         if "healing" in item.type.data: text.append(f"     [healing: {item.type.data['healing']}]")
                         if "protection" in item.type.data: text.append(f"     [protection: {item.type.data['protection']}]")
+                        if "constitution" in item.type.data: text.append(f"     [constitution: {item.type.data['constitution']}]")
+                        if "dexterity" in item.type.data: text.append(f"     [dexterity: {item.type.data['dexterity']}]")
+                        if "strength" in item.type.data: text.append(f"     [strength: {item.type.data['strength']}]")
                         if len(item.type.data["enchantments"])>0: text.append(f"ench: {item.type.data['enchantments'][0].name}")
                         if len(item.type.data["enchantments"])>1: text.append(f"ench: {item.type.data['enchantments'][1].name}")
                         if len(item.type.data['effects'])>0: text.append(f"eff: {item.type.data['effects'][0].name}")
@@ -493,7 +590,7 @@ class GameGUI:
                         if self.enabled[0]:
                             for i in range(2):
                                 text = ["use","drop"]
-                                func = [self.game.use if (self.mode[1]<5 and item.type.use!="weapon") else None,self.game.drop]
+                                func = [self.game.use if (self.mode[1]<5 and item.type.use not in ["weapon","secret"]) else None,self.game.drop]
                                 args = [self.mode[1],self.mode[1]]
                                 self.rect((i*200+325,440),(150,50),width=5)
                                 self.text(text[i],20,(i*200+325,440),colour=(0,60,0) if not func[i] else None)
@@ -555,12 +652,19 @@ class GameGUI:
                                 self.text(f"--{settings.currencySym}",20,(800,i*30+250),colour=(0,60,0),anchor="tr")
                     else: self.text("You are not currently in a shop",20,(600,315))
             if self.mode[0]=="map":
-                pass
+                self.screen.blit(pygame.transform.scale_by(self.guiMap.render(),2.3),(300,160))
+                pos = (495,280)
+                if self.time%1000>500:
+                    self.screen.blit(self.anim_move1,pos)
+                else:
+                    self.screen.blit(self.anim_move2,pos)
+                    
+
             if self.mode[0]=="compass":
                 x,y = self.game.getCompass()
                 rot = math.degrees(math.atan2(-y,x))
-                self.image("compass0.jpg",(600,315),(300,300))
-                self.image("compass1.png",(600,315),(300,300),rot)
+                self.image("c0.png",(600,315),(300,300))
+                self.image("c1.png",(600,315),(300,300),rot)
             if self.mode[0]=="chat":
                 for i in range(len(self.chat)-1):
                     colours = [(0,200,0),(0,200,200),(200,200,0)]
@@ -697,7 +801,7 @@ class GameGUI:
                         elif self.chatPerson[i]==2: self.text(f"{self.chat[i]}",16,(250,i*24+165),colour=colours[2],anchor="tl")
                 self.text(f">>> {self.chat[-1]}{'|' if self.time%1000>=500 and self.enabled[1] else ''}",20,(250,465),anchor="bl")
         if self.game.state==None:
-            variables.running = False
+            running = False
         self.time += self.clock.get_time()
         self.clock.tick()
         

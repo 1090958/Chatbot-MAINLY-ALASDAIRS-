@@ -1,4 +1,141 @@
-import random
+import pygame,random
+
+lore = ["""Entry 1: Whilst I doubt anyone will ever read this anyway more and more
+surface dwellers are appearing here with no recollection of who they
+are. I believe the dungeons strip you of your past life (some believe
+the dungeon is even alive). I was born here and with nothing better to do
+I am writing a diary about history. Before the tunnels existed and the
+dungeons were found we lived on the surface. No one really remembers
+what it looked like but is was probably nicer than this place. The world
+was bent to 4 immortal beings, Fayre, Lilith, Gabriel and Lux. They
+were winged and beautiful, as far as we know they were always there.
+""",
+        """Entry 2: Some worshipped them as gods some didn't really care about
+them but all was pretty much fine. Sometimes the immortals would
+fight. Their small brawls lasted years. At some point the immortals
+had a big fight and the great war started. The worshippers divided
+each to one immortal and war waged. Unlike the small fights of the
+past their war was violent their worshippers were savage, the world
+filled with death. Anyone who didn't choose a side was slaughtered
+anyway and they searched for asylum. That was why the tunnels were
+created and why the dungeons were found.
+""",
+        """Entry 3: Something strange is going on. People of my clan are going
+missing; father says its nothing to worry about. My aunt says it's
+the goblins fault she says they are going savage. We aren't
+supposed to talk to the other clans but I have a friend named
+Arit in the peace cult. Or at least my aunt calls it the peace
+cult; they call themselves equalists.  Arit says people in his
+clan are going missing aswell. I'm worried.
+""",
+        """Entry 4: The non-worshippers began to dig down creating a web of
+tunnels. The tunnels were not deep and the worshipers still managed
+to find them. The non-worshippers kept digging until they reached an
+unbreakable wall. They followed it for a long time until they found
+a breach.  At least they thought it was a breach, but it was a door.
+What they entered was the dungeon an incredible underground structure
+that stretched far and wide. The dungeon was devoid of any noticeable
+life but there were signs of creation. The non-believers had found
+their asylum.
+""",
+        """Entry 5: After exploration a device was discovered capable of
+destroying even the thought unbreakable walls of the dungeon and
+more tunnels were built connecting the dungeons to the surface.
+The device was named the breaker.  The breaker was able to not
+only destroy but build dungeon stone. Arit and I have been meeting
+in secret more often to talk about the disappearances. His clan
+came across a monster. He said it looked like a goblin but also
+like Fayre. It was savage and was quickly killed and examined.
+His clan thinks the monster was one of fayres worshippers,
+somehow so devout they tried to host her body.
+""",
+        """Entry 6: As we left off the dungeons were found, and the
+non-worshippers began to live there. But as you can tell the
+dungeons weren't necessarily that nice. Leavers were slaughtered
+or came running back. Eventually a group called to peace, lead
+by a goblin named Catam (the peace cult). But his idea of peace
+revolved around murdering the immortals and many feared that
+the worshippers would hunt them down if they found their gods
+dead, or even worse they would reveal the dungeons to the
+immortals.
+""",
+        """Entry 7: Catams cult grew and eventually set out to kill the
+immortals. they stole the breaker and used it to tunnel
+underground into each immortal's territory. They decided to
+trap the immortals as they could not kill them and created a
+prison out of the dungeon's rubble (using the breaker) . They
+created a letters pretending to be immortals asking to create
+alliances. They said the meeting place would be found by 
+following a tunnel. The immortals got given letters and all
+fell for the trick, following the tunnels to the indestructible
+cage where they were locked in. This solution seemed permanent 
+but it was short lived.
+""",
+        """Entry 8: Our tribe has come across a great discovery! The
+immortal essence (I haven't told you about it yet) has come 
+with great power! There are still people going missing and more
+monsters have been discovered.  After inspection it has been
+found that the monsters can also be extracted using the breaker
+just like the immortals (I will explain this soon reader).
+Anyway their essence is similar to the immortals but is
+impermanent weird right? Perhaps with this new power we will
+be able to come back to the surface.
+""",
+        """Entry 9: The immortals were beginning to alert worshippers to
+their locations just as many had feared. The peace cult had a
+solution though, they used the breaker to create indestructible
+bottles and then used the breaker on the immortals. The
+immortals became an essence, which was then trapped in the
+jars. (arit tells me that the jars were necessary as when to
+much essence was held together it would begin to build back
+into the immortals).The jars were split across the dungeon.
+After this the non-worshippers began to split into more and
+more tribes, some even staying as nomads.
+""",
+        """Entry 10: There is us the believers of freedom (that one day
+we should live on the surface alongside the worshippers).
+The peace cult / equalists (they believe the worshippers
+should be murdered). The goblins (they are split racially,
+they believe they are above the other tribes and steal a lot).
+And there are the grounded clan (believes the dungeon is alive
+and their only home, that the surface is a wasteland). There
+are more but they mostly keep to themselves, their ideologies
+unknown.""",
+        """""",
+        """""",
+        """""",
+        """""",
+        """""",
+        """""",
+        """""",
+        """""",
+        """""",
+        ]
+
+def loadImages(filename:str) -> None:
+    names = [["p04","p03","p02","p01","p05","m0","x1"],
+             ["p14","p13","p12","p11","p15","m1","x2"],
+             ["p24","p23","p22","p21","p25","m2","x3"],
+             ["p34","p33","p32","p31","p35","m3","x4"],
+             ["p43","p42","p41","e0","e2","e3","x0"],
+             ["s1","s0","s2","s3","e1","s4","s5"],
+             ["a11","a21","a31","a41","a01","x51"],
+             ["a12","a22","a32","a42","a02","x52"],
+             ["a13","a23","a33","a43","a03","x53"],
+             ["a14","a24","a34","a44","a04","x54"],
+             ["al0","al1","al2","al3","al4"]]
+    img = pygame.image.load(filename+"main.png")
+    for y in range(len(names)):
+        for x in range(len(names[y])):
+            new = img.subsurface((x*16,y*17),(16,16))
+            pygame.image.save(new,filename+names[y][x]+".png")
+    for i in range(2):
+        new = img.subsurface((i*23,(y+1)*17),(23,23))
+        pygame.image.save(new,filename+("c0" if i>0 else "c1")+".png")
+
+
+
+
 
 class Effect:
     def __init__(self, name:str, effect:str, level:int, time:int) -> None:
@@ -9,17 +146,22 @@ class Effect:
     def copy(self):
         return Effect(self.name, self.effect, self.level, self.time)
 
+antiHealEff = Effect("Fayre's Curse", "health", -10, 5)
 str20 = Effect("Strength I", "strength", 20, 3)
 str100 = Effect("Strength V", "strength", 100, 3)
+antiStrEff = Effect("Alexander's Curse", "strength", -20, 5)
 dex20 = Effect("Dexterity I", "dexterity", 20, 3)
 dex100 = Effect("Dexterity V", "dexterity", 100, 3)
+antiDexEff = Effect("Gabriel's Curse", "dexterity", -20, 5)
 pro10 = Effect("Protection I", "protection", 10, 3)
 pro50 = Effect("Protection V", "protection", 50, 3)
-potion00 = Effect("Strength III", "strength", 50, 3)
-potion01 = Effect("Slowness I", "dexterity", -10, 3)
-potion10 = Effect("Protection III", "protection", 30, 3)
-potion11 = Effect("Weakness II", "strength", -50, 3)
-potion20 = Effect("Invisibility", "dexterity", 100, 3)
+pro50x = Effect("Protection V", "protection", 50, 15)
+antiProEff = Effect("Lux's Curse", "protection", -20, 5)
+potion41eff1 = Effect("Strength III", "strength", 50, 3)
+potion41eff2 = Effect("Slowness I", "dexterity", -10, 3)
+potion42eff1 = Effect("Protection III", "protection", 30, 3)
+potion42eff2 = Effect("Weakness II", "strength", -50, 3)
+potion43eff = Effect("Invisibility", "dexterity", 100, 3)
 burningEff = Effect("Burning", "health", -10, 10)
 bleedingEff = Effect("Bleeding", "health", -5, 10)
 blindingEff = Effect("Blinding", "dexterity", -40, 5)
@@ -36,6 +178,11 @@ class Enchantment:
 burning = Enchantment("Curse of Burning", burningEff, 1)
 bleeding = Enchantment("Curse of Bleeding", bleedingEff, 1)
 blinding = Enchantment("Curse of Blinding", blindingEff, 1)
+armourNeg = Enchantment("Armour Piecing", "armourNeg", 1)
+healCurse = Enchantment("Fayre's Curse", antiHealEff, 1)
+rageCurse = Enchantment("Alexander's Curse", antiStrEff, 1)
+speedCurse = Enchantment("Gabriel's Curse", antiDexEff, 1)
+crystalCurse = Enchantment("Lux's Curse", antiProEff, 1)
 
 
 
@@ -53,7 +200,8 @@ uncommon = Rarity("uncommon",(0,150,0))
 rare = Rarity("rare",(0,50,220))
 epic = Rarity("epic",(100,0,220))
 legendary = Rarity("legendary",(220,100,0))
-mythic = Rarity("mythic",(150,150,0))
+mythic = Rarity("mythic",(120,120,0))
+special = Rarity("special",(180,0,0))
 
 
 
@@ -74,30 +222,90 @@ class Object:
         if "uses" in self.type.data:
             self.uses = self.type.data["uses"]
     
-potionHeal1 = ObjectType("Basic Healing Potion", "test.jpg", rare, "instant", 20, {"uses":1,"healing":30,"enchamntments":[],"effects":[]})
-potionHeal2 = ObjectType("Basic Healing Potion", "test.jpg", rare, "instant", 50, {"uses":3,"healing":30,"enchamntments":[],"effects":[]})
-potionHeal3 = ObjectType("Basic Healing Potion", "test.jpg", epic, "instant", 90, {"uses":5,"healing":30,"enchamntments":[],"effects":[]})
-potionHeal4 = ObjectType("Full Healing Potion", "test.jpg", legendary, "instant", 175, {"uses":1,"healing":500,"enchamntments":[],"effects":[]})
-potionHeal5 = ObjectType("True Healing Potion", "test.jpg", mythic, "instant", 150, {"uses":1,"constitution":25,"enchamntments":[],"effects":[]})
-potionDamage1 = ObjectType("Basic Rage Potion", "test.jpg", rare, "effect", 20, {"uses":1,"enchamntments":[],"effects":[str20]})
-potionDamage2 = ObjectType("Basic Rage Potion", "test.jpg", rare, "effect", 50, {"uses":3,"enchamntments":[],"effects":[str20]})
-potionDamage3 = ObjectType("Basic Rage Potion", "test.jpg", epic, "effect", 90, {"uses":5,"enchamntments":[],"effects":[str20]})
-potionDamage4 = ObjectType("Full Rage Potion", "test.jpg", legendary, "effect", 175, {"uses":1,"enchamntments":[],"effects":[str100]})
-potionDamage5 = ObjectType("True Rage Potion", "test.jpg", mythic, "instant", 150, {"uses":1,"strength":25,"enchamntments":[],"effects":[]})
-potionSpeed1 = ObjectType("Basic Speed Potion", "test.jpg", rare, "effect", 20, {"uses":1,"enchamntments":[],"effects":[dex20]})
-potionSpeed2 = ObjectType("Basic Speed Potion", "test.jpg", rare, "effect", 50, {"uses":3,"enchamntments":[],"effects":[dex20]})
-potionSpeed3 = ObjectType("Basic Speed Potion", "test.jpg", epic, "effect", 90, {"uses":5,"enchamntments":[],"effects":[dex20]})
-potionSpeed4 = ObjectType("Full Speed Potion", "test.jpg", legendary, "effect", 175, {"uses":1,"enchamntments":[],"effects":[dex100]})
-potionSpeed5 = ObjectType("True Flight Potion", "test.jpg", mythic, "instant", 150, {"uses":1,"dexterity":25,"enchamntments":[],"effects":[]})
-potionCrystal1 = ObjectType("Basic Crystal Skin Potion", "test.jpg", rare, "effect", 20, {"uses":1,"enchamntments":[],"effects":[pro10]})
-potionCrystal2 = ObjectType("Basic Crystal Skin Potion", "test.jpg", rare, "effect", 50, {"uses":3,"enchamntments":[],"effects":[pro10]})
-potionCrystal3 = ObjectType("Basic Crystal Skin Potion", "test.jpg", epic, "effect", 90, {"uses":5,"enchamntments":[],"effects":[pro10]})
-potionCrystal4 = ObjectType("Full Crystal Skin Potion", "test.jpg", legendary, "effect", 175, {"uses":1,"enchamntments":[],"effects":[pro50]})
-#potionCrystal5 = ObjectType("True Crystal Skin Potion", "test.jpg", mythic, "instant", 150, {"uses":1,"enchamntments":[],"effects":[]})
-potionStrength = ObjectType("Strength Potion", "test.jpg", epic, "effect", 100, {"uses":5,"enchamntments":[],"effects":[potion00,potion01]})
-potionScalene = ObjectType("Scalene Skin Potion", "test.jpg", epic, "effect", 100, {"uses":5,"enchamntments":[],"effects":[potion10,potion11]})
-potionInvisibility = ObjectType("Invisibility Potion", "test.jpg", legendary, "effect", 150, {"uses":1,"enchamntments":[],"effects":[potion20]})
-
+potion01 = ObjectType("Basic Healing Potion", "p01.png", rare, "instant", 20, {"uses":1,"healing":30,"enchantments":[],"effects":[]})
+potion02 = ObjectType("Basic Healing Potion", "p02.png", rare, "instant", 50, {"uses":3,"healing":30,"enchantments":[],"effects":[]})
+potion03 = ObjectType("Basic Healing Potion", "p03.png", epic, "instant", 90, {"uses":5,"healing":30,"enchantments":[],"effects":[]})
+potion04 = ObjectType("Full Healing Potion", "p04.png", legendary, "instant", 90, {"uses":1,"healing":500,"enchantments":[],"effects":[]})
+potion05 = ObjectType("True Healing Potion", "p05.png", mythic, "instant", 0, {"uses":1,"constitution":25,"enchantments":[],"effects":[]})
+potion11 = ObjectType("Basic Rage Potion", "p11.png", rare, "effect", 20, {"uses":1,"enchantments":[],"effects":[str20]})
+potion12 = ObjectType("Basic Rage Potion", "p12.png", rare, "effect", 50, {"uses":3,"enchantments":[],"effects":[str20]})
+potion13 = ObjectType("Basic Rage Potion", "p13.png", epic, "effect", 90, {"uses":5,"enchantments":[],"effects":[str20]})
+potion14 = ObjectType("Full Rage Potion", "p14.png", legendary, "effect", 90, {"uses":1,"enchantments":[],"effects":[str100]})
+potion15 = ObjectType("True Rage Potion", "p15.png", mythic, "instant", 0, {"uses":1,"strength":25,"enchantments":[],"effects":[]})
+potion21 = ObjectType("Basic Speed Potion", "p21.png", rare, "effect", 20, {"uses":1,"enchantments":[],"effects":[dex20]})
+potion22 = ObjectType("Basic Speed Potion", "p22.png", rare, "effect", 50, {"uses":3,"enchantments":[],"effects":[dex20]})
+potion23 = ObjectType("Basic Speed Potion", "p23.png", epic, "effect", 90, {"uses":5,"enchantments":[],"effects":[dex20]})
+potion24 = ObjectType("Full Speed Potion", "p24.png", legendary, "effect", 90, {"uses":1,"enchantments":[],"effects":[dex100]})
+potion25 = ObjectType("True Speed Potion", "p25.png", mythic, "instant", 0, {"uses":1,"dexterity":25,"enchantments":[],"effects":[]})
+potion31 = ObjectType("Basic Crystal Skin Potion", "p31.png", rare, "effect", 20, {"uses":1,"enchantments":[],"effects":[pro10]})
+potion32 = ObjectType("Basic Crystal Skin Potion", "p32.png", rare, "effect", 50, {"uses":3,"enchantments":[],"effects":[pro10]})
+potion33 = ObjectType("Basic Crystal Skin Potion", "p33.png", epic, "effect", 90, {"uses":5,"enchantments":[],"effects":[pro10]})
+potion34 = ObjectType("Full Crystal Skin Potion", "p34.png", legendary, "effect", 90, {"uses":1,"enchantments":[],"effects":[pro50]})
+potion35 = ObjectType("True Crystal Skin Potion", "p35.png", mythic, "effect", 0, {"uses":1,"enchantments":[],"effects":[pro50x]})
+potion41 = ObjectType("Strength Potion", "p41.png", epic, "effect", 100, {"uses":5,"enchantments":[],"effects":[potion41eff1,potion41eff2]})
+potion42 = ObjectType("Scalene Skin Potion", "p42.png", epic, "effect", 100, {"uses":5,"enchantments":[],"effects":[potion42eff1,potion42eff2]})
+potion43 = ObjectType("Invisibility Potion", "p43.png", legendary, "effect", 90, {"uses":1,"enchantments":[],"effects":[potion43eff]})
+sword01 = ObjectType("Basic Sword", "s0.png", common, "weapon", 30, {"attack":15,"stamina":20,"hitRate":80,"enchantments":[],"effects":[]})
+sword02 = ObjectType("Dull Basic Sword", "s0.png", common, "weapon", 30, {"attack":12,"stamina":20,"hitRate":80,"enchantments":[],"effects":[]})
+sword03 = ObjectType("Sharp Basic Sword", "s0.png", common, "weapon", 30, {"attack":18,"stamina":20,"hitRate":80,"enchantments":[],"effects":[]})
+sword04 = ObjectType("Light Basic Sword", "s0.png", common, "weapon", 30, {"attack":15,"stamina":20,"hitRate":92,"enchantments":[],"effects":[]})
+sword05 = ObjectType("Heavy Basic Sword", "s0.png", common, "weapon", 30, {"attack":15,"stamina":20,"hitRate":72,"enchantments":[],"effects":[]})
+sword11 = ObjectType("Flame Sword", "s1.png", epic, "weapon", 75, {"attack":20,"stamina":30,"hitRate":80,"enchantments":[burning],"effects":[]})
+sword12 = ObjectType("Dull Flame Sword", "s1.png", epic, "weapon", 75, {"attack":15,"stamina":30,"hitRate":80,"enchantments":[burning],"effects":[]})
+sword13 = ObjectType("Sharp Flame Sword", "s1.png", epic, "weapon", 75, {"attack":25,"stamina":30,"hitRate":80,"enchantments":[burning],"effects":[]})
+sword14 = ObjectType("Light Flame Sword", "s1.png", epic, "weapon", 75, {"attack":20,"stamina":30,"hitRate":87,"enchantments":[burning],"effects":[]})
+sword15 = ObjectType("Heavy Flame Sword", "s1.png", epic, "weapon", 75, {"attack":20,"stamina":30,"hitRate":75,"enchantments":[burning],"effects":[]})
+sword21 = ObjectType("Point Destroyer", "s2.png", uncommon, "weapon", 45, {"attack":18,"stamina":15,"hitRate":95,"enchantments":[],"effects":[]})
+sword22 = ObjectType("Dull Point Destroyer", "s2.png", uncommon, "weapon", 45, {"attack":15,"stamina":15,"hitRate":95,"enchantments":[],"effects":[]})
+sword23 = ObjectType("Sharp Point Destroyer", "s2.png", uncommon, "weapon", 45, {"attack":22,"stamina":15,"hitRate":95,"enchantments":[],"effects":[]})
+sword31 = ObjectType("Gold Arm", "s3.png", rare, "weapon", 60, {"attack":50,"stamina":35,"hitRate":85,"enchantments":[],"effects":[]})
+sword32 = ObjectType("Dull Gold Arm", "s3.png", rare, "weapon", 60, {"attack":42,"stamina":35,"hitRate":85,"enchantments":[],"effects":[]})
+sword33 = ObjectType("Sharp Gold Arm", "s3.png", rare, "weapon", 60, {"attack":55,"stamina":35,"hitRate":85,"enchantments":[],"effects":[]})
+sword34 = ObjectType("Light Gold Arm", "s3.png", rare, "weapon", 60, {"attack":50,"stamina":35,"hitRate":90,"enchantments":[],"effects":[]})
+sword35 = ObjectType("Heavy Gold Arm", "s3.png", rare, "weapon", 60, {"attack":50,"stamina":35,"hitRate":80,"enchantments":[],"effects":[]})
+sword41 = ObjectType("King's Blade", "s4.png", legendary, "weapon", 120, {"attack":60,"stamina":35,"hitRate":75,"enchantments":[bleeding],"effects":[]})
+sword42 = ObjectType("Dull King's Blade", "s4.png", legendary, "weapon", 120, {"attack":55,"stamina":35,"hitRate":75,"enchantments":[bleeding],"effects":[]})
+sword43 = ObjectType("Sharp King's Blade", "s4.png", legendary, "weapon", 120, {"attack":70,"stamina":35,"hitRate":75,"enchantments":[bleeding],"effects":[]})
+sword44 = ObjectType("Light King's Blade", "s4.png", legendary, "weapon", 120, {"attack":60,"stamina":35,"hitRate":70,"enchantments":[bleeding],"effects":[]})
+sword45 = ObjectType("Heavy King's Blade", "s4.png", legendary, "weapon", 120, {"attack":60,"stamina":35,"hitRate":82,"enchantments":[bleeding],"effects":[]})
+sword51 = ObjectType("King's Staff", "s5.png", legendary, "weapon", 120, {"attack":40,"stamina":35,"hitRate":95,"enchantments":[bleeding],"effects":[]})
+sword52 = ObjectType("Dull King's Staff", "s5.png", legendary, "weapon", 120, {"attack":55,"stamina":25,"hitRate":90,"enchantments":[bleeding],"effects":[]})
+sword53 = ObjectType("Sharp King's Staff", "s5.png", legendary, "weapon", 120, {"attack":70,"stamina":25,"hitRate":90,"enchantments":[bleeding],"effects":[]})
+sword54 = ObjectType("Light King's Staff", "s5.png", legendary, "weapon", 120, {"attack":60,"stamina":25,"hitRate":85,"enchantments":[bleeding],"effects":[]})
+sword55 = ObjectType("Heavy King's Staff", "s5.png", legendary, "weapon", 120, {"attack":60,"stamina":25,"hitRate":95,"enchantments":[bleeding],"effects":[]})
+extra0 = ObjectType("Gun", "e0.png", rare, "weapon", 60, {"attack":60,"stamina":25,"hitRate":60,"enchantments":[],"effects":[]})
+extra1 = ObjectType("Wrecking Ball", "e1.png", rare, "weapon", 90, {"attack":75,"stamina":40,"hitRate":60,"enchantments":[armourNeg],"effects":[]})
+extra2 = ObjectType("Grappling Hook", "e2.png", uncommon, "weapon", 40, {"attack":12,"stamina":10,"hitRate":100,"enchantments":[armourNeg],"effects":[]})
+extra3 = ObjectType("Mirror", "e3.png", rare, "weapon", 40, {"attack":5,"stamina":30,"hitRate":95,"enchantments":[blinding],"effects":[]})
+mythic0 = ObjectType("Fayre's Bow of Healing", "m0.png", mythic, "weapon", 0, {"attack":80,"stamina":30,"hitrate":85,"enchantments":[healCurse],"effects":[]})
+mythic1 = ObjectType("Alexander's Sword of Rage", "m1.png", mythic, "weapon", 0, {"attack":100,"stamina":40,"hitrate":90,"enchantments":[rageCurse],"effects":[]})
+mythic2 = ObjectType("Gabriel's Feathers of Speed", "m2.png", mythic, "weapon", 0, {"attack":70,"stamina":25,"hitrate":95,"enchantments":[speedCurse],"effects":[]})
+mythic3 = ObjectType("Lux's Hammer of Crystals", "m3.png", mythic, "weapon", 0, {"attack":110,"stamina":45,"hitrate":85,"enchantments":[crystalCurse],"effects":[]})
+album0 = ObjectType("TV Girl's Album", "al0.png", special, "secret", 200, {"enchantments":[],"effects":[]})
+album1 = ObjectType("MGMT's Album", "al1.png", special, "secret", 200, {"enchantments":[],"effects":[]})
+album2 = ObjectType("Pink Floyd's Album", "al2.png", special, "secret", 200, {"enchantments":[],"effects":[]})
+album3 = ObjectType("The Living Tombstone's Album", "al3.png", special, "secret", 200, {"enchantments":[],"effects":[]})
+album4 = ObjectType("The Neighbourhood's Album", "al4.png", special, "secret", 200, {"enchantments":[],"effects":[]})
+armour01 = ObjectType("Tin Helmet", "a01.png", uncommon, "armour0", 40, {"protection":5,"enchantments":[],"effects":[]})
+armour02 = ObjectType("Tin Chestplate", "a02.png", uncommon, "armour1", 40, {"protection":5,"enchantments":[],"effects":[]})
+armour03 = ObjectType("Tin Leggings", "a03.png", uncommon, "armour2", 40, {"protection":5,"enchantments":[],"effects":[]})
+armour04 = ObjectType("Tin Boots", "a04.png", uncommon, "armour3", 40, {"protection":5,"enchantments":[],"effects":[]})
+armour11 = ObjectType("Iron Helmet", "a11.png", rare, "armour0", 55, {"protection":7,"enchantments":[],"effects":[]})
+armour12 = ObjectType("Iron Chestplate", "a12.png", rare, "armour1", 55, {"protection":7,"enchantments":[],"effects":[]})
+armour13 = ObjectType("Iron Leggings", "a13.png", rare, "armour2", 55, {"protection":7,"enchantments":[],"effects":[]})
+armour14 = ObjectType("Iron Boots", "a14.png", rare, "armour3", 55, {"protection":7,"enchantments":[],"effects":[]})
+armour21 = ObjectType("Crystal Helmet", "a21.png", epic, "armour0", 40, {"protection":10,"enchantments":[],"effects":[]})
+armour22 = ObjectType("Crystal Chestplate", "a22.png", epic, "armour1", 40, {"protection":10,"enchantments":[],"effects":[]})
+armour23 = ObjectType("Crystal Leggings", "a23.png", epic, "armour2", 40, {"protection":10,"enchantments":[],"effects":[]})
+armour24 = ObjectType("Crystal Boots", "a24.png", epic, "armour3", 40, {"protection":10,"enchantments":[],"effects":[]})
+armour31 = ObjectType("Gold Helmet", "a31.png", epic, "armour0", 55, {"protection":10,"enchantments":[],"effects":[]})
+armour32 = ObjectType("Gold Chestplate", "a32.png", epic, "armour1", 55, {"protection":10,"enchantments":[],"effects":[]})
+armour33 = ObjectType("Gold Leggings", "a33.png", epic, "armour2", 55, {"protection":10,"enchantments":[],"effects":[]})
+armour34 = ObjectType("Gold Boots", "a34.png", epic, "armour3", 55, {"protection":10,"enchantments":[],"effects":[]})
+armour41 = ObjectType("King's Helmet", "a41.png", legendary, "armour0", 55, {"protection":17,"enchantments":[],"effects":[]})
+armour42 = ObjectType("King's Chestplate", "a42.png", legendary, "armour1", 55, {"protection":17,"enchantments":[],"effects":[]})
+armour43 = ObjectType("King's Leggings", "a43.png", legendary, "armour2", 55, {"protection":17,"enchantments":[],"effects":[]})
+armour44 = ObjectType("King's Boots", "a44.png", legendary, "armour3", 55, {"protection":17,"enchantments":[],"effects":[]})
 
 
 
@@ -126,7 +334,7 @@ class Character:
         self.effects = []
         self.skills = {"constitution":100,"dexterity":100,"strength":100}
 
-player = CharacterType("Player", "c0.jpg", {"health":200,"attack":20,"defense":15,"staminaRate":20})
+player = CharacterType("Player", "", {"health":200,"attack":20,"defense":15,"staminaRate":20})
 ##
 
 
@@ -204,7 +412,7 @@ class Encounter:
                                             damage = char.inv[slot].type.data["attack"]
                                             prot = sum(sum(e.level for e in a.type.data["enchantments"] if e.effect=="protect")+a.type.data["protection"] for a in enemy.armour if a)
                                             if prot>40: prot=40
-                                            damage -= int((prot/100)*damage)
+                                            if not any([e.effect=="armourNeg" for e in char.inv[slot].type.data["enchantments"]]): damage -= int((prot/100)*damage)
                                             damage = int(damage*char.skills["strength"]/100)
                                             output += [f"{char.name} attacks {enemy.name} with a {char.inv[slot].type.name}! (-{damage}HP)"]
                                             if any([ench.effect=="steal" for ench in char.inv[slot].type.data["enchantments"]]):
@@ -286,6 +494,7 @@ class Room:
         self.contents = []
         self.characters = []
         self.shopStuff = []
+        self.entries = []
     def copy(self):
         return Room(self.place, self.biome, self.type, self.connections)
     def __str__(self) -> str:
@@ -330,9 +539,7 @@ def updateRoom(room:Room) -> Room:
         characters = random.choice([[],[]])
         #room.characters = [Character(i) for i in random.choices(characters, weights=(), k=random.randint())]
     elif room.type==4:
-        objects = []
-        #room.shopStuff = [i for i in random.choices(objects, k=random.randint())]
-        #room.shopStuff = list(dict.fromkeys(room.shopStuff))
+        room.entries = [lore[1]]
     elif room.type==5:
         objects = []
         #room.shopStuff = [i for i in random.choices(objects, k=random.randint())]
@@ -341,4 +548,11 @@ def updateRoom(room:Room) -> Room:
         objects = []
         #room.shopStuff = [i for i in random.choices(objects, k=random.randint())]
         #room.shopStuff = list(dict.fromkeys(room.shopStuff))
+    elif room.type==7:
+        objects = []
+        #room.shopStuff = [i for i in random.choices(objects, k=random.randint())]
+        #room.shopStuff = list(dict.fromkeys(room.shopStuff))
     return room
+
+if __name__=="__main__":
+    pass

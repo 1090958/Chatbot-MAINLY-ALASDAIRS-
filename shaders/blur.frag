@@ -26,18 +26,18 @@ void main()
             {
             w=w0*exp((-xx-yy)/(2.0*rr));
             float e = 1.3;
-            col.rgb+=vec3(
-                pow((texture2D(tex,p+vec2(-0.001*chromaticAbberationX.r,0.001*chromaticAbberationY.r))*w).r,e)*10,
-                pow((texture2D(tex,p+vec2(-0.001*chromaticAbberationX.b,0.001*chromaticAbberationY.b))*w).g,e)*10,
-                pow((texture2D(tex,p+vec2(-0.001*chromaticAbberationX.g,0.001*chromaticAbberationY.g))*w).b,e)*10
-            );
+            col.rgb+=(texture2D(tex,p+vec2(-0.001*chromaticAbberationX.r,0.001*chromaticAbberationY.r))*w).rgb*10;
             }}}
-
-        f_colour.rgb = vec3(
+        if (chromaticAbberationX == vec3(0) && chromaticAbberationY == vec3(0)){
+            f_colour.rgb = texture2D(tex,uvs).rgb;
+        }else{
+            f_colour.rgb = vec3(
                 (texture2D(tex,uvs+vec2(-0.001*chromaticAbberationX.r,0.001*chromaticAbberationY.r))).r,
                 (texture2D(tex,uvs+vec2(-0.001*chromaticAbberationX.g,0.001*chromaticAbberationY.g))).g,
                 (texture2D(tex,uvs+vec2(-0.001*chromaticAbberationX.b,0.001*chromaticAbberationY.b))).b
             )*1.3;
+        }
+        
         f_colour+=(col*1.3)/2;
         if (blur){
             //f_colour=texture2D(tex,floor(uvs*pixel)/pixel);

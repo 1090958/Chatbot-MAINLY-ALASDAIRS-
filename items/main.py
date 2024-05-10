@@ -293,7 +293,7 @@ wait       wait for a turn@
 use [item number]
 The item number is shown in the toolbar and you can click on the item to use it as well.
 
-
+ 
 
     
     """
@@ -507,6 +507,7 @@ class GameGUI:
         for event in events:
             if event.type == pygame.QUIT:
                 variables.running = False
+                return
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mousePos = pygame.mouse.get_pos()
                 mousePos = remapMouse(mousePos)

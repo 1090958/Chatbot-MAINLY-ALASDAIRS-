@@ -1,4 +1,4 @@
-import pygame,random
+import pygame,random,variables
 
 lore = ["""Entry 1: Whilst I doubt anyone will ever read this anyway more and more surface dwellers are appearing here with no recollection of who they are. I believe the dungeons strip you of your past life (some believe the dungeon is even alive). I was born here and with nothing better to do so I am writing a diary about history. Before the tunnels existed and the dungeons were found we lived on the surface. No one really remembers what it looked like but is was probably nicer than this place. The world was bent to 4 immortal beings, Fayre, Lilith, Gabriel and Lux. They were winged and beautiful, as far as we know they were always there.""",
         """Entry 2: Some worshipped them as gods some didn't really care about them but all was pretty much fine. Sometimes the immortals would fight. Their small brawls lasted years. At some point the immortals had a big fight and the great war started. The worshippers divided each to one immortal and war waged. Unlike the small fights of the past their war was violent their worshippers were savage, the world filled with death. Anyone who didn't choose a side was slaughtered anyway and they searched for asylum. That was why the tunnels were created and why the dungeons were found.""",
@@ -299,6 +299,7 @@ class Encounter:
                     if (slot==-1 or char.inv[slot]==None) and slot!=-2:
                         if char.stamina>char.type.data["staminaRate"]*3:
                             for enemy in self.people:
+                                
                                 if char.team != enemy.team:
                                     if random.random()<(enemy.skills["dexterity"]/100)*(sum([100]+[e.level for e in enemy.effects if e.effect=="dexterity"])/100)*(enemy.type.data["defense"]/100):
                                         output += [f"{char.name} tries to attack but {enemy.name} dodges!"]
@@ -315,29 +316,33 @@ class Encounter:
                         if char.inv[slot].type.use=="weapon":
                             for enemy in self.people:
                                 if char.team != enemy.team:
-                                    if random.random()<char.inv[slot].type.data["hitRate"]/100:
-                                        if random.random()<(enemy.skills["dexterity"]/100)*(sum([100]+[e.level for e in enemy.effects if e.effect=="dexterity"])/100)*(enemy.type.data["defense"]/100):
-                                            output += [f"{char.name} tries to attack but {enemy.name} dodges!"]
+                                    try:
+                                        if random.random()<char.inv[slot].type.data["hitRate"]/100:
+                                            if random.random()<(enemy.skills["dexterity"]/100)*(sum([100]+[e.level for e in enemy.effects if e.effect=="dexterity"])/100)*(enemy.type.data["defense"]/100):
+                                                output += [f"{char.name} tries to attack but {enemy.name} dodges!"]
+                                            else:
+                                                damage = char.inv[slot].type.data["attack"]
+                                                prot = sum(sum(e.level for e in a.type.data["enchantments"] if e.effect=="protect")+a.type.data["protection"] for a in enemy.armour if a)
+                                                if prot>40: prot=40
+                                                if not any([e.effect=="armourNeg" for e in char.inv[slot].type.data["enchantments"]]): damage -= int((prot/100)*damage)
+                                                damage = int(damage*char.skills["strength"]/100)
+                                                output += [f"{char.name} attacks {enemy.name} with a {char.inv[slot].type.name}! (-{damage}HP)"]
+                                                if any([ench.effect=="steal" for ench in char.inv[slot].type.data["enchantments"]]):
+                                                    x = [ench for ench in char.inv[slot].type.data["enchantments"] if ench.effect=="steal"]
+                                                    output += [f"{char.name} uses {x[0].name} to steal health!"]
+                                                    char.hp += int((x[0].level/100)*damage)
+                                                enemy.hp -= damage
+                                                char.stamina -= char.inv[slot].type.data["stamina"]
+                                                for ench in char.inv[slot].type.data["enchantments"]:
+                                                    if isinstance(ench.effect, Effect):
+                                                        enemy.effects.append(ench.effect)
+                                                if "uses" in char.inv[slot].type.data:
+                                                    char.inv[slot].uses -= 1
+                                    
                                         else:
-                                            damage = char.inv[slot].type.data["attack"]
-                                            prot = sum(sum(e.level for e in a.type.data["enchantments"] if e.effect=="protect")+a.type.data["protection"] for a in enemy.armour if a)
-                                            if prot>40: prot=40
-                                            if not any([e.effect=="armourNeg" for e in char.inv[slot].type.data["enchantments"]]): damage -= int((prot/100)*damage)
-                                            damage = int(damage*char.skills["strength"]/100)
-                                            output += [f"{char.name} attacks {enemy.name} with a {char.inv[slot].type.name}! (-{damage}HP)"]
-                                            if any([ench.effect=="steal" for ench in char.inv[slot].type.data["enchantments"]]):
-                                                x = [ench for ench in char.inv[slot].type.data["enchantments"] if ench.effect=="steal"]
-                                                output += [f"{char.name} uses {x[0].name} to steal health!"]
-                                                char.hp += int((x[0].level/100)*damage)
-                                            enemy.hp -= damage
-                                            char.stamina -= char.inv[slot].type.data["stamina"]
-                                            for ench in char.inv[slot].type.data["enchantments"]:
-                                                if isinstance(ench.effect, Effect):
-                                                    enemy.effects.append(ench.effect)
-                                            if "uses" in char.inv[slot].type.data:
-                                                char.inv[slot].uses -= 1
-                                    else:
-                                        output += [f"{char.name} tries to attack {enemy.name} but misses!"]
+                                            output += [f"{char.name} tries to attack {enemy.name} but misses!"]
+                                    except:
+                                        variables.game.quit()
                         elif char.inv[slot].type.use=="instant":
                             output += [f"{char.name} uses {char.inv[slot].type.name}"]
                             if "healing" in char.inv[slot].type.data:

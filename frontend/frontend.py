@@ -47,8 +47,9 @@ r = 1
 variables.blur = False
 variables.pixel = 1
     # chromatic abberation
-abberationY = [4,2,2]
-abberationX = [2,2,5]
+abberationY = [0]*3
+abberationX = [0]*3
+
 
 #partition variables: no longer using these after switching to opengl
 partitions = []
@@ -91,12 +92,12 @@ while variables.running:
     events = pygame.event.get()
     render = False
     for event in events:
-        if event.type in [pygame.QUIT,pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN]:
+        if event.type in [pygame.QUIT,pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN, pygame.VIDEORESIZE]:
             render = True
             break
     if not render and not variables.blur and variables.gui.mode[0]!="map":
         continue
-    display.fill((0,0,0))
+    display.fill((0,0,0,0))
     
     display.blit(bg,(0,0))
     # second gui stuff

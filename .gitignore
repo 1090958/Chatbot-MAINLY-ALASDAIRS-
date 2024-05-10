@@ -75,6 +75,9 @@ docs/_build/
 .pybuilder/
 target/
 
+# Compiled Python code (courtesy of yours truly)
+output/
+
 # Jupyter Notebook
 .ipynb_checkpoints
 

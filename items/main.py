@@ -38,7 +38,7 @@ class Game:
         self.encounter = None
     
     def start(self):
-        self.player.inv = [Object(stuff.sword02),Object(stuff.potion11),Object(stuff.armour01),Object(stuff.extra1),None]
+        self.player.inv = [Object(stuff.sword02),Object(stuff.armour01),None,None,None]
         self.player.armour = [None,None,None,None]
         return ["Welcome to the dungon! You've got a lot to learn young warrior.",
                 "As you explore this dark, dangerous world you'll find that the world is",

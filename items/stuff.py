@@ -332,10 +332,10 @@ char03 = CharacterType("Fast Goblin", "xx.png", {"health":40,"attack":15,"defens
 char04 = CharacterType("Big Goblin", "xx.png", {"health":60,"attack":25,"defense":0,"staminaRate":30,"invSize":1,"inventory":[sword23],"invChance":0.7})
 char11 = CharacterType("King's Dwarfs", "xx.png", {"health":40,"attack":20,"defense":20,"staminaRate":12,"invSize":1,"inventory":[sword52],"invChance":0.6})
 char12 = CharacterType("King's Soldiers", "xx.png", {"health":100,"attack":50,"defense":10,"staminaRate":12,"invSize":1,"inventory":[sword53],"invChance":0.9})
-boss0 = CharacterType("Fayre (God of Healing)", "b0.png", {"health":0,"attack":0,"defense":0,"staminaRate":0,"invSize":5,"inventory":[mythic0,potion05,potion05,potion04,potion04],"invChance":1})
-boss1 = CharacterType("Alexander (God of Rage)", "b1.png", {"health":0,"attack":0,"defense":0,"staminaRate":0,"invSize":5,"inventory":[mythic1,potion15,potion15,potion14,potion14],"invChance":1})
-boss2 = CharacterType("Gabriel (God of Speed)", "b2.png", {"health":0,"attack":0,"defense":0,"staminaRate":0,"invSize":5,"inventory":[mythic2,potion25,potion25,potion24,potion24],"invChance":1})
-boss3 = CharacterType("Lux (God of Crystal)", "b3.png", {"health":0,"attack":0,"defense":0,"staminaRate":0,"invSize":5,"inventory":[mythic3,potion35,potion35,potion34,potion34],"invChance":1})
+boss0 = CharacterType("Fayre (God of Healing)", "b0.png", {"health":500,"attack":0,"defense":40,"staminaRate":50,"invSize":5,"inventory":[mythic0,potion05,potion05,potion04,potion04],"invChance":1})
+boss1 = CharacterType("Alexander (God of Rage)", "b1.png", {"health":500,"attack":0,"defense":40,"staminaRate":50,"invSize":5,"inventory":[mythic1,potion15,potion15,potion14,potion14],"invChance":1})
+boss2 = CharacterType("Gabriel (God of Speed)", "b2.png", {"health":500,"attack":0,"defense":40,"staminaRate":50,"invSize":5,"inventory":[mythic2,potion25,potion25,potion24,potion24],"invChance":1})
+boss3 = CharacterType("Lux (God of Crystal)", "b3.png", {"health":500,"attack":0,"defense":40,"staminaRate":50,"invSize":5,"inventory":[mythic3,potion35,potion35,potion34,potion34],"invChance":1})
 
 
 

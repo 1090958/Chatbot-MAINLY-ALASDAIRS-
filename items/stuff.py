@@ -388,6 +388,7 @@ class Encounter:
                     if not self.winner:
                         output += ["Your Turn"]
                     break
+        variables.update=True
         return output
     def endUpdate(self) -> tuple[Character|list]:
         for char in self.people:

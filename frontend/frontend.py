@@ -35,7 +35,8 @@ variables.running = True
 bg = pygame.image.load('images/bg.png')
 map = pygame.image.load('images/map.png')
 fr = pygame.image.load('images/front.png')
-
+move0=pygame.transform.scale_by(pygame.image.load('images\move0.png'),4)
+pygame.display.set_icon(move0)
 
 bg = pygame.transform.scale_by(bg, 6)
 map = pygame.transform.scale_by(map, 6)

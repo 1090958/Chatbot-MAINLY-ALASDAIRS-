@@ -19,14 +19,35 @@ class terminal:
         self.past.insert(0,self.output) 
     def enter(self):
         if self.output != "clear":
-            output = variables.game.takeInput(self.output)
             
-            try:
-                self.past = [output[0].replace('!!!','')] + self.past
-            except:
-                pass
+            outputs = variables.game.takeInput(self.output)
+            new_outputs = []
+            
+            for output in outputs:
+                new_outputs.append(output[:30])
+                if 60 < len(output) > 30:
+                    new_outputs.append(output[30:])
+                elif 60 > len(output):
+                    new_outputs.append(output[30:])
+            print(new_outputs)
+            for output in (new_outputs):
+                
+            
+                
+                try:
+                    self.past = [output.replace('!!!','')] + self.past
+                    print("past",self.past)
+                except:
+                    pass
+                
+                
+                
             self.past.insert(0,'')
+                
+            self.output = ''
             
+            self.past.insert(0,'')
+                
             self.output = ''
         else:
             self.past = ['']

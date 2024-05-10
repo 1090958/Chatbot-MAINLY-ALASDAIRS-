@@ -505,9 +505,6 @@ class GameGUI:
             variables.running = False
             return self.screen
         for event in events:
-            if event.type == pygame.QUIT:
-                variables.running = False
-                return
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mousePos = pygame.mouse.get_pos()
                 mousePos = remapMouse(mousePos)

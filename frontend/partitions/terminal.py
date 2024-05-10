@@ -18,9 +18,11 @@ class terminal:
         self.past.pop(0)
         self.past.insert(0,self.output) 
     def enter(self):
+        print
         output = variables.game.takeInput(self.output)
+        print(output)
         try:
-            self.past = list(reversed(output.split('\n'))) + self.past
+            self.past = output[0].replace('!!!','') + self.past
         except:
             pass
         self.past.insert(0,'')
@@ -35,8 +37,10 @@ class terminal:
         
         # i made a program to find the exponential equation for the relationship between the font and the char_limit
         fit_to_curve = lambda x: int(((x**-1.20899) * (3767.696))) # a bit overkill, i think not
+        # joke is that i no longer need this
         
-        # 20 is the number of letters that can fit on a line in normal situations
+        
+        # 30 is the number of letters that can fit on a line in normal situations
         char_limit=30#int(fit_to_curve(self.size)*(max(self.partition.p1[0], self.partition.p2[0]) - min(self.partition.p1[0], self.partition.p2[0])))
         
         

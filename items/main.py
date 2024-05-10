@@ -247,7 +247,7 @@ class Game:
         try:
             return [f"You waited for {int(n)*10}s"] + self.update(int(n))
         except:
-            return["Invalid Input"]
+            return["!!!Invalid Input"]
 
     def quit(self):
         self.state = None
@@ -288,6 +288,8 @@ class Game:
                     return self.wait(_input.split()[1])
                 elif _input.split()[0]=="quit":
                     return self.quit()
+                elif _input.split()[0]=="quit":
+                    prompt(self.help())
                 else:
                     return [f"!!!Invalid input"]
             elif self.state=="fighting":
@@ -304,6 +306,17 @@ class Game:
                 else: return self.encounter.update(_input.split())
         except:
             return [f"!!!Something went wrong"]
+        
+    def help(self):
+        return"""               Help:
+@               OUT OF COMBAT
+@move [up,down,left,right] move in the specified direction
+@               IN COMBAT
+@wait                      wait for a turn
+@pretend I wrote something here
+
+    
+    """
 
 def generate_map(map_,size:tuple[int,int] = (36,24), spacing:tuple[int,int] = (5,4), line_width:int = 1, colour = (255, 255, 255)):
     surface = pygame.surface.Surface((size[0]*map_.size,size[1]*map_.size), pygame.SRCALPHA)
@@ -322,13 +335,16 @@ def generate_map(map_,size:tuple[int,int] = (36,24), spacing:tuple[int,int] = (5
                 #draw the room icon
                 
                 #blacksmith
-                if map_.rooms[x][y].type==4:
+                if settings.roomNames[map_.rooms[x][y].type]=="Blacksmith":
                     surface.blit(pygame.image.load('images/room_icons/black_smith_v2.png'), (x*size[0]+spacing[0]*1.4,y*size[1]+spacing[1]*1.4))
-                
-                elif map_.rooms[x][y].type==5:
+                #general shop
+                elif settings.roomNames[map_.rooms[x][y].type]=="General Shop":
                     surface.blit(pygame.image.load('images/room_icons/general_shop.png'), (x*size[0]+spacing[0]*1.4,y*size[1]+spacing[1]*1.4))
-                
-                
+                #library
+                elif settings.roomNames[map_.rooms[x][y].type]=="Library":
+                    surface.blit(pygame.image.load('images/room_icons/library.png'), (x*size[0]+spacing[0]*1.4,y*size[1]+spacing[1]*1.4))
+                elif settings.roomNames[map_.rooms[x][y].type]=="Boss Fight":
+                    surface.blit(pygame.image.load('images/room_icons/boss_fight.png'), (x*size[0]+spacing[0]*1.4,y*size[1]+spacing[1]*1.4))
                 # for each connecting room:
                 # upwards
                 if map_.rooms[x][y].connections[0]:
@@ -385,7 +401,6 @@ class gui_map:
                         (self.size[1]-self.spacing[1])*(self.range*2-1)+self.spacing[1]
             ]
         output = pygame.surface.Surface((cropped_area[-2], cropped_area[-1]), pygame.SRCALPHA) #had an unknown splicing error here
-        print((self.game.player.loc[0]-self.range),(self.game.player.loc[1]-self.range))
         output.blit(self.scaled_map, (0,0), cropped_area)
         return output
         
@@ -456,8 +471,6 @@ class GameGUI:
         elif anchor=="t": r.midtop=pos
         elif anchor=="tl": r.topleft=pos
         elif anchor=="tr": r.topright=pos
-        if self.time == 0:
-            print((r, func, args))
         self.buttons.append((r, func, args,retrunVar))
     
     def switchMode1(self, mode:str) -> None:
@@ -474,7 +487,6 @@ class GameGUI:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mousePos = pygame.mouse.get_pos()
                 mousePos = remapMouse(mousePos)
-                print(mousePos)
                 for button in self.buttons:
                     if button[0].collidepoint(mousePos):
                         if not button[1]: pass
@@ -675,9 +687,7 @@ class GameGUI:
                         if len(room.entries)==0: self.text("There is nothing found in this library",20,(600,315))
                         else:
                             for i in range(10):
-                                text = room.entries[0].split("\n")
-                                if len(text)>i: 
-                                    self.text(text[i],16,(250,i*24+220),anchor="tl")
+                                prompt(room.entries[0])
                     else: self.text("You are not currently in a libary",20,(600,315))
             if self.mode[0]=="map":
                 self.screen.blit(pygame.transform.scale_by(self.guiMap.render(),2.3),(300,160))

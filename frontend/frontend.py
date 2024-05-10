@@ -43,7 +43,7 @@ attack_rect1 = pygame.Rect(22, 12, 128, 148)
 attack_rect2 = pygame.Rect(12, 22, 148, 128)
 # shader variables
     # blur radius
-r = 20
+r = 1
 variables.blur = False
 variables.pixel = 1
     # chromatic abberation
@@ -75,7 +75,7 @@ import items.main as main
 variables.game:main.Game = main.Game()
 # GameGUI(Game(),  [True,True],  filename:"",  defaultColour: recommend(0,200,0),  defaultFont: recommend "font_minecraft.ttf")
 
-variables.gui:main.GameGUI = main.GameGUI(variables.game,  [True,True])
+variables.gui:main.GameGUI = main.GameGUI(variables.game,  [True,False])
 
 def load_item(item)->pygame.surface:
     
@@ -87,9 +87,16 @@ def load_item(item)->pygame.surface:
 
 
 while variables.running:
-    display.fill((0,0,0))
     
     events = pygame.event.get()
+    render = False
+    for event in events:
+        if event.type in [pygame.QUIT,pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN]:
+            render = True
+            break
+    if not render and not variables.blur and variables.gui.mode[0]!="map":
+        continue
+    display.fill((0,0,0))
     
     display.blit(bg,(0,0))
     # second gui stuff
@@ -118,6 +125,9 @@ while variables.running:
                 pygame.freetype.Font("frontend/apple2.ttf", 6).render_to(display, (position[0]+int(16*1.2)+3, position[1]+11), item.type.rarity.name,(255,255,255))
                 position=(position[0], position[1]+int(16*1.2)+3)'''
     #partition stuff
+    
+    for partition in partitions:
+        partition.run(events)
     for partition in partitions:
         partition.draw(display)
     #draw ui
@@ -129,10 +139,9 @@ while variables.running:
             variables.running = False
         if event.type == pygame.KEYDOWN:
             variables.blur=False
+            variables.r=1
             if event.key == pygame.K_SLASH:
                 prompt.prompt(variables.game.help())
-            if event.key == pygame.K_EQUALS:
-                pass
         if event.type == pygame.VIDEORESIZE:
             settings.resolution = ((event.w+event.h)/2,(event.w+event.h)/2)
             
@@ -140,12 +149,11 @@ while variables.running:
             
             
     #partition stuff cont.
-    for partition in partitions:
-        partition.run(events)
         
             
     
     #mgl stuff
+    program['blur'] = False
     program['chromaticAbberationY'] = abberationY
     program['chromaticAbberationX'] = abberationX
     frame_tex = mgltools.surf_to_texture(display)
@@ -153,11 +161,10 @@ while variables.running:
     program['type'] = 1
     program['tex'] = 0
     if variables.blur:
-        program['r'] = r*2
+        program['r'] = 20
     else:
-        program['r'] = r
+        program['r'] = 1
     render_object.render(mode=moderngl.TRIANGLE_STRIP)
-        
         
     #second pass to render the next window
     if variables.blur:

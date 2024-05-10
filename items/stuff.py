@@ -100,30 +100,20 @@ they believe they are above the other tribes and steal a lot).
 And there are the grounded clan (believes the dungeon is alive
 and their only home, that the surface is a wasteland). There
 are more but they mostly keep to themselves, their ideologies
-unknown.""",
-        """""",
-        """""",
-        """""",
-        """""",
-        """""",
-        """""",
-        """""",
-        """""",
-        """""",
-        ]
+unknown."""]
 
 def loadImages(filename:str) -> None:
-    names = [["p04","p03","p02","p01","p05","m0","x1"],
-             ["p14","p13","p12","p11","p15","m1","x2"],
-             ["p24","p23","p22","p21","p25","m2","x3"],
-             ["p34","p33","p32","p31","p35","m3","x4"],
+    names = [["p04","p03","p02","p01","p05","m0","b0"],
+             ["p14","p13","p12","p11","p15","m1","b1"],
+             ["p24","p23","p22","p21","p25","m2","b2"],
+             ["p34","p33","p32","p31","p35","m3","b3"],
              ["p43","p42","p41","e0","e2","e3","x0"],
              ["s1","s0","s2","s3","e1","s4","s5"],
              ["a11","a21","a31","a41","a01","x51"],
              ["a12","a22","a32","a42","a02","x52"],
              ["a13","a23","a33","a43","a03","x53"],
              ["a14","a24","a34","a44","a04","x54"],
-             ["al0","al1","al2","al3","al4"]]
+             ["al0","al1","al2","al3","al4","xx"]]
     img = pygame.image.load(filename+"main.png")
     for y in range(len(names)):
         for x in range(len(names[y])):
@@ -269,10 +259,10 @@ sword43 = ObjectType("Sharp King's Blade", "s4.png", legendary, "weapon", 120, {
 sword44 = ObjectType("Light King's Blade", "s4.png", legendary, "weapon", 120, {"attack":60,"stamina":35,"hitRate":70,"enchantments":[bleeding],"effects":[]})
 sword45 = ObjectType("Heavy King's Blade", "s4.png", legendary, "weapon", 120, {"attack":60,"stamina":35,"hitRate":82,"enchantments":[bleeding],"effects":[]})
 sword51 = ObjectType("King's Staff", "s5.png", legendary, "weapon", 120, {"attack":40,"stamina":35,"hitRate":95,"enchantments":[bleeding],"effects":[]})
-sword52 = ObjectType("Dull King's Staff", "s5.png", legendary, "weapon", 120, {"attack":55,"stamina":25,"hitRate":90,"enchantments":[bleeding],"effects":[]})
-sword53 = ObjectType("Sharp King's Staff", "s5.png", legendary, "weapon", 120, {"attack":70,"stamina":25,"hitRate":90,"enchantments":[bleeding],"effects":[]})
-sword54 = ObjectType("Light King's Staff", "s5.png", legendary, "weapon", 120, {"attack":60,"stamina":25,"hitRate":85,"enchantments":[bleeding],"effects":[]})
-sword55 = ObjectType("Heavy King's Staff", "s5.png", legendary, "weapon", 120, {"attack":60,"stamina":25,"hitRate":95,"enchantments":[bleeding],"effects":[]})
+sword52 = ObjectType("Dull King's Staff", "s5.png", legendary, "weapon", 120, {"attack":30,"stamina":25,"hitRate":90,"enchantments":[bleeding],"effects":[]})
+sword53 = ObjectType("Sharp King's Staff", "s5.png", legendary, "weapon", 120, {"attack":42,"stamina":25,"hitRate":90,"enchantments":[bleeding],"effects":[]})
+sword54 = ObjectType("Light King's Staff", "s5.png", legendary, "weapon", 120, {"attack":40,"stamina":25,"hitRate":85,"enchantments":[bleeding],"effects":[]})
+sword55 = ObjectType("Heavy King's Staff", "s5.png", legendary, "weapon", 120, {"attack":40,"stamina":25,"hitRate":95,"enchantments":[bleeding],"effects":[]})
 extra0 = ObjectType("Gun", "e0.png", rare, "weapon", 60, {"attack":60,"stamina":25,"hitRate":60,"enchantments":[],"effects":[]})
 extra1 = ObjectType("Wrecking Ball", "e1.png", rare, "weapon", 90, {"attack":75,"stamina":40,"hitRate":60,"enchantments":[armourNeg],"effects":[]})
 extra2 = ObjectType("Grappling Hook", "e2.png", uncommon, "weapon", 40, {"attack":12,"stamina":10,"hitRate":100,"enchantments":[armourNeg],"effects":[]})
@@ -334,8 +324,18 @@ class Character:
         self.effects = []
         self.skills = {"constitution":100,"dexterity":100,"strength":100}
 
-player = CharacterType("Player", "", {"health":200,"attack":20,"defense":15,"staminaRate":20})
-##
+player = CharacterType("Player", "xx.png", {"health":200,"attack":20,"defense":15,"staminaRate":20})
+example = CharacterType("John", "xx.png", {"health":10,"attack":0,"defense":0,"staminaRate":1,"invSize":1,"inventory":[armour34],"invChance":1})
+char01 = CharacterType("Small Goblin", "xx.png", {"health":30,"attack":15,"defense":5,"staminaRate":30,"invSize":1,"inventory":[sword02],"invChance":0.5})
+char02 = CharacterType("Goblin", "xx.png", {"health":50,"attack":20,"defense":5,"staminaRate":30,"invSize":1,"inventory":[sword03],"invChance":0.5})
+char03 = CharacterType("Fast Goblin", "xx.png", {"health":40,"attack":15,"defense":25,"staminaRate":30,"invSize":1,"inventory":[sword21],"invChance":0.4})
+char04 = CharacterType("Big Goblin", "xx.png", {"health":60,"attack":25,"defense":0,"staminaRate":30,"invSize":1,"inventory":[sword23],"invChance":0.7})
+char11 = CharacterType("King's Dwarfs", "xx.png", {"health":40,"attack":20,"defense":20,"staminaRate":12,"invSize":1,"inventory":[sword52],"invChance":0.6})
+char12 = CharacterType("King's Soldiers", "xx.png", {"health":100,"attack":50,"defense":10,"staminaRate":12,"invSize":1,"inventory":[sword53],"invChance":0.9})
+boss0 = CharacterType("Fayre (God of Healing)", "b0.png", {"health":0,"attack":0,"defense":0,"staminaRate":0,"invSize":5,"inventory":[mythic0,potion05,potion05,potion04,potion04],"invChance":1})
+boss1 = CharacterType("Alexander (God of Rage)", "b1.png", {"health":0,"attack":0,"defense":0,"staminaRate":0,"invSize":5,"inventory":[mythic1,potion15,potion15,potion14,potion14],"invChance":1})
+boss2 = CharacterType("Gabriel (God of Speed)", "b2.png", {"health":0,"attack":0,"defense":0,"staminaRate":0,"invSize":5,"inventory":[mythic2,potion25,potion25,potion24,potion24],"invChance":1})
+boss3 = CharacterType("Lux (God of Crystal)", "b3.png", {"health":0,"attack":0,"defense":0,"staminaRate":0,"invSize":5,"inventory":[mythic3,potion35,potion35,potion34,potion34],"invChance":1})
 
 
 
@@ -354,6 +354,7 @@ class Encounter:
         self.playerSelected = 0
         self.time = -1
         self.winner = None
+        self.items = []
     def update(self, _input:list[str]) -> str:
         output = []
         validInput = True
@@ -455,6 +456,7 @@ class Encounter:
                 for char in self.people:
                     if char.hp <= 0:
                         output += [f"{char.name} has fallen!"]
+                        [self.items.append(item) for item in char.inv]
                         if char.type.name=="Player":
                             output += ["You lost the battle!"]
                             self.winner = 2
@@ -473,12 +475,12 @@ class Encounter:
                         output += ["Your Turn"]
                     break
         return output
-    def endUpdate(self) -> tuple[str|Character|list]:
+    def endUpdate(self) -> tuple[Character|list]:
         for char in self.people:
             if char.type.name=="Player":
                 x = char
                 self.people.remove(char)
-        return x, self.people
+        return x, self.people,self.items
 
 
 
@@ -530,28 +532,38 @@ def generateMap(x:str) -> Map:
 
 def updateRoom(room:Room) -> Room:
     if room.type==1:
-        characters = random.choice([[],[]])
-        #room.characters = [Character(i) for i in random.choices(characters, weights=(), k=random.randint())]
+        characters = [char01,char02,char03]
+        room.characters = [Character(i) for i in random.choices(characters, weights=(3,2,1), k=random.randint(2,4))]
     elif room.type==2:
-        characters = random.choice([[],[]])
-        #room.characters = [Character(i) for i in random.choices(characters, weights=(), k=random.randint())]
+        characters = [char02,char03,char04,char11]
+        room.characters = [Character(i) for i in random.choices(characters, weights=(2,3,4,1), k=random.randint(3,6))]
     elif room.type==3:
-        characters = random.choice([[],[]])
-        #room.characters = [Character(i) for i in random.choices(characters, weights=(), k=random.randint())]
+        characters = [char03,char04,char11,char12]
+        room.characters = [Character(i) for i in random.choices(characters, weights=(2,2,4,3), k=random.randint(5,8))]
     elif room.type==4:
-        room.entries = [lore[1]]
+        room.entries = [lore[random.randint(0,len(lore)-1)]]
     elif room.type==5:
-        objects = []
-        #room.shopStuff = [i for i in random.choices(objects, k=random.randint())]
-        #room.shopStuff = list(dict.fromkeys(room.shopStuff))
+        objects = [sword01,sword02,sword03,sword04,sword05,sword11,sword12,sword13,sword14,sword15,
+                   sword21,sword22,sword23,sword31,sword32,sword33,sword34,sword35,
+                   sword41,sword42,sword43,sword44,sword45,sword31,sword32,sword33,sword34,sword35,
+                   armour01,armour02,armour03,armour04,armour11,armour12,armour13,armour14,
+                   armour21,armour22,armour23,armour24,armour31,armour32,armour33,armour34,
+                   armour41,armour42,armour43,armour44,]
+        room.shopStuff = [i for i in random.choices(objects, k=random.randint(4,5))]
+        room.shopStuff = list(dict.fromkeys(room.shopStuff))
     elif room.type==6:
-        objects = []
-        #room.shopStuff = [i for i in random.choices(objects, k=random.randint())]
-        #room.shopStuff = list(dict.fromkeys(room.shopStuff))
+        objects = [extra0,extra1,extra2,extra3,
+                   album0,album1,album2,album3,album4,
+                   potion01,potion02,potion03,potion04,potion11,potion12,potion13,potion14,
+                   potion21,potion22,potion23,potion24,potion31,potion32,potion33,potion34]
+        room.shopStuff = [i for i in random.choices(objects, k=random.randint(4,5))]
+        room.shopStuff = list(dict.fromkeys(room.shopStuff))
     elif room.type==7:
-        objects = []
-        #room.shopStuff = [i for i in random.choices(objects, k=random.randint())]
-        #room.shopStuff = list(dict.fromkeys(room.shopStuff))
+        objects = [potion03,potion04,potion05,potion13,potion14,potion15,
+                   potion23,potion24,potion25,potion33,potion34,potion35,
+                   potion41,potion42,potion43]
+        room.shopStuff = [i for i in random.choices(objects, k=random.randint(2,5))]
+        room.shopStuff = list(dict.fromkeys(room.shopStuff))
     return room
 
 if __name__=="__main__":

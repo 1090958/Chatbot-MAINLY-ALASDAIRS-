@@ -32,7 +32,7 @@ class Game:
         self.map = stuff.generateMap(settings.seed)
         self.player = Character(stuff.player, "Jeff")
         self.player.loc = list(self.map.spawn)
-        self.player.balance = 100
+        self.player.balance = 200
         self.player.friends = []
         self.player.explored = [False] * 4
         self.encounter = None
@@ -40,7 +40,13 @@ class Game:
     def start(self):
         self.player.inv = [Object(stuff.sword02),Object(stuff.potion11),Object(stuff.armour01),Object(stuff.extra1),None]
         self.player.armour = [None,None,None,None]
-        return ["Welcome Message"]
+        return ["Welcome to the dungon! You've got a lot to learn young warrior.",
+                "As you explore this dark, dangerous world you'll find that the world is",
+                "controlled by 4 main forces. Your goal is to defeat these 4 gods:",
+                "Fayre, Alexander, Gabriel and Lux.",
+                "We've brought you here to defeat these gods.",
+                "I can't explain much more, but I've given you a compass to show you",
+                "the way to each boss, only fight them when you are ready."]
    
     def update(self, time):
         output = []
@@ -62,7 +68,8 @@ class Game:
             self.state = "fighting"
             self.encounter = Encounter([self.player]+self.player.friends, self.map.rooms[self.player.loc[0]][self.player.loc[1]].characters)
             output += self.encounter.update([])
-            self.player.explored[self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome] = True
+            if self.map.rooms[self.player.loc[0]][self.player.loc[1]].type in settings.rooms["boss"]:
+                self.player.explored[self.map.rooms[self.player.loc[0]][self.player.loc[1]].biome] = True
         if self.state=="fighting":
             if self.encounter.winner:
                 self.state = "normal"
@@ -71,8 +78,12 @@ class Game:
                     self.player = x[0]
                     self.player.friends = x[1]
                     self.map.rooms[self.player.loc[0]][self.player.loc[1]].characters = []
+                    self.player.balance += 50
+                    [self.map.rooms[self.player.loc[0]][self.player.loc[1]].contents.append(item) for item in x[2]]
                 elif self.encounter.winner==2:
                     self.state = None
+        if all(self.player.explored):
+            self.state = None
         return output
 
     def move(self,input1):
@@ -247,7 +258,7 @@ class Game:
         try:
             return [f"You waited for {int(n)*10}s"] + self.update(int(n))
         except:
-            return["!!!Invalid Input"]
+            return["Invalid Input"]
 
     def quit(self):
         self.state = None
@@ -266,6 +277,17 @@ class Game:
         roomDis[0] /= mag
         roomDis[1] /= mag
         return roomDis
+    
+    def help(self):
+        return"""               Help:
+@               OUT OF COMBAT
+@move [up,down,left,right] move in the specified direction
+@               IN COMBAT
+@wait                      wait for a turn
+@pretend I wrote something here
+
+    
+    """
     
     def takeInput(self, _input):
         try:
@@ -288,8 +310,6 @@ class Game:
                     return self.wait(_input.split()[1])
                 elif _input.split()[0]=="quit":
                     return self.quit()
-                elif _input.split()[0]=="quit":
-                    prompt(self.help())
                 else:
                     return [f"!!!Invalid input"]
             elif self.state=="fighting":
@@ -300,23 +320,14 @@ class Game:
                         self.player = x[0]
                         self.player.friends = x[1]
                         self.map.rooms[self.player.loc[0]][self.player.loc[1]].characters = []
+                        self.player.balance += 50
+                        [self.map.rooms[self.player.loc[0]][self.player.loc[1]].contents.append(item) for item in x[2]]
                         return [f"!!!You won the battle"]
                     elif self.encounter.winner==2:
                         return self.quit()
                 else: return self.encounter.update(_input.split())
         except:
             return [f"!!!Something went wrong"]
-        
-    def help(self):
-        return"""               Help:
-@               OUT OF COMBAT
-@move [up,down,left,right] move in the specified direction
-@               IN COMBAT
-@wait                      wait for a turn
-@pretend I wrote something here
-
-    
-    """
 
 def generate_map(map_,size:tuple[int,int] = (36,24), spacing:tuple[int,int] = (5,4), line_width:int = 1, colour = (255, 255, 255)):
     surface = pygame.surface.Surface((size[0]*map_.size,size[1]*map_.size), pygame.SRCALPHA)
@@ -417,8 +428,8 @@ class GameGUI:
         self.filename = filename if filename else ""
         self.defaultColour = defaultColour
         self.defaultFont = defaultFont
-        self.chat = ([None]*8) + [f"Buttons: {'enabled' if self.enabled[0] else 'disabled'}   Chat: {'enabled' if self.enabled[0] else 'disabled'}"] + self.game.start() + [None,"Chat disabled" if not self.enabled[1] else ""]
-        self.chatPerson = [0,0,0,0,0,0,0,0,2,1,0]
+        self.chat = ([None]*2) + [f"Buttons: {'enabled' if self.enabled[0] else 'disabled'}   Chat: {'enabled' if self.enabled[0] else 'disabled'}"] + self.game.start() + [None,"Chat disabled" if not self.enabled[1] else ""]
+        self.chatPerson = [0,0,2,1,1,1,1,1,1,1,0]
         stuff.loadImages(filename+"images/")
         self.guiMap = gui_map(self.game)
         #player_character
@@ -665,7 +676,7 @@ class GameGUI:
                             self.text(f"{value}{settings.currencySym}",20,(800,i*30+250),colour=room.shopStuff[i].rarity.colour,anchor="tr")
                             self.rect((900,i*30+265),(100,20),colour=room.shopStuff[i].rarity.colour)
                             if self.enabled[0]: self.button((900,i*30+265),(100,20),self.game.shopbuy,i,True)
-                        else: self.text("You are not currently in a shop",20,(600,315))
+                    else: self.text("You are not currently in a shop",20,(600,315))
                 if self.mode[1]==1:
                     self.text(f"balance: {self.game.player.balance}{settings.currencySym}",20,(600,220),colour=settings.currencyCol,anchor="t")
                     if room.type in settings.rooms["shop"]:

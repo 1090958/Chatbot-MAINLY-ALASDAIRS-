@@ -279,12 +279,21 @@ class Game:
         return roomDis
     
     def help(self):
-        return"""               Help:
-@               OUT OF COMBAT
-@move [up,down,left,right] move in the specified direction
-@               IN COMBAT
-@wait                      wait for a turn
-@pretend I wrote something here
+        return"""                    Help:
+    
+                    OUT OF COMBAT
+
+move [up,down,left,right] move in the specified direction
+
+
+                    IN COMBAT@
+                    
+wait       wait for a turn@
+
+use [item number]
+The item number is shown in the toolbar and you can click on the item to use it as well.
+
+
 
     
     """

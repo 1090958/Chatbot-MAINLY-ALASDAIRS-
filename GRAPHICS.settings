@@ -1,0 +1,1 @@
+blur_radius = 1   # must be positive non-zero integer (broken upon last update, forget for the moment)

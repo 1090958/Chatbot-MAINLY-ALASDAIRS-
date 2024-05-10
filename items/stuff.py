@@ -1,106 +1,15 @@
 import pygame,random
 
-lore = ["""Entry 1: Whilst I doubt anyone will ever read this anyway more and more
-surface dwellers are appearing here with no recollection of who they
-are. I believe the dungeons strip you of your past life (some believe
-the dungeon is even alive). I was born here and with nothing better to do
-I am writing a diary about history. Before the tunnels existed and the
-dungeons were found we lived on the surface. No one really remembers
-what it looked like but is was probably nicer than this place. The world
-was bent to 4 immortal beings, Fayre, Lilith, Gabriel and Lux. They
-were winged and beautiful, as far as we know they were always there.
-""",
-        """Entry 2: Some worshipped them as gods some didn't really care about
-them but all was pretty much fine. Sometimes the immortals would
-fight. Their small brawls lasted years. At some point the immortals
-had a big fight and the great war started. The worshippers divided
-each to one immortal and war waged. Unlike the small fights of the
-past their war was violent their worshippers were savage, the world
-filled with death. Anyone who didn't choose a side was slaughtered
-anyway and they searched for asylum. That was why the tunnels were
-created and why the dungeons were found.
-""",
-        """Entry 3: Something strange is going on. People of my clan are going
-missing; father says its nothing to worry about. My aunt says it's
-the goblins fault she says they are going savage. We aren't
-supposed to talk to the other clans but I have a friend named
-Arit in the peace cult. Or at least my aunt calls it the peace
-cult; they call themselves equalists.  Arit says people in his
-clan are going missing aswell. I'm worried.
-""",
-        """Entry 4: The non-worshippers began to dig down creating a web of
-tunnels. The tunnels were not deep and the worshipers still managed
-to find them. The non-worshippers kept digging until they reached an
-unbreakable wall. They followed it for a long time until they found
-a breach.  At least they thought it was a breach, but it was a door.
-What they entered was the dungeon an incredible underground structure
-that stretched far and wide. The dungeon was devoid of any noticeable
-life but there were signs of creation. The non-believers had found
-their asylum.
-""",
-        """Entry 5: After exploration a device was discovered capable of
-destroying even the thought unbreakable walls of the dungeon and
-more tunnels were built connecting the dungeons to the surface.
-The device was named the breaker.  The breaker was able to not
-only destroy but build dungeon stone. Arit and I have been meeting
-in secret more often to talk about the disappearances. His clan
-came across a monster. He said it looked like a goblin but also
-like Fayre. It was savage and was quickly killed and examined.
-His clan thinks the monster was one of fayres worshippers,
-somehow so devout they tried to host her body.
-""",
-        """Entry 6: As we left off the dungeons were found, and the
-non-worshippers began to live there. But as you can tell the
-dungeons weren't necessarily that nice. Leavers were slaughtered
-or came running back. Eventually a group called to peace, lead
-by a goblin named Catam (the peace cult). But his idea of peace
-revolved around murdering the immortals and many feared that
-the worshippers would hunt them down if they found their gods
-dead, or even worse they would reveal the dungeons to the
-immortals.
-""",
-        """Entry 7: Catams cult grew and eventually set out to kill the
-immortals. they stole the breaker and used it to tunnel
-underground into each immortal's territory. They decided to
-trap the immortals as they could not kill them and created a
-prison out of the dungeon's rubble (using the breaker) . They
-created a letters pretending to be immortals asking to create
-alliances. They said the meeting place would be found by 
-following a tunnel. The immortals got given letters and all
-fell for the trick, following the tunnels to the indestructible
-cage where they were locked in. This solution seemed permanent 
-but it was short lived.
-""",
-        """Entry 8: Our tribe has come across a great discovery! The
-immortal essence (I haven't told you about it yet) has come 
-with great power! There are still people going missing and more
-monsters have been discovered.  After inspection it has been
-found that the monsters can also be extracted using the breaker
-just like the immortals (I will explain this soon reader).
-Anyway their essence is similar to the immortals but is
-impermanent weird right? Perhaps with this new power we will
-be able to come back to the surface.
-""",
-        """Entry 9: The immortals were beginning to alert worshippers to
-their locations just as many had feared. The peace cult had a
-solution though, they used the breaker to create indestructible
-bottles and then used the breaker on the immortals. The
-immortals became an essence, which was then trapped in the
-jars. (arit tells me that the jars were necessary as when to
-much essence was held together it would begin to build back
-into the immortals).The jars were split across the dungeon.
-After this the non-worshippers began to split into more and
-more tribes, some even staying as nomads.
-""",
-        """Entry 10: There is us the believers of freedom (that one day
-we should live on the surface alongside the worshippers).
-The peace cult / equalists (they believe the worshippers
-should be murdered). The goblins (they are split racially,
-they believe they are above the other tribes and steal a lot).
-And there are the grounded clan (believes the dungeon is alive
-and their only home, that the surface is a wasteland). There
-are more but they mostly keep to themselves, their ideologies
-unknown."""]
+lore = ["""Entry 1: Whilst I doubt anyone will ever read this anyway more and more surface dwellers are appearing here with no recollection of who they are. I believe the dungeons strip you of your past life (some believe the dungeon is even alive). I was born here and with nothing better to do so I am writing a diary about history. Before the tunnels existed and the dungeons were found we lived on the surface. No one really remembers what it looked like but is was probably nicer than this place. The world was bent to 4 immortal beings, Fayre, Lilith, Gabriel and Lux. They were winged and beautiful, as far as we know they were always there.""",
+        """Entry 2: Some worshipped them as gods some didn't really care about them but all was pretty much fine. Sometimes the immortals would fight. Their small brawls lasted years. At some point the immortals had a big fight and the great war started. The worshippers divided each to one immortal and war waged. Unlike the small fights of the past their war was violent their worshippers were savage, the world filled with death. Anyone who didn't choose a side was slaughtered anyway and they searched for asylum. That was why the tunnels were created and why the dungeons were found.""",
+        """Entry 3: Something strange is going on. People of my clan are going missing; father says its nothing to worry about. My aunt says it's the goblins fault she says they are going savage. We aren't supposed to talk to the other clans but I have a friend named Arit in the peace cult. Or at least my aunt calls it the peace cult; they call themselves equalists.  Arit says people in his clan are going missing aswell. I'm worried.""",
+        """Entry 4: The non-worshippers began to dig down creating a web of tunnels. The tunnels were not deep and the worshipers still managed to find them. The non-worshippers kept digging until they reached an unbreakable wall. They followed it for a long time until they found a breach.  At least they thought it was a breach, but it was a door. What they entered was the dungeon an incredible underground structure that stretched far and wide. The dungeon was devoid of any noticeable life but there were signs of creation. The non-believers had found their asylum.""",
+        """Entry 5: After exploration a device was discovered capable of destroying even the thought unbreakable walls of the dungeon and tunnels were built connecting the dungeons to the surface. The device was named the breaker.  The breaker was able to not only destroy but build dungeon stone. Arit and I have been meeting in secret more often to talk about the disappearances. His clan came across a monster. He said it looked like a goblin but also like Fayre. It was savage and was quickly killed and examined. His clan thinks the monster was one of fayres worshippers, somehow so devout they tried to host her body.""",
+        """Entry 6: As we left off the dungeons were found, and the non-worshippers began to live there. But as you can tell the dungeons weren't necessarily that nice. Leavers were slaughtered or came running back. Eventually a group called to peace, lead by a goblin named Catam (the peace cult). But his idea of peace revolved around murdering the immortals and many feared that the worshippers would hunt them down if they found their gods dead, or even worse they would reveal the dungeons to the immortals.""",
+        """Entry 7: Catams cult grew and eventually set out to kill the immortals. they stole the breaker and used it to tunnel underground into each immortal's territory. They decided to trap the immortals as they could not kill them and created a prison out of the dungeon's rubble (using the breaker) . They created a letters pretending to be immortals asking to create alliances. They said the meeting place would be found by following a tunnel. The immortals got given letters and all fell for the trick, following the tunnels to the indestructible cage where they were locked in. This solution seemed permanent but it was short lived.""",
+        """Entry 8: Our tribe has come across a great discovery! The immortal essence (I haven't told you about it yet) has come with great power! There are still people going missing and more monsters have been discovered.  After inspection it has been found that the monsters can also be extracted using the breaker just like the immortals (I will explain this soon reader). Anyway their essence is similar to the immortals but is impermanent weird right? Perhaps with this new power we will be able to come back to the surface.""",
+        """Entry 9: The immortals were beginning to alert worshippers to their locations just as many had feared. The peace cult had a solution though, they used the breaker to create indestructible bottles and then used the breaker on the immortals. The immortals became an essence, which was then trapped in the jars. (arit tells me that the jars were necessary as when to much essence was held together it would begin to build back into the immortals).The jars were split across the dungeon. After this the non-worshippers began to split into more and more tribes, some even staying as nomads.""",
+        """Entry 10: There is us the believers of freedom (that one day we should live on the surface alongside the worshippers). The peace cult / equalists (they believe the worshippers should be murdered). The goblins (they are split racially, they believe they are above the other tribes and steal a lot). And there are the grounded clan (believes the dungeon is alive and their only home, that the surface is a wasteland). There are more but they mostly keep to themselves, their ideologies unknown."""]
 
 def loadImages(filename:str) -> None:
     names = [["p04","p03","p02","p01","p05","m0","b0"],

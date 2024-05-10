@@ -11,7 +11,11 @@ pygame.freetype.init()
 screen = pygame.display.set_mode(settings.resolution, pygame.OPENGL | pygame.DOUBLEBUF | pygame.RESIZABLE)
 display = pygame.Surface((256*3,256*3))
 
-
+# import graphics settings
+try:
+    variables.blur_radius = open("GRAPHICS.settings").readline().split()[2]
+except:
+    variables.blur_radius = 1
 
 
 
@@ -48,7 +52,7 @@ attack_rect1 = pygame.Rect(22, 12, 128, 148)
 attack_rect2 = pygame.Rect(12, 22, 148, 128)
 # shader variables
     # blur radius
-r = 1
+r = variables.blur_radius
 variables.blur = False
 variables.pixel = 1
     # chromatic abberation
@@ -117,7 +121,7 @@ render_object.render(mode=moderngl.TRIANGLE_STRIP)
 pygame.display.flip()
 
 
-
+variables.update = False
 
 
 
@@ -129,7 +133,7 @@ while variables.running:
         if event.type in [pygame.QUIT,pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN, pygame.VIDEORESIZE]:
             render = True
             break
-    if not render and not variables.blur and variables.gui.mode[0]!="map":
+    if not render and variables.gui.mode[0]!="map" and not variables.update:
         continue
     display.fill((0,0,0,0))
     

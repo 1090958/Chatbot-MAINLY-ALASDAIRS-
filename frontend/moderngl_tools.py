@@ -1,4 +1,4 @@
-import moderngl, array
+import moderngl, array, variables
 ctx = moderngl.create_context()
 ctx.enable(moderngl.BLEND)
 quad_buffer = ctx.buffer(data=array.array('f', [
@@ -11,7 +11,9 @@ quad_buffer = ctx.buffer(data=array.array('f', [
 
 def import_shader(name):
     vertex = open(f'shaders/{name}.vert').read()
-    fragment = open(f'shaders/{name}.frag').read()
+    
+    
+    fragment = open(f'shaders/{name}.frag').read().replace("if (r != 1","if (r !=" + str(variables.blur_radius))
     return ctx.program(vertex,fragment)
 
 def surf_to_texture(surf):

@@ -18,17 +18,18 @@ class terminal:
         self.past.pop(0)
         self.past.insert(0,self.output) 
     def enter(self):
-        print
-        output = variables.game.takeInput(self.output)
-        print(output)
-        try:
-            self.past = output[0].replace('!!!','') + self.past
-        except:
-            pass
-        self.past.insert(0,'')
-        
-        self.output = ''
-        
+        if self.output != "clear":
+            output = variables.game.takeInput(self.output)
+            
+            try:
+                self.past = [output[0].replace('!!!','')] + self.past
+            except:
+                pass
+            self.past.insert(0,'')
+            
+            self.output = ''
+        else:
+            self.past = ['']
         
     def draw(self, display):
         #print(self.past)

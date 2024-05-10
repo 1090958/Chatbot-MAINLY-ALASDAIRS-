@@ -492,6 +492,9 @@ class GameGUI:
     
     def step(self, events) -> None:
         self.screen.fill((0))
+        if self.game.state==None:
+            variables.running = False
+            return self.screen
         for event in events:
             if event.type == pygame.QUIT:
                 variables.running = False
@@ -847,8 +850,7 @@ class GameGUI:
                             elif self.chatPerson[i]==1: self.text(f"{self.chat[i]}",16,(250,i*24+165),colour=colours[1],anchor="tl")
                             elif self.chatPerson[i]==2: self.text(f"{self.chat[i]}",16,(250,i*24+165),colour=colours[2],anchor="tl")
                     self.text(f">>> {self.chat[-1]}{'|' if self.time%1000>=500 and self.enabled[1] else ''}",20,(250,465),anchor="bl")
-        if self.game.state==None:
-            running = False
+        
         self.time += self.clock.get_time()
         self.clock.tick()
         

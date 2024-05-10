@@ -6,8 +6,13 @@ from frontend.partitions.bar import bar
 #display stuff
 
 pygame.freetype.init()
+
+
 screen = pygame.display.set_mode(settings.resolution, pygame.OPENGL | pygame.DOUBLEBUF | pygame.RESIZABLE)
 display = pygame.Surface((256*3,256*3))
+
+
+
 
 
 #create moderngl context for applying shaders in the future
@@ -78,6 +83,7 @@ variables.game:main.Game = main.Game()
 
 variables.gui:main.GameGUI = main.GameGUI(variables.game,  [True,False])
 
+#this is a piece of legacy code
 def load_item(item)->pygame.surface:
     
     filename =  'images/items/'+ ''.join(item.type.name.lower().split())
@@ -85,6 +91,34 @@ def load_item(item)->pygame.surface:
         return pygame.transform.scale_by(pygame.image.load(filename),1.2)
     except:
         return pygame.transform.scale_by(pygame.image.load('images/items/unknownitem.png'),1.2)
+
+
+
+pygame.freetype.Font("frontend/apple2.ttf", 20).render_to(display,[settings.resolution[0]//2-len("""COMPILING SHADERS""")//2*20,settings.resolution[0]//2-120],"""COMPILING SHADERS""",[255]*3)
+pygame.freetype.Font("frontend/apple2.ttf", 20).render_to(display,[settings.resolution[0]//2-len("""TYPE HELP OR USE '?' FOR HELP""")//2*20,settings.resolution[0]//2],"""TYPE HELP OR USE '?' FOR HELP""",[255]*3)
+pygame.freetype.Font("frontend/apple2.ttf", 20).render_to(display,[settings.resolution[0]//2-len("""INTERACT TO START""")//2*20,settings.resolution[0]-60],"""CLICK TO START""",[255]*3)
+
+
+
+
+program['blur'] = False
+program['chromaticAbberationY'] = abberationY
+program['chromaticAbberationX'] = abberationX
+frame_tex = mgltools.surf_to_texture(display)
+frame_tex.use(0)
+program['type'] = 1
+program['tex'] = 0
+if variables.blur:
+    program['r'] = 20
+else:
+    program['r'] = 1
+render_object.render(mode=moderngl.TRIANGLE_STRIP)
+
+pygame.display.flip()
+
+
+
+
 
 
 while variables.running:

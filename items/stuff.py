@@ -564,6 +564,12 @@ def updateRoom(room:Room) -> Room:
                    potion41,potion42,potion43]
         room.shopStuff = [i for i in random.choices(objects, k=random.randint(2,5))]
         room.shopStuff = list(dict.fromkeys(room.shopStuff))
+    elif room.type==8:
+        characters = [[boss0,char11,char11,char11,char12,char12],
+                      [boss1,char11,char11,char11,char12,char12],
+                      [boss2,char11,char11,char11,char12,char12],
+                      [boss3,char11,char11,char11,char12,char12],]
+        room.characters = [Character(i) for i in characters[room.biome]]
     return room
 
 if __name__=="__main__":
